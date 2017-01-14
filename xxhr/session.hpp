@@ -16,7 +16,6 @@
 #include "proxies.hpp"
 #include "response.hpp"
 #include "timeout.hpp"
-#include "low_speed.hpp"
 
 namespace xxhr {
 
@@ -43,7 +42,6 @@ class Session {
   void SetCookies(const Cookies& cookies);
   void SetBody(Body&& body);
   void SetBody(const Body& body);
-  void SetLowSpeed(const LowSpeed& low_speed);
 
   // Used in templated functions
   void SetOption(const Url& url);
@@ -64,7 +62,6 @@ class Session {
   void SetOption(const Cookies& cookies);
   void SetOption(Body&& body);
   void SetOption(const Body& body);
-  void SetOption(const LowSpeed& low_speed);
 
   Response DELETE();
   Response GET();

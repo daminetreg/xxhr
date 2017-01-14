@@ -19,11 +19,12 @@
 #include "proxies.hpp"
 #include "response.hpp"
 #include "timeout.hpp"
-#include "low_speed.hpp"
 
 namespace xxhr {
 
   class Session::Impl {
+    using emscripten::val;
+
     public:
       Impl();
 
@@ -34,7 +35,11 @@ namespace xxhr {
       void SetTimeout(const Timeout& timeout);
       void SetAuth(const Authentication& auth);
       void SetDigest(const Digest& auth);
+
+      //! Set the body of the request url encoded
       void SetPayload(Payload&& payload);
+      
+      //! Set the body of the request url encoded
       void SetPayload(const Payload& payload);
       void SetProxies(Proxies&& proxies);
       void SetProxies(const Proxies& proxies);
@@ -42,10 +47,14 @@ namespace xxhr {
       void SetMultipart(const Multipart& multipart);
       void SetRedirect(const bool& redirect);
       void SetMaxRedirects(const MaxRedirects& max_redirects);
-      void SetCookies(const Cookies& cookies);
+      void SetCookies(const Cookies& cookies, bool delete_them = false);
+      void CookiesCleanup():
+
+      //! Set the provided body of request raw, without urlencoding
       void SetBody(Body&& body);
+      
+      //! Set the provided body of request raw, without urlencoding
       void SetBody(const Body& body);
-      void SetLowSpeed(const LowSpeed& low_speed);
 
       Response DELETE();
       Response GET();
@@ -58,21 +67,45 @@ namespace xxhr {
     private:
       Url url_;
       Parameters parameters_;
+      Cookies cookies_;
 
       // XXX: SHould be used in query open if not none.
       boost::optional<Auth> auth_;
-      boost::optional<Digest> digest_;
 
       //! Payload to be given to xhr send.
-      boost::optional<std::string> payload_;
-      boost::optional<emscripten::val> formdata_;
+      boost::optional<std::string> body_;
+      boost::optional<val> multipart_;
 
-      emscripten::val xhr = val::global("XMLHttpRequest").new_();
+      val xhr = val::global("XMLHttpRequest").new_();
+
+      void on_load(val event) { 
+        std::cout << "Successful Query " << std::endl;
+        std::cout << "response is : " << xhr["responseText"].as<std::string>() << std::endl;
+      }
+
+      void on_error(val event) {
+        std::cout << "Error on query " << std::endl;
+      }
+
+      void on_progress(val event) {
+        std::cout << "Progress on query " << std::endl;
+
+        std::cout << event["lengthComputable"].as<bool>() << ": " << event["loaded"].as<unsigned int>() / event["total"].as<unsigned int>() << std::endl;
+      }
+
   };
 
+  EMSCRIPTEN_BINDINGS(SessionImpl) {
+    class_<>("xxhr_SessionImpl")
+      .constructor()
+      .function("on_load", &Session::Impl::on_load)
+      .function("on_error", &Session::Impl::on_error)
+      .function("on_progress", &Session::Impl::on_progress)
+      ;
+  }
 
-  void Session::SetUrl(const Url& url) { url_ = url; }
-  void Session::SetParameters(const Parameters& parameters) {
+  void Session::Impl::SetUrl(const Url& url) { url_ = url; }
+  void Session::Impl::SetParameters(const Parameters& parameters) {
     parameters_ = parameters;
   }
 
@@ -98,14 +131,14 @@ namespace xxhr {
   }
 
   void Session::Impl::SetDigest(const Digest& auth) {
-    digest_ = auth;
+    auth_ = auth;
     //xhr.call<val>("setRequestHeader", 
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
   void Session::Impl::SetPayload(Payload&& payload) {
     xhr.call<val>("setRequestHeader", "Content-type", "application/x-www-form-urlencoded");
-    payload_ = payload.content;
+    body_ = payload.content;
   }
 
   void Session::Impl::SetPayload(const Payload& payload) {
@@ -116,7 +149,6 @@ namespace xxhr {
   void Session::Impl::SetProxies(Proxies&& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies.*/ }
   
   void Session::Impl::SetMultipart(Multipart&& multipart) {
-    using emscripten::val;
     val formdata = val::global("FormData").new_();
 
     for (auto& part : multipart.parts) {
@@ -141,7 +173,7 @@ namespace xxhr {
       }
     }
 
-    formdata_ = formdata;
+    multipart_ = formdata;
   }
 
 
@@ -161,21 +193,73 @@ namespace xxhr {
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   }
 
-  void Session::Impl::SetCookies(const Cookies& cookies) {
+  void Session::Impl::SetCookies(const Cookies& cookies, bool delete_them) {
+    cookies_ = cookies;
     xhr["withCredentials"] = true;
 
     auto document = val::global("document");
     for (auto cookie : cookies.all()) {
-      document["cookie"] = 
+      auto cookie_string = 
         xxhr::util::urlEncode(cookie.first)
         + "=" + 
-        xxhr::util::urlEncode(cookie.second)
-      ;
+        xxhr::util::urlEncode(cookie.second);
+
+      if (delete_them) { 
+        cookie_string += "; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; 
+        // If someone finds this a good programming idiom he should go to hell
+        // with all their browser developers friends. Instead of giving you
+        // cookie.delete, we only have got the possibility to put a date in the
+        // past... -_-'
+      } 
+      
+      // This [de]register the cookies, but if you just read cookie you 
+      // get the full list. -_-'
+      document["cookie"] = cookie_string; 
     }
 
-    // TODO: after sending remove them from document with
-    // document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";  
   }
+
+  //! After sending remove request specific cookies from global document
+  void Session::Impl::CookiesCleanup() {
+    SetCookies(cookies_, true);
+  }
+
+  void Session::Impl::SetBody(Body&& body) { body_ = body; }
+  void Session::Impl::SetBody(const Body& body) { body_ = body; }
+
+  Response Session::Impl::DELETE() {
+
+    if (auth_) {
+      xhr.call<val>("open", std::string("DELETE"), url_, true, 
+        auth_->user(), auth_->password() );
+    } else {
+      xhr.call<val>("open", std::string("DELETE"), url_, true);
+    }
+
+
+  }
+
+  Response Session::Impl::GET() { 
+    xhr["onload"] = val(*this)["on_load"];
+    xhr["onerror"] = val(*this)["on_error"];
+    xhr["onprogress"] = val(*this)["on_progress"];
+
+    if (auth_) {
+      xhr.call<val>("open",
+        std::string("GET"), url_, true, auth_->user(), auth_->password() );
+    } else {
+      xhr.call<val>("open", 
+        std::string("GET"), url_, true);
+    }
+
+    xhr.call<val>("send");
+  }
+
+  Response Session::Impl::HEAD() { return Response{}; }
+  Response Session::Impl::OPTIONS() { return Response{}; }
+  Response Session::Impl::PATCH() { return Response{}; }
+  Response Session::Impl::POST() { return Response{}; }
+  Response Session::Impl::PUT() { return Response{}; }
 
 
 
@@ -199,7 +283,6 @@ namespace xxhr {
   void Session::SetCookies(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
   void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
-  void Session::SetLowSpeed(const LowSpeed& low_speed) { pimpl_->SetLowSpeed(low_speed); }
   void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
   void Session::SetOption(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
   void Session::SetOption(Parameters&& parameters) { pimpl_->SetParameters(std::move(parameters)); }
@@ -218,7 +301,6 @@ namespace xxhr {
   void Session::SetOption(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetOption(const Body& body) { pimpl_->SetBody(body); }
   void Session::SetOption(Body&& body) { pimpl_->SetBody(std::move(body)); }
-  void Session::SetOption(const LowSpeed& low_speed) { pimpl_->SetLowSpeed(low_speed); }
   Response Session::DELETE() { return pimpl_->DELETE(); }
   Response Session::GET() { return pimpl_->GET(); }
   Response Session::HEAD() { return pimpl_->HEAD(); }
