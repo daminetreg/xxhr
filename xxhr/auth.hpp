@@ -16,6 +16,9 @@ class Authentication {
 
     const char* GetAuthString() const noexcept { return auth_string_.data(); }
 
+    std::string username() const { return username_; }
+    std::string password() const { return password_; }
+
   private:
     std::string username_;
     std::string password_;

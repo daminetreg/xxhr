@@ -8,6 +8,11 @@
 #include <string>
 #include <vector>
 
+#include <boost/archive/iterators/binary_from_base64.hpp>
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "xxhrtypes.hpp"
 
 
@@ -18,6 +23,8 @@ namespace util {
   inline size_t writeFunction(void* ptr, size_t size, size_t nmemb, std::string* data);
   inline std::vector<std::string> split(const std::string& to_split, char delimiter);
   inline std::string urlEncode(const std::string& response);
+  inline std::string decode64(const std::string &val);
+  inline std::string encode64(const std::string &val);
 
 } // namespace util
 } // namespace xxhr
@@ -96,6 +103,22 @@ namespace util {
 
     return escaped.str();
   }
+
+  inline std::string decode64(const std::string &val) {
+      using namespace boost::archive::iterators;
+      using It = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
+      return boost::algorithm::trim_right_copy_if(std::string(It(std::begin(val)), It(std::end(val))), [](char c) {
+          return c == '\0';
+      });
+  }
+
+  inline std::string encode64(const std::string &val) {
+      using namespace boost::archive::iterators;
+      using It = base64_from_binary<transform_width<std::string::const_iterator, 6, 8>>;
+      auto tmp = std::string(It(std::begin(val)), It(std::end(val)));
+      return tmp.append((3 - val.size() % 3) % 3, '=');
+  }
+
 
 } // namespace util
 } // namespace xxhr 
