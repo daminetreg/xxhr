@@ -79,11 +79,13 @@ namespace xxhr {
       val xhr = val::global("XMLHttpRequest").new_();
 
       void on_load(val event) { 
+        CookiesCleanup();
         std::cout << "Successful Query " << std::endl;
         std::cout << "response is : " << xhr["responseText"].as<std::string>() << std::endl;
       }
 
       void on_error(val event) {
+        CookiesCleanup();
         std::cout << "Error on query " << std::endl;
       }
 
