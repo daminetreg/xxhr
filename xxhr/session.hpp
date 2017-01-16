@@ -71,9 +71,9 @@ class Session {
   Response POST();
   Response PUT();
 
-  private:
   class Impl;
-  std::unique_ptr<Impl> pimpl_;
+  private:
+  std::shared_ptr<Impl> pimpl_;
 };
 
 } // namespace xxhr

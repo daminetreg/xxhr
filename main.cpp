@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    auto r = xxhr::GET(xxhr::Url{"https://api.github.com/repos/whoshuu/xxhr/contributors"},
+    auto r = xxhr::GET(xxhr::Url{"CMakeCache.txt"},
                       xxhr::Authentication{"user", "pass"},
                       xxhr::Parameters{{"anon", "true"}, {"key", "value"}});
     std::cout << r.status_code << std::endl;                  // 200

@@ -1,32 +1,36 @@
 #ifndef XXHR_DETAIL_SESSION_EMSCRIPTEN_HPP
 #define XXHR_DETAIL_SESSION_EMSCRIPTEN_HPP
 
+#include <functional>
+
 #include <boost/optional.hpp>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
-#include "auth.hpp"
-#include "body.hpp"
-#include "cookies.hpp"
-#include "xxhrtypes.hpp"
-#include "digest.hpp"
-#include "max_redirects.hpp"
-#include "multipart.hpp"
-#include "parameters.hpp"
-#include "payload.hpp"
-#include "proxies.hpp"
-#include "response.hpp"
-#include "timeout.hpp"
+#include <iostream>
+
+#include <xxhr/auth.hpp>
+#include <xxhr/body.hpp>
+#include <xxhr/cookies.hpp>
+#include <xxhr/xxhrtypes.hpp>
+#include <xxhr/digest.hpp>
+#include <xxhr/max_redirects.hpp>
+#include <xxhr/multipart.hpp>
+#include <xxhr/parameters.hpp>
+#include <xxhr/payload.hpp>
+#include <xxhr/proxies.hpp>
+#include <xxhr/response.hpp>
+#include <xxhr/timeout.hpp>
 
 namespace xxhr {
 
-  class Session::Impl {
-    using emscripten::val;
+  class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
+    using val = emscripten::val;
+    using str = std::string;
 
     public:
-      Impl();
 
       void SetUrl(const Url& url);
       void SetParameters(const Parameters& parameters);
@@ -48,7 +52,7 @@ namespace xxhr {
       void SetRedirect(const bool& redirect);
       void SetMaxRedirects(const MaxRedirects& max_redirects);
       void SetCookies(const Cookies& cookies, bool delete_them = false);
-      void CookiesCleanup():
+      void CookiesCleanup();
 
       //! Set the provided body of request raw, without urlencoding
       void SetBody(Body&& body);
@@ -64,29 +68,26 @@ namespace xxhr {
       Response POST();
       Response PUT();
 
-    private:
-      Url url_;
-      Parameters parameters_;
-      Cookies cookies_;
+      enum ReadyState {
+        UNSENT = 0, // 	Client has been created. open() not called yet.
+        OPENED, // 	open() has been called.
+        HEADERS_RECEIVED, //	send() has been called, and headers and status are available.
+        LOADING, // 	Downloading; responseText holds partial data.
+        DONE
+      };
 
-      // XXX: SHould be used in query open if not none.
-      boost::optional<Auth> auth_;
+      void on_readystate() {
+      }
 
-      //! Payload to be given to xhr send.
-      boost::optional<std::string> body_;
-      boost::optional<val> multipart_;
-
-      val xhr = val::global("XMLHttpRequest").new_();
-
-      void on_load(val event) { 
-        CookiesCleanup();
+      void on_load() { 
         std::cout << "Successful Query " << std::endl;
+        CookiesCleanup();
         std::cout << "response is : " << xhr["responseText"].as<std::string>() << std::endl;
       }
 
-      void on_error(val event) {
-        CookiesCleanup();
+      void on_error() {
         std::cout << "Error on query " << std::endl;
+        CookiesCleanup();
       }
 
       void on_progress(val event) {
@@ -95,24 +96,85 @@ namespace xxhr {
         std::cout << event["lengthComputable"].as<bool>() << ": " << event["loaded"].as<unsigned int>() / event["total"].as<unsigned int>() << std::endl;
       }
 
+      static std::shared_ptr<Impl> current_instance_static_storage(std::shared_ptr<Impl> value = std::shared_ptr<Impl>{}) {
+        static std::shared_ptr<Impl> current_instance_;
+        if (value.get() != nullptr) {
+          current_instance_ = value;
+          return current_instance_;
+        } else {
+          std::shared_ptr<Impl> return_;
+          return_.swap(current_instance_); 
+          return return_;
+        }
+      }
+
+      static std::shared_ptr<Impl> current_instance() {
+        return current_instance_static_storage();
+      }
+
+    private:
+      Url url_;
+      Parameters parameters_;
+      Cookies cookies_;
+
+      // XXX: SHould be used in query open if not none.
+      boost::optional<Authentication> auth_;
+
+      //! Payload to be given to xhr send.
+      boost::optional<std::string> body_;
+      boost::optional<val> multipart_;
+
+      val xhr = val::global("XMLHttpRequest").new_();
+
+      friend struct EmscriptenBindingInitializer_SessionImpl; 
   };
 
+
+  using emscripten::class_;
+  using emscripten::function;
+  using emscripten::select_overload;
   EMSCRIPTEN_BINDINGS(SessionImpl) {
-    class_<>("xxhr_SessionImpl")
-      .constructor()
+    class_<Session::Impl>("xxhr_SessionImpl")
+      .smart_ptr<std::shared_ptr<Session::Impl>>("shared_ptr<xxhr_SessionImpl>")
+      .constructor<>()
+      //.smart_ptr_constructor("xxhr_SessionImplSmartPtr", &std::make_shared<Session::Impl>)
       .function("on_load", &Session::Impl::on_load)
       .function("on_error", &Session::Impl::on_error)
       .function("on_progress", &Session::Impl::on_progress)
+      .property("xhr", &Session::Impl::xhr)
       ;
+    function("SessionImpl_current_instance", select_overload< std::shared_ptr<Session::Impl>() >(&Session::Impl::current_instance) );//, allow_raw_pointers());
   }
+
+
+//  struct Interface {
+//      virtual void invoke(const std::string& str) = 0;
+//  };
+//
+//  struct InterfaceWrapper : public wrapper<Interface> {
+//      EMSCRIPTEN_WRAPPER(InterfaceWrapper);
+//      void invoke(const std::string& str) {
+//          return call<void>("invoke", str);
+//      }
+//  };
+//
+//  EMSCRIPTEN_BINDINGS(interface) {
+//      class_<Interface>("Interface")
+//          .function("invoke", &Interface::invoke, pure_virtual())
+//          .allow_subclass<InterfaceWrapper>("InterfaceWrapper")
+//          ;
+//  }
+
+
+
+
 
   void Session::Impl::SetUrl(const Url& url) { url_ = url; }
+  void Session::Impl::SetParameters(Parameters&& parameters) {
+      parameters_ = std::move(parameters);
+  }
   void Session::Impl::SetParameters(const Parameters& parameters) {
     parameters_ = parameters;
-  }
-
-  void Session::SetParameters(Parameters&& parameters) {
-      parameters_ = std::move(parameters);
   }
 
 
@@ -123,23 +185,23 @@ namespace xxhr {
   }
 
   void Session::Impl::SetTimeout(const Timeout& timeout) {
-    xhr["timeout"] = timeout.ms.count();
+    xhr["timeout"] = val(timeout.ms.count());
   }
 
   void Session::Impl::SetAuth(const Authentication& auth) {
     auth_ = auth;
-    //xhr.call<val>("setRequestHeader", 
+    //Some old browser might need this, instead of open with pwd : xhr.call<val>("setRequestHeader", 
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
   void Session::Impl::SetDigest(const Digest& auth) {
     auth_ = auth;
-    //xhr.call<val>("setRequestHeader", 
+    //Some old browser might need this, instead of open with pwd : xhr.call<val>("setRequestHeader", 
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
   void Session::Impl::SetPayload(Payload&& payload) {
-    xhr.call<val>("setRequestHeader", "Content-type", "application/x-www-form-urlencoded");
+    xhr.call<val>("setRequestHeader", str("Content-type"), str("application/x-www-form-urlencoded"));
     body_ = payload.content;
   }
 
@@ -168,8 +230,8 @@ namespace xxhr {
         //formdata.call<val>("append", buf );
       } else {
         auto buf = val::global("Blob").new_( part.value );
-        if (!part.content_type.empty()) { buf["mimetype"] = part.content_type; }
-        buf["size"] = part.value.size();
+        if (!part.content_type.empty()) { buf["mimetype"] = val(part.content_type); }
+        buf["size"] = val(part.value.size());
 
         formdata.call<val>("append", part.name, buf );
       }
@@ -197,7 +259,7 @@ namespace xxhr {
 
   void Session::Impl::SetCookies(const Cookies& cookies, bool delete_them) {
     cookies_ = cookies;
-    xhr["withCredentials"] = true;
+    xhr["withCredentials"] = val(true);
 
     auto document = val::global("document");
     for (auto cookie : cookies.all()) {
@@ -216,7 +278,7 @@ namespace xxhr {
       
       // This [de]register the cookies, but if you just read cookie you 
       // get the full list. -_-'
-      document["cookie"] = cookie_string; 
+      document["cookie"] = val(cookie_string); 
     }
 
   }
@@ -233,28 +295,53 @@ namespace xxhr {
 
     if (auth_) {
       xhr.call<val>("open", std::string("DELETE"), url_, true, 
-        auth_->user(), auth_->password() );
+        auth_->username(), auth_->password() );
     } else {
       xhr.call<val>("open", std::string("DELETE"), url_, true);
     }
 
 
+    return Response{};
   }
 
   Response Session::Impl::GET() { 
-    xhr["onload"] = val(*this)["on_load"];
-    xhr["onerror"] = val(*this)["on_error"];
-    xhr["onprogress"] = val(*this)["on_progress"];
-
     if (auth_) {
       xhr.call<val>("open",
-        std::string("GET"), url_, true, auth_->user(), auth_->password() );
+        std::string("GET"), url_, true, auth_->username(), auth_->password() );
     } else {
       xhr.call<val>("open", 
         std::string("GET"), url_, true);
     }
 
+    emscripten_run_script(R"( 
+      centraldispatch = {
+      
+        set_xhr_callbacks : function() {
+          var sessionimpl = Module.SessionImpl_current_instance();
+          sessionimpl.xhr.onload = function() { return sessionimpl.on_load(); };
+          sessionimpl.xhr.onerror = function() { return sessionimpl.on_load(); };
+          sessionimpl.xhr.onprogress = function() { return sessionimpl.onprogress(); };
+        }
+
+      }
+    )");
+    
+    current_instance_static_storage(shared_from_this());
+    val::global("centraldispatch").call<val>("set_xhr_callbacks");
+    //auto this_in_js = val::module_property("xxhr_SessionImpl").new_();
+
+    //xhr.set("onload", val(std::bind(&Session::Impl::on_load, this, std::placeholders::_1));//this_in_js["on_load"];
+    //xhr["onerror"] = std::bind(&Session::Impl:on_error, this, std::placeholders::_1);
+    //xhr.set("onload", this_in_js["on_load"]);
+//    xhr["onprogress"] = this_in_js["on_progress"];
+
+    //EM_ASM_(}
+    //  $0.xhr.onload = $0.on_load; 
+    //  $0.xhr.onerror = $0.on_error; 
+    //}, this);
+
     xhr.call<val>("send");
+    return Response{};
   }
 
   Response Session::Impl::HEAD() { return Response{}; }
@@ -265,7 +352,7 @@ namespace xxhr {
 
 
 
-  Session::Session() : pimpl_{ std::make_unique<Impl>() } {}
+  Session::Session() : pimpl_{ std::make_shared<Impl>() } {}
   Session::~Session() {}
   void Session::SetUrl(const Url& url) { pimpl_->SetUrl(url); }
   void Session::SetParameters(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
