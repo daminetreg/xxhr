@@ -79,13 +79,13 @@ namespace xxhr {
       void on_readystate() {
       }
 
-      void on_load() { 
-        std::cout << "Successful Query " << std::endl;
+      void on_load(val event) { 
+        std::cout << "Successful Query on " << url_ << std::endl;
         CookiesCleanup();
-        std::cout << "response is : " << xhr["responseText"].as<std::string>() << std::endl;
+        std::cout << "response is : " << (xhr["responseText"]).as<std::string>() << std::endl;
       }
 
-      void on_error() {
+      void on_error(val) {
         std::cout << "Error on query " << std::endl;
         CookiesCleanup();
       }
@@ -144,7 +144,15 @@ namespace xxhr {
       .property("xhr", &Session::Impl::xhr)
       ;
     function("SessionImpl_current_instance", select_overload< std::shared_ptr<Session::Impl>() >(&Session::Impl::current_instance) );//, allow_raw_pointers());
+
+
+    class_<std::function<void(emscripten::val)>>("VoidValFunctor")
+      .constructor<>()
+      .function("opcall", &std::function<void(emscripten::val)>::operator());
   }
+
+
+
 
 
 //  struct Interface {
@@ -314,24 +322,39 @@ namespace xxhr {
     }
 
     emscripten_run_script(R"( 
-      centraldispatch = {
-      
-        set_xhr_callbacks : function() {
-          var sessionimpl = Module.SessionImpl_current_instance();
-          sessionimpl.xhr.onload = function() { return sessionimpl.on_load(); };
-          sessionimpl.xhr.onerror = function() { return sessionimpl.on_load(); };
-          sessionimpl.xhr.onprogress = function() { return sessionimpl.onprogress(); };
+      stdutils = {
+        stdfunction_bind : function(functor) {
+          return function () {
+            return functor.opcall.apply(functor, arguments); 
+          };
         }
-
-      }
+      };
     )");
     
-    current_instance_static_storage(shared_from_this());
-    val::global("centraldispatch").call<val>("set_xhr_callbacks");
-    //auto this_in_js = val::module_property("xxhr_SessionImpl").new_();
+    //current_instance_static_storage(shared_from_this());
+    //val::global("centraldispatch").call<val>("set_xhr_callbacks");
 
     //xhr.set("onload", val(std::bind(&Session::Impl::on_load, this, std::placeholders::_1));//this_in_js["on_load"];
-    //xhr["onerror"] = std::bind(&Session::Impl:on_error, this, std::placeholders::_1);
+    //val::global("centraldispatch")["test"] = val(shared_from_this())["on_load"];
+    //auto some  = val::global("centraldispatch");
+    //std::string hello = "fbewewibfk";
+    //some.set("cool", val(hello));
+    //some.set("fun", val(shared_from_this()));
+
+    //!!! this is not bound xhr.set("onload", val(val(shared_from_this())["on_load"]));
+   
+    {
+      std::function<void(emscripten::val)> functor = std::bind(&Session::Impl::on_load, shared_from_this(), std::placeholders::_1);
+      //val functor_adapter = val::global("stdutils").call<val>("stdfunction_bind", val(functor));
+      auto functor_adapter = val(functor)["opcall"].call<val>("bind", val(functor));
+      xhr.set("onload", functor_adapter);
+    }
+
+    {
+      std::function<void(emscripten::val)> functor = std::bind(&Session::Impl::on_error, this, std::placeholders::_1);
+      val functor_adapter = val::global("stdutils").call<val>("stdfunction_bind", val(functor));
+      xhr.set("onerror", functor_adapter);
+    }
     //xhr.set("onload", this_in_js["on_load"]);
 //    xhr["onprogress"] = this_in_js["on_progress"];
 
