@@ -76,40 +76,23 @@ namespace xxhr {
         DONE
       };
 
-      void on_readystate() {
-      }
+      void on_readystate(val event) {
 
-      void on_load(val event) { 
-        std::cout << "Successful Query on " << url_ << std::endl;
-        CookiesCleanup();
-        std::cout << "response is : " << (xhr["responseText"]).as<std::string>() << std::endl;
-      }
+        if (xhr["readyState"].as<size_t>() == DONE) {
+          std::cout << "xxhr::on_readystate: DONE. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
+          CookiesCleanup();
 
-      void on_error(val) {
-        std::cout << "Error on query " << std::endl;
-        CookiesCleanup();
-      }
+          if (xhr["status"].as<size_t>() == 200) { 
+            std::cout << "response is : " << (xhr["responseText"]).as<std::string>() << std::endl;
+          } else {
+            std::cerr << "Error loading query !" << std::endl;
+          }
 
-      void on_progress(val event) {
-        std::cout << "Progress on query " << std::endl;
-
-        std::cout << event["lengthComputable"].as<bool>() << ": " << event["loaded"].as<unsigned int>() / event["total"].as<unsigned int>() << std::endl;
-      }
-
-      static std::shared_ptr<Impl> current_instance_static_storage(std::shared_ptr<Impl> value = std::shared_ptr<Impl>{}) {
-        static std::shared_ptr<Impl> current_instance_;
-        if (value.get() != nullptr) {
-          current_instance_ = value;
-          return current_instance_;
-        } else {
-          std::shared_ptr<Impl> return_;
-          return_.swap(current_instance_); 
-          return return_;
+        } else if (xhr["readyState"].as<size_t>() == LOADING) {
+          std::cout << "xxhr::on_readystate: LOADING. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
+          std::cout << "Partial data received: " << xhr["statusText"].as<std::string>().size() << std::endl;
         }
-      }
 
-      static std::shared_ptr<Impl> current_instance() {
-        return current_instance_static_storage();
       }
 
     private:
@@ -125,8 +108,6 @@ namespace xxhr {
       boost::optional<val> multipart_;
 
       val xhr = val::global("XMLHttpRequest").new_();
-
-      friend struct EmscriptenBindingInitializer_SessionImpl; 
   };
 
 
@@ -136,15 +117,7 @@ namespace xxhr {
   EMSCRIPTEN_BINDINGS(SessionImpl) {
     class_<Session::Impl>("xxhr_SessionImpl")
       .smart_ptr<std::shared_ptr<Session::Impl>>("shared_ptr<xxhr_SessionImpl>")
-      .constructor<>()
-      //.smart_ptr_constructor("xxhr_SessionImplSmartPtr", &std::make_shared<Session::Impl>)
-      .function("on_load", &Session::Impl::on_load)
-      .function("on_error", &Session::Impl::on_error)
-      .function("on_progress", &Session::Impl::on_progress)
-      .property("xhr", &Session::Impl::xhr)
       ;
-    function("SessionImpl_current_instance", select_overload< std::shared_ptr<Session::Impl>() >(&Session::Impl::current_instance) );//, allow_raw_pointers());
-
 
     class_<std::function<void(emscripten::val)>>("VoidValFunctor")
       .constructor<>()
@@ -321,47 +294,17 @@ namespace xxhr {
         std::string("GET"), url_, true);
     }
 
-    emscripten_run_script(R"( 
-      stdutils = {
-        stdfunction_bind : function(functor) {
-          return function () {
-            return functor.opcall.apply(functor, arguments); 
-          };
-        }
-      };
-    )");
-    
-    //current_instance_static_storage(shared_from_this());
-    //val::global("centraldispatch").call<val>("set_xhr_callbacks");
-
-    //xhr.set("onload", val(std::bind(&Session::Impl::on_load, this, std::placeholders::_1));//this_in_js["on_load"];
-    //val::global("centraldispatch")["test"] = val(shared_from_this())["on_load"];
-    //auto some  = val::global("centraldispatch");
-    //std::string hello = "fbewewibfk";
-    //some.set("cool", val(hello));
-    //some.set("fun", val(shared_from_this()));
-
-    //!!! this is not bound xhr.set("onload", val(val(shared_from_this())["on_load"]));
-   
-    {
-      std::function<void(emscripten::val)> functor = std::bind(&Session::Impl::on_load, shared_from_this(), std::placeholders::_1);
-      //val functor_adapter = val::global("stdutils").call<val>("stdfunction_bind", val(functor));
+    auto jsbind = [](val& target, const char* property, auto bind_expression ) {
+      std::function<void(emscripten::val)> functor = bind_expression;
       auto functor_adapter = val(functor)["opcall"].call<val>("bind", val(functor));
-      xhr.set("onload", functor_adapter);
-    }
+      target.set(property, functor_adapter);
+    };
 
-    {
-      std::function<void(emscripten::val)> functor = std::bind(&Session::Impl::on_error, this, std::placeholders::_1);
-      val functor_adapter = val::global("stdutils").call<val>("stdfunction_bind", val(functor));
-      xhr.set("onerror", functor_adapter);
-    }
-    //xhr.set("onload", this_in_js["on_load"]);
-//    xhr["onprogress"] = this_in_js["on_progress"];
+//    jsbind(xhr, "onload", std::bind(&Session::Impl::on_load, shared_from_this(), std::placeholders::_1));
+//    jsbind(xhr, "onerror", std::bind(&Session::Impl::on_error, shared_from_this(), std::placeholders::_1));
+//    jsbind(xhr, "onprogress", std::bind(&Session::Impl::on_progress, shared_from_this(), std::placeholders::_1));
+    jsbind(xhr, "onreadystatechange", std::bind(&Session::Impl::on_readystate, shared_from_this(), std::placeholders::_1));
 
-    //EM_ASM_(}
-    //  $0.xhr.onload = $0.on_load; 
-    //  $0.xhr.onerror = $0.on_error; 
-    //}, this);
 
     xhr.call<val>("send");
     return Response{};
