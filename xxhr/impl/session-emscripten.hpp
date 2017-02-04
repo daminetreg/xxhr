@@ -32,82 +32,82 @@ namespace xxhr {
 
     public:
 
-      void SetUrl(const Url& url);
-      void SetParameters(const Parameters& parameters);
-      void SetParameters(Parameters&& parameters);
-      void SetHeader(const Header& header);
-      void SetTimeout(const Timeout& timeout);
-      void SetAuth(const Authentication& auth);
-      void SetDigest(const Digest& auth);
+    void SetUrl(const Url& url);
+    void SetParameters(const Parameters& parameters);
+    void SetParameters(Parameters&& parameters);
+    void SetHeader(const Header& header);
+    void SetTimeout(const Timeout& timeout);
+    void SetAuth(const Authentication& auth);
+    void SetDigest(const Digest& auth);
 
-      //! Set the body of the request url encoded
-      void SetPayload(Payload&& payload);
-      
-      //! Set the body of the request url encoded
-      void SetPayload(const Payload& payload);
-      void SetProxies(Proxies&& proxies);
-      void SetProxies(const Proxies& proxies);
-      void SetMultipart(Multipart&& multipart);
-      void SetMultipart(const Multipart& multipart);
-      void SetRedirect(const bool& redirect);
-      void SetMaxRedirects(const MaxRedirects& max_redirects);
-      void SetCookies(const Cookies& cookies, bool delete_them = false);
-      void CookiesCleanup();
+    //! Set the body of the request url encoded
+    void SetPayload(Payload&& payload);
+    
+    //! Set the body of the request url encoded
+    void SetPayload(const Payload& payload);
+    void SetProxies(Proxies&& proxies);
+    void SetProxies(const Proxies& proxies);
+    void SetMultipart(Multipart&& multipart);
+    void SetMultipart(const Multipart& multipart);
+    void SetRedirect(const bool& redirect);
+    void SetMaxRedirects(const MaxRedirects& max_redirects);
+    void SetCookies(const Cookies& cookies, bool delete_them = false);
+    void CookiesCleanup();
 
-      //! Set the provided body of request raw, without urlencoding
-      void SetBody(Body&& body);
-      
-      //! Set the provided body of request raw, without urlencoding
-      void SetBody(const Body& body);
+    //! Set the provided body of request raw, without urlencoding
+    void SetBody(Body&& body);
+    
+    //! Set the provided body of request raw, without urlencoding
+    void SetBody(const Body& body);
 
-      Response DELETE();
-      Response GET();
-      Response HEAD();
-      Response OPTIONS();
-      Response PATCH();
-      Response POST();
-      Response PUT();
+    Response DELETE();
+    Response GET();
+    Response HEAD();
+    Response OPTIONS();
+    Response PATCH();
+    Response POST();
+    Response PUT();
 
-      enum ReadyState {
-        UNSENT = 0, // 	Client has been created. open() not called yet.
-        OPENED, // 	open() has been called.
-        HEADERS_RECEIVED, //	send() has been called, and headers and status are available.
-        LOADING, // 	Downloading; responseText holds partial data.
-        DONE
-      };
+    enum ReadyState {
+      UNSENT = 0, // 	Client has been created. open() not called yet.
+      OPENED, // 	open() has been called.
+      HEADERS_RECEIVED, //	send() has been called, and headers and status are available.
+      LOADING, // 	Downloading; responseText holds partial data.
+      DONE
+    };
 
-      void on_readystate(val event) {
+    void on_readystate(val event) {
 
-        if (xhr["readyState"].as<size_t>() == DONE) {
-          std::cout << "xxhr::on_readystate: DONE. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
-          CookiesCleanup();
+      if (xhr["readyState"].as<size_t>() == DONE) {
+        std::cout << "xxhr::on_readystate: DONE. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
+        CookiesCleanup();
 
-          if (xhr["status"].as<size_t>() == 200) { 
-            std::cout << "response is : " << (xhr["responseText"]).as<std::string>() << std::endl;
-          } else {
-            std::cerr << "Error loading query !" << std::endl;
-          }
-
-        } else if (xhr["readyState"].as<size_t>() == LOADING) {
-          std::cout << "xxhr::on_readystate: LOADING. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
-          std::cout << "Partial data received: " << xhr["statusText"].as<std::string>().size() << std::endl;
+        if (xhr["status"].as<size_t>() == 200) { 
+          std::cout << "response is : " << (xhr["responseText"]).as<std::string>() << std::endl;
+        } else {
+          std::cerr << "Error loading query !" << std::endl;
         }
 
+      } else if (xhr["readyState"].as<size_t>() == LOADING) {
+        std::cout << "xxhr::on_readystate: LOADING. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
+        std::cout << "Partial data received: " << xhr["statusText"].as<std::string>().size() << std::endl;
       }
 
+    }
+
     private:
-      Url url_;
-      Parameters parameters_;
-      Cookies cookies_;
+    Url url_;
+    Parameters parameters_;
+    Cookies cookies_;
 
-      // XXX: SHould be used in query open if not none.
-      boost::optional<Authentication> auth_;
+    // XXX: SHould be used in query open if not none.
+    boost::optional<Authentication> auth_;
 
-      //! Payload to be given to xhr send.
-      boost::optional<std::string> body_;
-      boost::optional<val> multipart_;
+    //! Payload to be given to xhr send.
+    boost::optional<std::string> body_;
+    boost::optional<val> multipart_;
 
-      val xhr = val::global("XMLHttpRequest").new_();
+    val xhr = val::global("XMLHttpRequest").new_();
   };
 
 
