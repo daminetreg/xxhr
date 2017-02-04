@@ -9,6 +9,8 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
+#include <js/bind.hpp>
+
 #include <iostream>
 
 #include <xxhr/auth.hpp>
@@ -114,41 +116,11 @@ namespace xxhr {
   using emscripten::class_;
   using emscripten::function;
   using emscripten::select_overload;
-  EMSCRIPTEN_BINDINGS(SessionImpl) {
-    class_<Session::Impl>("xxhr_SessionImpl")
-      .smart_ptr<std::shared_ptr<Session::Impl>>("shared_ptr<xxhr_SessionImpl>")
-      ;
-
-    class_<std::function<void(emscripten::val)>>("VoidValFunctor")
-      .constructor<>()
-      .function("opcall", &std::function<void(emscripten::val)>::operator());
-  }
-
-
-
-
-
-//  struct Interface {
-//      virtual void invoke(const std::string& str) = 0;
-//  };
-//
-//  struct InterfaceWrapper : public wrapper<Interface> {
-//      EMSCRIPTEN_WRAPPER(InterfaceWrapper);
-//      void invoke(const std::string& str) {
-//          return call<void>("invoke", str);
-//      }
-//  };
-//
-//  EMSCRIPTEN_BINDINGS(interface) {
-//      class_<Interface>("Interface")
-//          .function("invoke", &Interface::invoke, pure_virtual())
-//          .allow_subclass<InterfaceWrapper>("InterfaceWrapper")
-//          ;
-//  }
-
-
-
-
+  //EMSCRIPTEN_BINDINGS(SessionImpl) {
+  //  class_<Session::Impl>("xxhr_SessionImpl")
+  //    .smart_ptr<std::shared_ptr<Session::Impl>>("shared_ptr<xxhr_SessionImpl>")
+  //    ;
+  //}
 
   void Session::Impl::SetUrl(const Url& url) { url_ = url; }
   void Session::Impl::SetParameters(Parameters&& parameters) {
@@ -286,6 +258,8 @@ namespace xxhr {
   }
 
   Response Session::Impl::GET() { 
+    using namespace std::placeholders;
+
     if (auth_) {
       xhr.call<val>("open",
         std::string("GET"), url_, true, auth_->username(), auth_->password() );
@@ -294,18 +268,7 @@ namespace xxhr {
         std::string("GET"), url_, true);
     }
 
-    auto jsbind = [](val& target, const char* property, auto bind_expression ) {
-      std::function<void(emscripten::val)> functor = bind_expression;
-      auto functor_adapter = val(functor)["opcall"].call<val>("bind", val(functor));
-      target.set(property, functor_adapter);
-    };
-
-//    jsbind(xhr, "onload", std::bind(&Session::Impl::on_load, shared_from_this(), std::placeholders::_1));
-//    jsbind(xhr, "onerror", std::bind(&Session::Impl::on_error, shared_from_this(), std::placeholders::_1));
-//    jsbind(xhr, "onprogress", std::bind(&Session::Impl::on_progress, shared_from_this(), std::placeholders::_1));
-    jsbind(xhr, "onreadystatechange", std::bind(&Session::Impl::on_readystate, shared_from_this(), std::placeholders::_1));
-
-
+    xhr.set("onreadystatechange", js::bind(&Session::Impl::on_readystate, shared_from_this(), _1));
     xhr.call<val>("send");
     return Response{};
   }

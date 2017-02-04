@@ -11,6 +11,10 @@ link_directories(/opt/libs/boost_1_61_0/stage-emscripten/lib/)
 # Beast
 include_directories(/opt/libs/Beast.js/include/)
 
+# js::bind
+include_directories(AFTER ${CMAKE_CURRENT_LIST_DIR}/../js-bind)
+include_directories(AFTER ${CMAKE_CURRENT_LIST_DIR}/../js-bind/all-inclusive)
+
 if (DEFINED EMSCRIPTEN)
   if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-g)
