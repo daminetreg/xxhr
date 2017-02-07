@@ -16,6 +16,7 @@
 #include "proxies.hpp"
 #include "response.hpp"
 #include "timeout.hpp"
+#include "handler.hpp"
 
 namespace xxhr {
 
@@ -62,6 +63,9 @@ class Session {
   void SetOption(const Cookies& cookies);
   void SetOption(Body&& body);
   void SetOption(const Body& body);
+
+  template<class Handler>
+  void SetOption(const on_success_<Handler>&& on_success);
 
   Response DELETE();
   Response GET();

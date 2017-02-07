@@ -62,6 +62,11 @@ namespace xxhr {
     //! Set the provided body of request raw, without urlencoding
     void SetBody(const Body& body);
 
+    template<class Handler>
+    void SetHandler(const on_success_<Handler>&& functor) {
+      on_success = functor;
+    }
+
     Response DELETE();
     Response GET();
     Response HEAD();
@@ -85,7 +90,18 @@ namespace xxhr {
         CookiesCleanup();
 
         if (xhr["status"].as<size_t>() == 200) { 
-          std::cout << "response is : " << (xhr["responseText"]).as<std::string>() << std::endl;
+          on_success(
+              Response{
+                xhr["status"].as<size_t>(),
+                xhr["responseText"].as<std::string>(),
+                Header{},
+                url_,
+                0.00,
+                Cookies{},
+                Error{}
+              }
+          );
+
         } else {
           std::cerr << "Error loading query !" << std::endl;
         }
@@ -110,6 +126,8 @@ namespace xxhr {
     boost::optional<val> multipart_;
 
     val xhr = val::global("XMLHttpRequest").new_();
+
+    std::function<void(Response&&)> on_success;
   };
 
 
@@ -319,6 +337,10 @@ namespace xxhr {
   void Session::SetOption(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetOption(const Body& body) { pimpl_->SetBody(body); }
   void Session::SetOption(Body&& body) { pimpl_->SetBody(std::move(body)); }
+
+  template<class Handler>
+  void Session::SetOption(const on_success_<Handler>&& on_success) {pimpl_->SetHandler(std::move(on_success)); }
+
   Response Session::DELETE() { return pimpl_->DELETE(); }
   Response Session::GET() { return pimpl_->GET(); }
   Response Session::HEAD() { return pimpl_->HEAD(); }
