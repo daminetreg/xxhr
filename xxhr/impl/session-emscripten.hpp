@@ -67,13 +67,15 @@ namespace xxhr {
       on_success = functor;
     }
 
-    Response DELETE();
-    Response GET();
-    Response HEAD();
-    Response OPTIONS();
-    Response PATCH();
-    Response POST();
-    Response PUT();
+    void QUERY(const std::string& method);
+
+    void DELETE();
+    void GET();
+    void HEAD();
+    void OPTIONS();
+    void PATCH();
+    void POST();
+    void PUT();
 
     enum ReadyState {
       UNSENT = 0, // 	Client has been created. open() not called yet.
@@ -96,7 +98,6 @@ namespace xxhr {
                 xhr["responseText"].as<std::string>(),
                 Header{},
                 url_,
-                0.00,
                 Cookies{},
                 Error{}
               }
@@ -255,48 +256,31 @@ namespace xxhr {
   }
 
   //! After sending remove request specific cookies from global document
-  void Session::Impl::CookiesCleanup() {
-    SetCookies(cookies_, true);
-  }
+  void Session::Impl::CookiesCleanup() { SetCookies(cookies_, true); }
 
   void Session::Impl::SetBody(Body&& body) { body_ = body; }
   void Session::Impl::SetBody(const Body& body) { body_ = body; }
 
-  Response Session::Impl::DELETE() {
-
-    if (auth_) {
-      xhr.call<val>("open", std::string("DELETE"), url_, true, 
-        auth_->username(), auth_->password() );
-    } else {
-      xhr.call<val>("open", std::string("DELETE"), url_, true);
-    }
-
-
-    return Response{};
-  }
-
-  Response Session::Impl::GET() { 
+  void Session::Impl::QUERY(const std::string& method) {
     using namespace std::placeholders;
 
     if (auth_) {
-      xhr.call<val>("open",
-        std::string("GET"), url_, true, auth_->username(), auth_->password() );
+      xhr.call<val>("open", method, url_, true, auth_->username(), auth_->password() );
     } else {
-      xhr.call<val>("open", 
-        std::string("GET"), url_, true);
+      xhr.call<val>("open", method, url_, true);
     }
 
     xhr.set("onreadystatechange", js::bind(&Session::Impl::on_readystate, shared_from_this(), _1));
     xhr.call<val>("send");
-    return Response{};
   }
 
-  Response Session::Impl::HEAD() { return Response{}; }
-  Response Session::Impl::OPTIONS() { return Response{}; }
-  Response Session::Impl::PATCH() { return Response{}; }
-  Response Session::Impl::POST() { return Response{}; }
-  Response Session::Impl::PUT() { return Response{}; }
-
+  void Session::Impl::DELETE()  { this->QUERY("DELETE"); }
+  void Session::Impl::GET()     { this->QUERY("GET"); }
+  void Session::Impl::HEAD()    { this->QUERY("HEAD"); }
+  void Session::Impl::OPTIONS() { this->QUERY("OPTIONS"); }
+  void Session::Impl::PATCH()   { this->QUERY("PATCH"); }
+  void Session::Impl::POST()    { this->QUERY("POST"); }
+  void Session::Impl::PUT()     { this->QUERY("PUT"); }
 
 
   Session::Session() : pimpl_{ std::make_shared<Impl>() } {}
@@ -341,13 +325,13 @@ namespace xxhr {
   template<class Handler>
   void Session::SetOption(const on_success_<Handler>&& on_success) {pimpl_->SetHandler(std::move(on_success)); }
 
-  Response Session::DELETE() { return pimpl_->DELETE(); }
-  Response Session::GET() { return pimpl_->GET(); }
-  Response Session::HEAD() { return pimpl_->HEAD(); }
-  Response Session::OPTIONS() { return pimpl_->OPTIONS(); }
-  Response Session::PATCH() { return pimpl_->PATCH(); }
-  Response Session::POST() { return pimpl_->POST(); }
-  Response Session::PUT() { return pimpl_->PUT(); }
+  void Session::DELETE()  { pimpl_->DELETE(); }
+  void Session::GET()     { pimpl_->GET(); }
+  void Session::HEAD()    { pimpl_->HEAD(); }
+  void Session::OPTIONS() { pimpl_->OPTIONS(); }
+  void Session::PATCH()   { pimpl_->PATCH(); }
+  void Session::POST()    { pimpl_->POST(); }
+  void Session::PUT()     { pimpl_->PUT(); }
 
 }
 

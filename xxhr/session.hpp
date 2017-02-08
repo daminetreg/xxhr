@@ -67,13 +67,13 @@ class Session {
   template<class Handler>
   void SetOption(const on_success_<Handler>&& on_success);
 
-  Response DELETE();
-  Response GET();
-  Response HEAD();
-  Response OPTIONS();
-  Response PATCH();
-  Response POST();
-  Response PUT();
+  void DELETE();
+  void GET();
+  void HEAD();
+  void OPTIONS();
+  void PATCH();
+  void POST();
+  void PUT();
 
   class Impl;
   private:

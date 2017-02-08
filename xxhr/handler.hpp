@@ -4,8 +4,7 @@
 namespace xxhr {
 
   template<template <class> class Template>
-  struct make_handler_t
-  {
+  struct make_handler_t {
       template<typename Handler>
       constexpr Template<Handler> operator()(Handler handler) const {return Template<Handler>(handler);}
       template<typename Handler>
