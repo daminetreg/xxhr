@@ -2,8 +2,10 @@
 #define XXHR_DETAIL_SESSION_EMSCRIPTEN_HPP
 
 #include <functional>
+#include <regex>
 
 #include <boost/optional.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -27,6 +29,8 @@
 #include <xxhr/timeout.hpp>
 
 namespace xxhr {
+
+  constexpr const auto CRLF = "\r\n";
 
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     using val = emscripten::val;
@@ -88,15 +92,17 @@ namespace xxhr {
     void on_readystate(val event) {
 
       if (xhr["readyState"].as<size_t>() == DONE) {
-        std::cout << "xxhr::on_readystate: DONE. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
         CookiesCleanup();
 
         if (xhr["status"].as<size_t>() == 200) { 
+
+          auto headers_raw = xhr.call<std::string>("getAllResponseHeaders");
+
           on_success(
               Response{
                 xhr["status"].as<size_t>(),
                 xhr["responseText"].as<std::string>(),
-                Header{},
+                parse_raw_headers(headers_raw),
                 url_,
                 Cookies{},
                 Error{}
@@ -129,6 +135,8 @@ namespace xxhr {
     val xhr = val::global("XMLHttpRequest").new_();
 
     std::function<void(Response&&)> on_success;
+
+    Header parse_raw_headers(const std::string& headers_raw) const;
   };
 
 
@@ -281,6 +289,32 @@ namespace xxhr {
   void Session::Impl::PATCH()   { this->QUERY("PATCH"); }
   void Session::Impl::POST()    { this->QUERY("POST"); }
   void Session::Impl::PUT()     { this->QUERY("PUT"); }
+
+
+  Header Session::Impl::parse_raw_headers(const std::string& headers_raw) const {
+    Header headers;
+    using namespace boost::algorithm;
+    std::regex crlfs(CRLF);
+    std::vector<std::string> header_lines(
+      std::sregex_token_iterator(
+        headers_raw.begin(), headers_raw.end(), crlfs, -1),
+      std::sregex_token_iterator()
+    );
+
+    for (auto& header_line : header_lines) {
+      std::regex doublepoint(":");
+      std::vector<std::string> header(
+        std::sregex_token_iterator(
+          header_line.begin(), header_line.end(), doublepoint, -1),
+        std::sregex_token_iterator()
+      );
+
+      trim_all(header[0]); trim_all(header[1]);
+      headers.insert(std::make_pair(header[0], header[1]));
+    }
+
+    return headers;
+  }
 
 
   Session::Session() : pimpl_{ std::make_shared<Impl>() } {}
