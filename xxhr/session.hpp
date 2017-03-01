@@ -65,7 +65,7 @@ class Session {
   void SetOption(const Body& body);
 
   template<class Handler>
-  void SetOption(const on_success_<Handler>&& on_success);
+  void SetOption(const on_response_<Handler>&& on_response);
 
   void DELETE();
   void GET();

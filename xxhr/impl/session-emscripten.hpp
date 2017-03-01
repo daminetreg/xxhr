@@ -67,8 +67,8 @@ namespace xxhr {
     void SetBody(const Body& body);
 
     template<class Handler>
-    void SetHandler(const on_success_<Handler>&& functor) {
-      on_success = functor;
+    void SetHandler(const on_response_<Handler>&& functor) {
+      on_response = functor;
     }
 
     void QUERY(const std::string& method);
@@ -92,26 +92,30 @@ namespace xxhr {
     void on_readystate(val event) {
 
       if (xhr["readyState"].as<size_t>() == DONE) {
+
+        auto document = val::global("document");
+        Cookies response_cookies{};
+        response_cookies
+          .parse_cookie_string(document["cookie"].as<std::string>());
+
         CookiesCleanup();
 
-        if (xhr["status"].as<size_t>() == 200) { 
+        on_response(
+            Response{
+              xhr["status"].as<size_t>(),
+              xhr["responseText"].as<std::string>(),
+              (!xhr.call<val>("getAllResponseHeaders").isNull()) ?
+                  parse_raw_headers( xhr.call<std::string>("getAllResponseHeaders"))
+                : Header{}
+              ,
+              url_,
+              response_cookies,
+              (xhr["status"].as<size_t>() == 0) ?
+                  Error{ErrorCode::CONNECTION_FAILURE} 
+                : Error{}
+            }
+        );
 
-          auto headers_raw = xhr.call<std::string>("getAllResponseHeaders");
-
-          on_success(
-              Response{
-                xhr["status"].as<size_t>(),
-                xhr["responseText"].as<std::string>(),
-                parse_raw_headers(headers_raw),
-                url_,
-                Cookies{},
-                Error{}
-              }
-          );
-
-        } else {
-          std::cerr << "Error loading query !" << std::endl;
-        }
 
       } else if (xhr["readyState"].as<size_t>() == LOADING) {
         std::cout << "xxhr::on_readystate: LOADING. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
@@ -134,7 +138,7 @@ namespace xxhr {
 
     val xhr = val::global("XMLHttpRequest").new_();
 
-    std::function<void(Response&&)> on_success;
+    std::function<void(Response&&)> on_response;
 
     Header parse_raw_headers(const std::string& headers_raw) const;
   };
@@ -238,10 +242,11 @@ namespace xxhr {
   }
 
   void Session::Impl::SetCookies(const Cookies& cookies, bool delete_them) {
+    // XXX: Should we before we set any specified cookies, we have to remove ALL others ?
+    
     cookies_ = cookies;
     xhr["withCredentials"] = val(true);
 
-    auto document = val::global("document");
     for (auto cookie : cookies.all()) {
       auto cookie_string = 
         xxhr::util::urlEncode(cookie.first)
@@ -258,6 +263,7 @@ namespace xxhr {
       
       // This [de]register the cookies, but if you just read cookie you 
       // get the full list. -_-'
+      auto document = val::global("document");
       document["cookie"] = val(cookie_string); 
     }
 
@@ -279,6 +285,7 @@ namespace xxhr {
     }
 
     xhr.set("onreadystatechange", js::bind(&Session::Impl::on_readystate, shared_from_this(), _1));
+
     xhr.call<val>("send");
   }
 
@@ -357,7 +364,7 @@ namespace xxhr {
   void Session::SetOption(Body&& body) { pimpl_->SetBody(std::move(body)); }
 
   template<class Handler>
-  void Session::SetOption(const on_success_<Handler>&& on_success) {pimpl_->SetHandler(std::move(on_success)); }
+  void Session::SetOption(const on_response_<Handler>&& on_response) {pimpl_->SetHandler(std::move(on_response)); }
 
   void Session::DELETE()  { pimpl_->DELETE(); }
   void Session::GET()     { pimpl_->GET(); }

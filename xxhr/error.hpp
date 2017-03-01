@@ -32,18 +32,13 @@ enum class ErrorCode {
 class Error {
   public:
     Error() : code{ErrorCode::OK} {}
-
-    //XXX: Decide std::error or boost::system
-    template <typename TextType>
-    Error(const std::int32_t& curl_code, TextType&& p_error_message)
-            : code{/*XXX:*/}, message{XXHR_FWD(p_error_message)} {}
+    Error(ErrorCode code) : code{code} {}
 
     explicit operator bool() const {
         return code != ErrorCode::OK;
     }
 
     ErrorCode code;
-    std::string message;
 };
 
 } // namespace xxhr
