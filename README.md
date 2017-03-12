@@ -1,5 +1,5 @@
 # xxhr : c++ http requests
-Simple header-only API for a C++14 friendly http client.
+Intuitive c++ http client library.
 
 ## How to use it ?
   * Just include it : `#include <xxhr/api.hpp>`
