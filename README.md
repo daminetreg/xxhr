@@ -1,8 +1,9 @@
+![xxhr logo](./doc/logo.ai.png)
 # xxhr : c++ http requests
 Intuitive c++ http client library.
 
 ## How to use it ?
-  * Just include it : `#include <xxhr/api.hpp>`
+  * Just include it : `#include <xxhr/xxhr.hpp>`
   * Or if you are a CMake freak as I am : `find_package(xxhr) target_link_library( your_program xxhr::xxhr)`
 
 ### Cross platformness
