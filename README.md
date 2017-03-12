@@ -1,18 +1,24 @@
-# xxhr : C++ http requests
-xxhr is a fork of the [cpr](https://github.com/whoshuu/cpr) project from Huu Nguyen ( [https://github.com/whoshuu](@whoshuu) ) with a modern C++spiritual difference : it doesn't depend on curl & it is header only.
-
-The API defined by ( [https://github.com/whoshuu](@whoshuu) ) is inspired from the Python Requests project, and this fork keeps this spirit of having a simple API for being a C++14 friendly http client api based on http implementation which is not dependent on anything else than **std::** or **boost::**.
+# xxhr : c++ http requests
+Simple header-only API for a C++14 friendly http client.
 
 ## How to use it ?
-
   * Just include it : `#include <xxhr/api.hpp>`
   * Or if you are a CMake freak as I am : `find_package(xxhr) target_link_library( your_program xxhr::xxhr)`
 
-## Cross platform
-The underlying backend for the implementation for all native platforms is Boost.Beast, while the other backend is XmlHttpRequest.
+### Cross platformness
+The underlying backend for the implementation for all native platforms will be Boost.Beast, while the other backend for browser environment is **XmlHttpRequest**.
+
+## Roadmap
+
+### End of April 2016
+  - Implement native (windows, linux, macos) http client backend with Boost.Beast.
 
 ## License
-[MIT License](./LICENSE), please reproduce copyrights : 
+xxhr is a rewrite of the [cpr](https://github.com/whoshuu/cpr) project from Huu Nguyen ( [https://github.com/whoshuu](@whoshuu) ) with a different philosophy :
+  - Easy to consume: no binaries dependencies, only headers (no curl).
+  - Asynchronous by essence
+
+[Boost Sofware License](./LICENSE), please just reproduce copyrights : 
 
 ```
 Copyright (c) 2017 Damien Buhl alias daminetreg
