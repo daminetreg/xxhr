@@ -1,7 +1,7 @@
 # xxhr : C++ http requests
 xxhr is a fork of the [cpr](https://github.com/whoshuu/cpr) project from Huu Nguyen ( [https://github.com/whoshuu](@whoshuu) ) with a modern C++spiritual difference : it doesn't depend on curl & it is header only.
 
-The API defined by ( [https://github.com/whoshuu](@whoshuu) ) is inspired from the Python Requests project, and this fork keeps this spirit in sync while providing an http implementation which is not dependent on anything else than **std::** or **boost::**.
+The API defined by ( [https://github.com/whoshuu](@whoshuu) ) is inspired from the Python Requests project, and this fork keeps this spirit of having a simple API for being a C++14 friendly http client api based on http implementation which is not dependent on anything else than **std::** or **boost::**.
 
 ## How to use it ?
 

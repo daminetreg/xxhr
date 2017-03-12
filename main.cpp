@@ -3,8 +3,6 @@
 
 int main(int argc, char** argv) {
 
-
-
     xxhr::GET(xxhr::Url{"CMakeCache.txt"},
                 xxhr::Authentication{"user", "pass"},
                 xxhr::Parameters{{"anon", "true"}, {"key", "value"}},
@@ -31,4 +29,8 @@ int main(int argc, char** argv) {
                         std::cout << "Connection Error !" << std::endl;
                       }
                     });
+
+
+
+
 }

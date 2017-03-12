@@ -22,28 +22,20 @@ if (DEFINED EMSCRIPTEN)
   endif()
 endif()
 
+
 include_directories(BEFORE ${CMAKE_CURRENT_LIST_DIR})
-file (GLOB_RECURSE SRC_FILES main.cpp)
 
-if (DEFINED EMSCRIPTEN)
-  
-
-  #add_library(xxhr SHARED ${SRC_FILES})
-  add_executable(xxhr ${SRC_FILES})
-
-else (DEFINED EMSCRIPTEN)
-  add_executable(xxhr ${SRC_FILES})
-endif(DEFINED EMSCRIPTEN)
-
+add_executable(xxhr main.cpp)
+add_executable(xxhr_sync main_syncapi.cpp)
 target_link_libraries(xxhr boost_system)
 
-#file (COPY ${CMAKE_CURRENT_LIST_DIR}/Arial DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 if (DEFINED EMSCRIPTEN)
-  set_target_properties(xxhr 
-    PROPERTIES SUFFIX ".html"
-    LINK_FLAGS " --bind -s  NO_EXIT_RUNTIME=1 -g4")
-  em_link_js_library(xxhr ${libraryJsFiles})
-  # add -O2 to minify
-endif (DEFINED EMSCRIPTEN)
+set_target_properties(xxhr 
+  PROPERTIES SUFFIX ".html"
+  LINK_FLAGS " --bind -s  NO_EXIT_RUNTIME=1")
 
+set_target_properties(xxhr_sync 
+  PROPERTIES SUFFIX ".html"
+  LINK_FLAGS " --bind")
+
+endif (DEFINED EMSCRIPTEN)
