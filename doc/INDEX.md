@@ -11,7 +11,7 @@ We already had so many good header-only libraries in C++, now there is one for h
 A simple, yet modern, http client library, all dependencies included !
 
 ## An intuitive API
-\include main_syncapi.cpp
+\include examples/main_syncapi.cpp
 
 ## Getting Started
 
