@@ -190,7 +190,7 @@ namespace xxhr {
   }
 
   void Session::Impl::SetPayload(const Payload& payload) {
-    SetPayload(std::move(payload));
+    SetPayload(std::move(const_cast<Payload&>(payload)));
   }
 
   void Session::Impl::SetProxies(const Proxies& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies. */ }
