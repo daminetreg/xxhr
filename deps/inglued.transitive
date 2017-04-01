@@ -1,0 +1,229 @@
+{
+  "boostorg/align": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/array": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/assert": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/atomic": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/bind": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/chrono": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/concept_check": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/config": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/container": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/core": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/date_time": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/detail": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/endian": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/exception": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/filesystem": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/foreach": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/function": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/function_types": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/functional": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/fusion": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/integer": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/intrusive": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/io": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/iostreams": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/iterator": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/lambda": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/lexical_cast": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/locale": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/math": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/move": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/mpl": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/numeric_conversion": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/phoenix": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/pool": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/predef": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/preprocessor": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/proto": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/random": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/range": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/ratio": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/rational": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/regex": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/smart_ptr": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/spirit": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/static_assert": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/system": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/thread": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/throw_exception": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/tokenizer": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/tti": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/tuple": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/type_index": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/type_traits": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/typeof": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/utility": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/variant": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "cpp-pre/type_traits": {
+    "@": "v2.0.0"
+  }
+}
