@@ -1,0 +1,12 @@
+git branch -D gh-pages 
+git checkout -b gh-pages
+
+doxygen Doxyfile
+
+git add -f html/
+git commit -m "DOC: Generated"
+
+# Problem with submodules on github pages
+git rm --cached hunter
+git rm .gitmodules 
+git commit -m "HACK: Delete submodule to make gh-pages happy"

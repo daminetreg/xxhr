@@ -6,7 +6,7 @@ We already had so many good header-only libraries in C++, now there is one for h
 
   * Just headers files
   * No binary dependencies
-  * Dependencies shipped: if you don't have it we bring it with.
+  * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
   * [Extremely cross-platform](doc/supported_platforms.md)
 
 A simple, yet modern, http client library, all dependencies included !
@@ -16,7 +16,9 @@ A simple, yet modern, http client library, all dependencies included !
 
 ## Getting Started
 
-### Just include us
+**Just include us** `#include <xxhr/xxhr.hpp>`.
+
+[Details on how to install](INSTALL.md)
 
 ### if you want you can use cmake
 
