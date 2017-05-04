@@ -14,6 +14,9 @@
 #include "session.hpp"
 #include "handler.hpp"
 
+/**
+ * \brief main library namespace
+ */
 namespace xxhr {
 
   namespace priv {
@@ -31,6 +34,9 @@ namespace xxhr {
 
   } // namespace priv
 
+/**
+ * \brief Performs an HTTP GET Request.
+ */
 template <typename... Ts>
 void GET(Ts&&... ts) { Session session; priv::set_option(session, XXHR_FWD(ts)...); session.GET(); }
 

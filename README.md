@@ -1,4 +1,4 @@
-![xxhr logo](./docs/logo.ai.png)
+![xxhr logo](./doc/logo.ai.png)
 # xxhr : c++ http requests
 Intuitive c++ http client library.
 
@@ -19,7 +19,7 @@ xxhr is a rewrite of the [cpr](https://github.com/whoshuu/cpr) project from Huu 
   - Easy to consume: no binaries dependencies, only headers (no curl).
   - Asynchronous by essence
 
-[Boost Sofware License](./LICENSE), please just reproduce copyrights : 
+[Boost Sofware License](./LICENSE.md), please just reproduce copyrights : 
 
 ```
 Copyright (c) 2017 Damien Buhl alias daminetreg
