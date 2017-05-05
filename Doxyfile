@@ -1094,7 +1094,13 @@ HTML_EXTRA_STYLESHEET  = doc/doxygen/customdoxygen.css
 
 HTML_EXTRA_FILES       = doc/doxygen/semantic/dist/semantic.min.css \
                          doc/doxygen/semantic/dist/semantic.min.js \
-                         doc/doxygen/custom-search.js
+                         doc/doxygen/custom-search.js \ 
+                         doc/doxygen/semantic/dist/themes/default/assets/fonts/icons.eot \
+                         doc/doxygen/semantic/dist/themes/default/assets/fonts/icons.svg \
+                         doc/doxygen/semantic/dist/themes/default/assets/fonts/icons.ttf \
+                         doc/doxygen/semantic/dist/themes/default/assets/fonts/icons.woff \
+                         doc/doxygen/semantic/dist/themes/default/assets/fonts/icons.woff2 \
+                         doc/doxygen/semantic/dist/themes/default/assets/images/flags.png
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the stylesheet and background images according to
