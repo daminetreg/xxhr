@@ -1,5 +1,5 @@
 
-# Installing xxhr
+# Installing cpp-js::xxhr
 xxhr can be installed in three ways :
 
 * [Copy paste in your project](#copy-paste-in-your-project)
@@ -11,7 +11,6 @@ xxhr can be installed in three ways :
 2. Add the following to your include path :
 
 ### GCC / Clang / MSVC
-
 ```
 -I xxhr/ \
 -I xxhr/deps/boostorg/algorithm/include/ \
@@ -75,6 +74,7 @@ xxhr can be installed in three ways :
 -I xxhr/deps/boostorg/variant/include/ \
 -I xxhr/deps/cpp-pre/type_traits/ \
 -I xxhr/deps/daminetreg/js-bind/ \
+-I xxhr/deps/header-only/bearssl/include/ \
 ```
 
 ## Install
@@ -88,7 +88,6 @@ make install
 You can tweak destination with `-DCMAKE_INSTALL_PREFIX=/install/path` to change the default `/usr/local`.
 
 ## If you use CMake :
-
 ```cmake
 find_package(xxhr REQUIRED)
 add_executable(app your_code.cpp)

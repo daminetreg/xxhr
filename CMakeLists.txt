@@ -13,7 +13,7 @@
 # * xxhr : current project name
 # * xxhr : current project srcs folder.
 #
-# *                                                               : all deps direct and transitive 
+# *                                                                : all deps direct and transitive 
 #   -  : The cmake package name from the cmake_package_map otherwise: cpp-js
 #   -  : The cmake target name from cmake_package_map otherwise: ::
 #   - cpp-js : the github organization name
@@ -477,6 +477,13 @@ else ()
   find_package(daminetreg REQUIRED)
 endif()
 
+# bearssl
+if (INGLUED)
+  include_directories(AFTER deps/header-only/bearssl/include/)
+else ()
+  find_package(header-only REQUIRED)
+endif()
+
 
 # Define header only library
 include_directories(BEFORE ${CMAKE_CURRENT_LIST_DIR})
@@ -557,6 +564,7 @@ else()
       Boost::boost
       cpp-pre::type_traits
       daminetreg::js-bind
+      header-only::bearssl
   )
 
 endif()
@@ -1113,6 +1121,14 @@ if (INGLUED)
       DESTINATION ${include_install_dir}/xxhr/deps
       FILES_MATCHING PATTERN "*.[ih]*"
       PATTERN deps/daminetreg/js-bind/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
+      )
+
+
+  install(
+      DIRECTORY deps/header-only/bearssl/include/
+      DESTINATION ${include_install_dir}/xxhr/deps
+      FILES_MATCHING PATTERN "*.[ih]*"
+      PATTERN deps/header-only/bearssl/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
       )
 
 
