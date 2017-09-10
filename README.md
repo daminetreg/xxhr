@@ -11,8 +11,9 @@ The underlying backend for the implementation for all native platforms will be B
 
 ## Roadmap
 
-### End of April 2016
-  - Implement native (windows, linux, macos) http client backend with Boost.Beast.
+### End of September 2017
+  - Implement native (windows, linux, macos) http client backend with ssl (header only).
+  - Implement HTTP2 support.
 
 ## License
 xxhr is a rewrite of the [cpr](https://github.com/whoshuu/cpr) project from Huu Nguyen ( [https://github.com/whoshuu](@whoshuu) ) with a different philosophy :

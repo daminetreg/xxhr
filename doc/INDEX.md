@@ -16,15 +16,4 @@ A simple, yet modern, http client library, all dependencies included !
 
 ## Getting Started
 
-**Just include us** `#include <xxhr/xxhr.hpp>`.
-
-[Details on how to install](INSTALL.md)
-
-### if you want you can use cmake
-
-```cmake
-find_package(lib-cpp-slc CONFIG REQUIRED)
-
-add_executable(your_program main.cpp)
-target_link_libraries(testit lib-cpp-slc::cpp-slc)
-```
+**Just include us** `#include <xxhr/xxhr.hpp>` : [Details on how to install](INSTALL.md).
