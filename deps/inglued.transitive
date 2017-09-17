@@ -35,7 +35,15 @@
     "-I": "include/",
     "@": "boost-1.62.0"
   },
+  "boostorg/context": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
   "boostorg/core": {
+    "-I": "include/",
+    "@": "boost-1.62.0"
+  },
+  "boostorg/coroutine": {
     "-I": "include/",
     "@": "boost-1.62.0"
   },
