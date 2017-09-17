@@ -14,6 +14,9 @@ target_link_libraries(xxhr_main cpp-js::xxhr)
 add_executable(xxhr_introductory introductory.cpp)
 target_link_libraries(xxhr_main cpp-js::xxhr)
 
+add_executable(xxhr_ssl main_ssl.cpp)
+target_link_libraries(xxhr_ssl cpp-js::xxhr)
+
 
 if (DEFINED EMSCRIPTEN)
 set_target_properties(xxhr_main 
