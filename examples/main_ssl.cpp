@@ -12,7 +12,7 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
+#include <xxhr/asio/ssl/stream_bearssl.hpp>
 
 enum { max_length = 1024 };
 
@@ -119,7 +119,7 @@ public:
   }
 
 private:
-  boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket_;
+  xxhr::asio::ssl::stream_bearssl<boost::asio::ip::tcp::socket> socket_;
   char request_[max_length];
   char reply_[max_length];
 };
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
     boost::asio::ip::tcp::resolver::query query(argv[1], argv[2]);
     boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query);
 
-    boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
+    xxhr::asio::ssl::context ctx(xxhr::asio::ssl::context::tlsv12_client);
     ctx.load_verify_file("ca.pem");
 
     client c(io_service, ctx, iterator);

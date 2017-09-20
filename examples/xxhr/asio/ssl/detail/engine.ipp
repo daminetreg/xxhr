@@ -20,7 +20,7 @@
 #if !defined(BOOST_ASIO_ENABLE_OLD_SSL)
 # include <boost/asio/detail/throw_error.hpp>
 # include <boost/asio/error.hpp>
-# include <boost/asio/ssl/detail/engine.hpp>
+# include <xxhr/asio/ssl/detail/engine.hpp>
 # include <boost/asio/ssl/error.hpp>
 # include <boost/asio/ssl/verify_context.hpp>
 #endif // !defined(BOOST_ASIO_ENABLE_OLD_SSL)
@@ -246,8 +246,8 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
     std::size_t* bytes_transferred)
 {
   int result = (this->*op)(data, length);
-  auto state = br_ssl_engine_current_state(ssl_);
-  auto ssl_error = br_ssl_engine_last_error();
+  auto state = ::br_ssl_engine_current_state(ssl_);
+  auto ssl_error = ::br_ssl_engine_last_error();
 
   if (ssl_error != 0)
   {
