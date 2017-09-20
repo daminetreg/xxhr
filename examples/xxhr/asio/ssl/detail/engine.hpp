@@ -23,7 +23,7 @@
 # include <xxhr/asio/ssl/detail/bearssl_types.hpp>
 # include <boost/asio/ssl/detail/verify_callback.hpp>
 # include <boost/asio/ssl/stream_base.hpp>
-# include <boost/asio/ssl/verify_mode.hpp>
+# include <xxhr/asio/ssl/verify_mode.hpp>
 #endif // !defined(BOOST_ASIO_ENABLE_OLD_SSL)
 
 #include <boost/asio/detail/push_options.hpp>
@@ -31,6 +31,7 @@
 namespace xxhr {
 namespace asio {
 namespace ssl {
+  using boost::asio::ssl::stream_base;
 namespace detail {
 
 #if !defined(BOOST_ASIO_ENABLE_OLD_SSL)
@@ -77,9 +78,9 @@ public:
   BOOST_ASIO_DECL boost::system::error_code set_verify_depth(
       int depth, boost::system::error_code& ec);
 
-  // Set a peer certificate verification callback.
-  BOOST_ASIO_DECL boost::system::error_code set_verify_callback(
-      verify_callback_base* callback, boost::system::error_code& ec);
+//  // Set a peer certificate verification callback.
+//  BOOST_ASIO_DECL boost::system::error_code set_verify_callback(
+//      verify_callback_base* callback, boost::system::error_code& ec);
 
   // Perform an SSL handshake using either SSL_connect (client-side) or
   // SSL_accept (server-side).

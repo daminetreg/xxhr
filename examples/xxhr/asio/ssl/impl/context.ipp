@@ -133,8 +133,6 @@ static const br_x509_trust_anchor TAs[2] = {
 context::context(context::method m)
   : handle_(0)
 {
-  sc.eng = handle_;
-
   switch (m)
   {
   case context::tlsv1:
@@ -147,6 +145,7 @@ context::context(context::method m)
   case context::tlsv12_client:
     //TODO: Use folders of trusts anchors
     ::br_ssl_client_init_full(&sc, &xc, TAs, TAs_NUM);
+    handle_ = &sc.eng;
     break;
   case context::tlsv1_server:
   case context::tlsv11_server:
@@ -155,7 +154,7 @@ context::context(context::method m)
     break;
   }
 
-  auto err = ::br_ssl_engine_last_error(&handle_);
+  auto err = ::br_ssl_engine_last_error(handle_);
   if (err != 0)
   {
     boost::system::error_code ec(
@@ -164,7 +163,7 @@ context::context(context::method m)
     boost::asio::detail::throw_error(ec, "context");
   }
 
-  set_options(no_compression);
+  ////set_options(no_compression);
 }
 
 context::context(boost::asio::io_service&, context::method m)
@@ -356,7 +355,7 @@ boost::system::error_code context::use_certificate(
   }
 
   ec = boost::system::error_code(
-      static_cast<int>(::br_ssl_engine_last_error(&handle_.eng))),
+      static_cast<int>(::br_ssl_engine_last_error(handle_)),
       boost::asio::error::get_ssl_category());
   return ec;
 }
@@ -508,21 +507,21 @@ boost::system::error_code context::do_use_tmp_dh(
   return ec;
 }
 
-boost::system::error_code context::do_set_verify_callback(
-    detail::verify_callback_base* callback, boost::system::error_code& ec)
-{
-  //TODO: Implement
-  ec = boost::system::error_code();
-  return ec;
-}
-
-boost::system::error_code context::do_set_password_callback(
-    detail::password_callback_base* callback, boost::system::error_code& ec)
-{
-  //TODO: Implement
-  ec = boost::system::error_code();
-  return ec;
-}
+//boost::system::error_code context::do_set_verify_callback(
+//    detail::verify_callback_base* callback, boost::system::error_code& ec)
+//{
+//  //TODO: Implement
+//  ec = boost::system::error_code();
+//  return ec;
+//}
+//
+//boost::system::error_code context::do_set_password_callback(
+//    detail::password_callback_base* callback, boost::system::error_code& ec)
+//{
+//  //TODO: Implement
+//  ec = boost::system::error_code();
+//  return ec;
+//}
 
 #endif // !defined(BOOST_ASIO_ENABLE_OLD_SSL)
 

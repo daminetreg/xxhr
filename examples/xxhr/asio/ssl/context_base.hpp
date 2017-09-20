@@ -88,7 +88,7 @@ public:
   };
 
 //  /// Bitmask type for SSL options.
-//  typedef long options;
+  typedef long options;
 //
 //#if defined(GENERATING_DOCUMENTATION)
 //  /// Implement various bug workarounds.

@@ -20,7 +20,7 @@ class client
 {
 public:
   client(boost::asio::io_service& io_service,
-      boost::asio::ssl::context& context,
+      xxhr::asio::ssl::context& context,
       boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
     : socket_(io_service, context)
   {
@@ -45,9 +45,9 @@ public:
 
     // In this example we will simply print the certificate's subject name.
     char subject_name[256];
-    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-    std::cout << "Verifying " << subject_name << "\n";
+    //X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+    //X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+    //std::cout << "Verifying " << subject_name << "\n";
 
     return preverified;
   }
@@ -70,12 +70,16 @@ public:
   {
     if (!error)
     {
-      std::cout << "Enter message: ";
-      std::cin.getline(request_, max_length);
-      size_t request_length = strlen(request_);
+
+      constexpr auto* query = 
+R"(GET /index.html HTTP/1.0\r\n
+Host: localhost\r\n\r\n)";
+
+
+      size_t request_length = strlen(query);
 
       boost::asio::async_write(socket_,
-          boost::asio::buffer(request_, request_length),
+          boost::asio::buffer(query, request_length),
           boost::bind(&client::handle_write, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));

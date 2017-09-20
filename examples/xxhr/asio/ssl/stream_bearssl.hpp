@@ -23,13 +23,13 @@
 # include <boost/asio/detail/noncopyable.hpp>
 # include <boost/asio/detail/type_traits.hpp>
 # include <xxhr/asio/ssl/context.hpp>
-# include <boost/asio/ssl/detail/buffered_handshake_op.hpp>
-# include <boost/asio/ssl/detail/handshake_op.hpp>
-# include <boost/asio/ssl/detail/io.hpp>
-# include <boost/asio/ssl/detail/read_op.hpp>
-# include <boost/asio/ssl/detail/shutdown_op.hpp>
+# include <xxhr/asio/ssl/detail/buffered_handshake_op.hpp>
+# include <xxhr/asio/ssl/detail/handshake_op.hpp>
+# include <xxhr/asio/ssl/detail/io.hpp>
+# include <xxhr/asio/ssl/detail/read_op.hpp>
+# include <xxhr/asio/ssl/detail/shutdown_op.hpp>
 # include <xxhr/asio/ssl/detail/stream_core.hpp>
-# include <boost/asio/ssl/detail/write_op.hpp>
+# include <xxhr/asio/ssl/detail/write_op.hpp>
 # include <boost/asio/ssl/stream_base.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
@@ -96,7 +96,7 @@ public:
    * @param ctx The SSL context to be used for the stream.
    */
   template <typename Arg>
-  stream(Arg& arg, context& ctx)
+  stream_bearssl(Arg& arg, context& ctx)
     : next_layer_(arg),
       core_(ctx.native_handle(), next_layer_.lowest_layer().get_io_service())
   {
@@ -104,7 +104,7 @@ public:
   }
 
   /// Destructor.
-  ~stream()
+  ~stream_bearssl()
   {
   }
 
@@ -336,8 +336,9 @@ public:
   boost::system::error_code set_verify_callback(VerifyCallback callback,
       boost::system::error_code& ec)
   {
-    return core_.engine_.set_verify_callback(
-        new detail::verify_callback<VerifyCallback>(callback), ec);
+    return ec;
+//    return core_.engine_.set_verify_callback(
+//        new detail::verify_callback<VerifyCallback>(callback), ec);
   }
 
   /// Perform SSL handshaking.

@@ -28,7 +28,8 @@ cmake_minimum_required(VERSION 3.7.2)
 project(xxhr VERSION "0.0.1")
 enable_testing()
 
-set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_STANDARD 17)
+add_compile_options(-std=c++17 -fpermissive)
 
 # Compile with shipped-with headers or without 
 option(INGLUED "Enable use of #inglued shipped with dependencies." ON)
@@ -42,7 +43,7 @@ string(TOUPPER "${CMAKE_CXX_COMPILER_ID}" COMPILER_IN_USE)
 if ("${COMPILER_IN_USE}" STREQUAL "GNU" OR "${COMPILER_IN_USE}" MATCHES "CLANG")
 	add_definitions(
     -Wall
-		-Werror
+#		-Werror
 		-Wno-unused-local-typedefs
 		-Wno-unused-variable
   )

@@ -58,7 +58,7 @@ engine::engine(br_ssl_engine_context* context)
 //  ::BIO_new_bio_pair(&int_bio, 0, &ext_bio_, 0);
 //  ::SSL_set_bio(ssl_, int_bio, int_bio);
 
-  br_ssl_engine_set_buffer(&ssl_, iobuf, sizeof iobuf, 1 /*BIDIRECTIONAL (can send and recv at the same time)*/);
+  br_ssl_engine_set_buffer(ssl_, iobuf, sizeof iobuf, 1 /*BIDIRECTIONAL (can send and recv at the same time)*/);
 
  
 }
@@ -77,7 +77,7 @@ engine::~engine()
 
 br_ssl_engine_context* engine::native_handle()
 {
-  return std::addressof(ssl_);
+  return ssl_;
 }
 
 boost::system::error_code engine::set_verify_mode(
@@ -100,45 +100,45 @@ boost::system::error_code engine::set_verify_depth(
   return ec;
 }
 
-boost::system::error_code engine::set_verify_callback(
-    verify_callback_base* callback, boost::system::error_code& ec)
-{
-//TODO: Check how this can be implemented with bearssl
-//  if (SSL_get_app_data(ssl_))
-//    delete static_cast<verify_callback_base*>(SSL_get_app_data(ssl_));
+//boost::system::error_code engine::set_verify_callback(
+//    verify_callback_base* callback, boost::system::error_code& ec)
+//{
+////TODO: Check how this can be implemented with bearssl
+////  if (SSL_get_app_data(ssl_))
+////    delete static_cast<verify_callback_base*>(SSL_get_app_data(ssl_));
+////
+////  SSL_set_app_data(ssl_, callback);
+////
+////  ::SSL_set_verify(ssl_, ::SSL_get_verify_mode(ssl_),
+////      &engine::verify_callback_function);
 //
-//  SSL_set_app_data(ssl_, callback);
-//
-//  ::SSL_set_verify(ssl_, ::SSL_get_verify_mode(ssl_),
-//      &engine::verify_callback_function);
+//  ec = boost::system::error_code();
+//  return ec;
+//}
 
-  ec = boost::system::error_code();
-  return ec;
-}
-
-int engine::verify_callback_function(int preverified, X509_STORE_CTX* ctx)
-{
-//TODO: Check how this can be implemented with bearssl
-//  if (ctx)
-//  {
-//    if (SSL* ssl = static_cast<SSL*>(
-//          ::X509_STORE_CTX_get_ex_data(
-//            ctx, ::SSL_get_ex_data_X509_STORE_CTX_idx())))
-//    {
-//      if (SSL_get_app_data(ssl))
-//      {
-//        verify_callback_base* callback =
-//          static_cast<verify_callback_base*>(
-//              SSL_get_app_data(ssl));
-//
-//        verify_context verify_ctx(ctx);
-//        return callback->call(preverified != 0, verify_ctx) ? 1 : 0;
-//      }
-//    }
-//  }
-//
-//  return 0;
-}
+//int engine::verify_callback_function(int preverified, X509_STORE_CTX* ctx)
+//{
+////TODO: Check how this can be implemented with bearssl
+////  if (ctx)
+////  {
+////    if (SSL* ssl = static_cast<SSL*>(
+////          ::X509_STORE_CTX_get_ex_data(
+////            ctx, ::SSL_get_ex_data_X509_STORE_CTX_idx())))
+////    {
+////      if (SSL_get_app_data(ssl))
+////      {
+////        verify_callback_base* callback =
+////          static_cast<verify_callback_base*>(
+////              SSL_get_app_data(ssl));
+////
+////        verify_context verify_ctx(ctx);
+////        return callback->call(preverified != 0, verify_ctx) ? 1 : 0;
+////      }
+////    }
+////  }
+////
+////  return 0;
+//}
 
 engine::want engine::handshake(
     stream_base::handshake_type type, boost::system::error_code& ec)
@@ -184,12 +184,12 @@ boost::asio::mutable_buffers_1 engine::get_output(
     const boost::asio::mutable_buffer& data)
 {
   size_t length;
-	buf = br_ssl_engine_sendrec_buf(ssl_, &length);
-	if (length > length) {
-		length = length;
+	auto* buf_sendrec = br_ssl_engine_sendrec_buf(ssl_, &length);
+	if (length > buffer_size(data)) {
+		length = buffer_size(data);
 	}
-	memcpy(data, buf, length);
-	return br_ssl_engine_sendrec_ack(ssl_, length);
+	memcpy(buffer_cast<void*>(data), buf_sendrec, length);
+  ::br_ssl_engine_sendrec_ack(ssl_, length);
 
   return boost::asio::buffer(data,
       length > 0 ? static_cast<std::size_t>(length) : 0);
@@ -199,14 +199,14 @@ boost::asio::const_buffer engine::put_input(
     const boost::asio::const_buffer& data)
 {
   size_t length{};
-  auto* buf = br_ssl_engine_recvrec_buffer(_ssl, &length);
+  auto* buf_recvrec = ::br_ssl_engine_recvrec_buf(ssl_, &length);
   //XXX: Check not zero (length)
-  if (length > boost::asio::buffer_size(data)) {
-    length = boost::asio::buffer_size(data);
+  if (length > buffer_size(data)) {
+    length = buffer_size(data);
   }
   //XXX: ?unsigned char or void* ?
-  std::memcpy(buf, boost::asio::buffer_cast<const unsigned char*>(data), length);
-  br_ssl_engine_recvrec_ack(_ssl, length);
+  std::memcpy(buf_recvrec, boost::asio::buffer_cast<const unsigned char*>(data), length);
+  ::br_ssl_engine_recvrec_ack(ssl_, length);
 
   return boost::asio::buffer(data +
       (length > 0 ? static_cast<std::size_t>(length) : 0));
@@ -227,7 +227,7 @@ const boost::system::error_code& engine::map_error_code(
   }
 
   // Otherwise, the peer should have negotiated a proper shutdown.
-  if (::br_ssl_engine_is_closed(ssl_))
+  if (::br_ssl_engine_closed(ssl_))
   {
     ec = boost::asio::ssl::error::stream_truncated;
   }
@@ -247,7 +247,7 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
 {
   int result = (this->*op)(data, length);
   auto state = ::br_ssl_engine_current_state(ssl_);
-  auto ssl_error = ::br_ssl_engine_last_error();
+  auto ssl_error = ::br_ssl_engine_last_error(ssl_);
 
   if (ssl_error != 0)
   {
@@ -289,13 +289,13 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
 int engine::do_accept(void*, std::size_t)
 {
   boost::asio::detail::static_mutex::scoped_lock lock(accept_mutex());
-  server_ctx.eng = ssl_;
+  server_ctx.eng = *ssl_;
   return ::br_ssl_server_reset(&server_ctx);
 }
 
 int engine::do_connect(void*, std::size_t)
 {
-  client_ctx.eng = ssl_;
+  client_ctx.eng = *ssl_;
   return ::br_ssl_client_reset(&client_ctx, nullptr, 0);
 }
 
@@ -309,12 +309,15 @@ int engine::do_shutdown(void*, std::size_t)
 int engine::do_read(void* data, std::size_t length)
 {
   size_t alen;
-	buf = br_ssl_engine_recvapp_buf(ssl_, &alen);
+	auto* buf_recvapp = br_ssl_engine_recvapp_buf(ssl_, &alen);
 	if (alen > length) {
 		alen = length;
 	}
-	memcpy(data, buf, alen);
-	return br_ssl_engine_recvapp_ack(ssl_, alen);
+	memcpy(data, buf_recvapp, alen);
+	br_ssl_engine_recvapp_ack(ssl_, alen);
+
+  //XXX: Needs better bounding length < INT_MAX ? static_cast<int>(length) : INT_MAX);
+  return (int)alen;
 }
 
 int engine::do_write(void* data, std::size_t length)
@@ -326,12 +329,12 @@ int engine::do_write(void* data, std::size_t length)
 		return 0;
 	}
   //XXX: Needs a check to flush before writing ? Buffer might be full of records to send
-	buf = br_ssl_engine_sendapp_buf(ctx->engine, &alen);
+	buf = br_ssl_engine_sendapp_buf(ssl_, &alen);
 	if (alen > length) {
 		alen = length;
 	}
 	memcpy(buf, data, alen);
-	br_ssl_engine_sendapp_ack(ctx->engine, alen);
+	br_ssl_engine_sendapp_ack(ssl_, alen);
   
   //XXX: Needs better bounding length < INT_MAX ? static_cast<int>(length) : INT_MAX);
 	return (int)alen;

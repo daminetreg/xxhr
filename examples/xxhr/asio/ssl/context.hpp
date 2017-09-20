@@ -30,18 +30,12 @@
 
 namespace xxhr {
 namespace asio {
+  using namespace boost::asio;
 namespace ssl {
-
-#if defined(BOOST_ASIO_ENABLE_OLD_SSL)
-
-/// Typedef for the typical usage of context.
-typedef basic_context<context_service> context;
-
-#else // defined(BOOST_ASIO_ENABLE_OLD_SSL)
 
 class context
   : public context_base,
-    private noncopyable
+    private boost::noncopyable
 {
 public:
   /// The native handle type of the SSL context.
@@ -732,16 +726,16 @@ public:
 
 private:
   // Helper function used to set a peer certificate verification callback.
-  BOOST_ASIO_DECL boost::system::error_code do_set_verify_callback(
-      detail::verify_callback_base* callback, boost::system::error_code& ec);
+//  BOOST_ASIO_DECL boost::system::error_code do_set_verify_callback(
+//      detail::verify_callback_base* callback, boost::system::error_code& ec);
 
 //  // Callback used when the SSL implementation wants to verify a certificate.
 //  BOOST_ASIO_DECL static int verify_callback_function(
 //      int preverified, X509_STORE_CTX* ctx);
 
   // Helper function used to set a password callback.
-  BOOST_ASIO_DECL boost::system::error_code do_set_password_callback(
-      detail::password_callback_base* callback, boost::system::error_code& ec);
+//  BOOST_ASIO_DECL boost::system::error_code do_set_password_callback(
+//      detail::password_callback_base* callback, boost::system::error_code& ec);
 
 //  // Callback used when the SSL implementation wants a password.
 //  BOOST_ASIO_DECL static int password_callback_function(
@@ -759,8 +753,6 @@ private:
   br_ssl_client_context sc;
   br_x509_minimal_context xc;
 };
-
-#endif // defined(BOOST_ASIO_ENABLE_OLD_SSL)
 
 } // namespace ssl
 } // namespace asio
