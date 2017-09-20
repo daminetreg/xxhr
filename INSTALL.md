@@ -16,6 +16,7 @@ xxhr can be installed in three ways :
 -I xxhr/deps/boostorg/algorithm/include/ \
 -I xxhr/deps/boostorg/align/include/ \
 -I xxhr/deps/boostorg/array/include/ \
+-I xxhr/deps/boostorg/asio/include/ \
 -I xxhr/deps/boostorg/assert/include/ \
 -I xxhr/deps/boostorg/atomic/include/ \
 -I xxhr/deps/boostorg/bind/include/ \
@@ -23,7 +24,9 @@ xxhr can be installed in three ways :
 -I xxhr/deps/boostorg/concept_check/include/ \
 -I xxhr/deps/boostorg/config/include/ \
 -I xxhr/deps/boostorg/container/include/ \
+-I xxhr/deps/boostorg/context/include/ \
 -I xxhr/deps/boostorg/core/include/ \
+-I xxhr/deps/boostorg/coroutine/include/ \
 -I xxhr/deps/boostorg/date_time/include/ \
 -I xxhr/deps/boostorg/detail/include/ \
 -I xxhr/deps/boostorg/endian/include/ \

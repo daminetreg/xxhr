@@ -133,6 +133,8 @@ static const br_x509_trust_anchor TAs[2] = {
 context::context(context::method m)
   : handle_(0)
 {
+  sc.eng = handle_;
+
   switch (m)
   {
   case context::tlsv1:
@@ -144,7 +146,7 @@ context::context(context::method m)
   case context::tlsv11_client:
   case context::tlsv12_client:
     //TODO: Use folders of trusts anchors
-    ::br_ssl_client_init_full(&handle_, &xc, TAs, TAs_NUM);
+    ::br_ssl_client_init_full(&sc, &xc, TAs, TAs_NUM);
     break;
   case context::tlsv1_server:
   case context::tlsv11_server:
@@ -153,7 +155,7 @@ context::context(context::method m)
     break;
   }
 
-  auto err = ::br_ssl_engine_last_error(&handle_.eng);
+  auto err = ::br_ssl_engine_last_error(&handle_);
   if (err != 0)
   {
     boost::system::error_code ec(
@@ -166,25 +168,25 @@ context::context(context::method m)
 }
 
 context::context(boost::asio::io_service&, context::method m)
-  // : handle_(0)
+   : handle_(0)
 {
   context tmp(m);
   handle_ = tmp.handle_;
-  //tmp.handle_ = 0;
+  tmp.handle_ = 0;
 }
 
 #if defined(BOOST_ASIO_HAS_MOVE) || defined(GENERATING_DOCUMENTATION)
 context::context(context&& other)
 {
   handle_ = other.handle_;
-  //other.handle_ = 0;
+  other.handle_ = 0;
 }
 
 context& context::operator=(context&& other)
 {
   context tmp(BOOST_ASIO_MOVE_CAST(context)(*this));
   handle_ = other.handle_;
-  other.handle_ = native_handle_type{};
+  other.handle_ = 0;
   return *this;
 }
 #endif // defined(BOOST_ASIO_HAS_MOVE) || defined(GENERATING_DOCUMENTATION)

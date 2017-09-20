@@ -45,10 +45,10 @@ class context
 {
 public:
   /// The native handle type of the SSL context.
-  typedef br_ssl_client_context native_handle_type;
+  typedef br_ssl_engine_context* native_handle_type;
 
   /// (Deprecated: Use native_handle_type.) The native type of the SSL context.
-  typedef br_ssl_client_context impl_type;
+  typedef br_ssl_engine_context* impl_type;
 
   /// Constructor.
   BOOST_ASIO_DECL explicit context(method m);
@@ -756,7 +756,7 @@ private:
 
   //// Ensure openssl is initialised.
   //boost::asio::ssl::detail::openssl_init<> init_;
-  
+  br_ssl_client_context sc;
   br_x509_minimal_context xc;
 };
 

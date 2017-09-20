@@ -13,7 +13,7 @@
 # * xxhr : current project name
 # * xxhr : current project srcs folder.
 #
-# *                                                                : all deps direct and transitive 
+# *                                                                   : all deps direct and transitive 
 #   -  : The cmake package name from the cmake_package_map otherwise: cpp-js
 #   -  : The cmake target name from cmake_package_map otherwise: ::
 #   - cpp-js : the github organization name
@@ -71,6 +71,13 @@ else ()
   find_package(Boost REQUIRED)
 endif()
 
+# asio
+if (INGLUED)
+  include_directories(AFTER deps/boostorg/asio/include/)
+else ()
+  find_package(Boost REQUIRED)
+endif()
+
 # assert
 if (INGLUED)
   include_directories(AFTER deps/boostorg/assert/include/)
@@ -120,9 +127,23 @@ else ()
   find_package(Boost REQUIRED)
 endif()
 
+# context
+if (INGLUED)
+  include_directories(AFTER deps/boostorg/context/include/)
+else ()
+  find_package(Boost REQUIRED)
+endif()
+
 # core
 if (INGLUED)
   include_directories(AFTER deps/boostorg/core/include/)
+else ()
+  find_package(Boost REQUIRED)
+endif()
+
+# coroutine
+if (INGLUED)
+  include_directories(AFTER deps/boostorg/coroutine/include/)
 else ()
   find_package(Boost REQUIRED)
 endif()
@@ -562,6 +583,9 @@ else()
       Boost::boost
       Boost::boost
       Boost::boost
+      Boost::boost
+      Boost::boost
+      Boost::boost
       cpp-pre::type_traits
       daminetreg::js-bind
       header-only::bearssl
@@ -661,6 +685,14 @@ if (INGLUED)
 
 
   install(
+      DIRECTORY deps/boostorg/asio/include/
+      DESTINATION ${include_install_dir}/xxhr/deps
+      FILES_MATCHING PATTERN "*.[ih]*"
+      PATTERN deps/boostorg/asio/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
+      )
+
+
+  install(
       DIRECTORY deps/boostorg/assert/include/
       DESTINATION ${include_install_dir}/xxhr/deps
       FILES_MATCHING PATTERN "*.[ih]*"
@@ -717,10 +749,26 @@ if (INGLUED)
 
 
   install(
+      DIRECTORY deps/boostorg/context/include/
+      DESTINATION ${include_install_dir}/xxhr/deps
+      FILES_MATCHING PATTERN "*.[ih]*"
+      PATTERN deps/boostorg/context/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
+      )
+
+
+  install(
       DIRECTORY deps/boostorg/core/include/
       DESTINATION ${include_install_dir}/xxhr/deps
       FILES_MATCHING PATTERN "*.[ih]*"
       PATTERN deps/boostorg/core/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
+      )
+
+
+  install(
+      DIRECTORY deps/boostorg/coroutine/include/
+      DESTINATION ${include_install_dir}/xxhr/deps
+      FILES_MATCHING PATTERN "*.[ih]*"
+      PATTERN deps/boostorg/coroutine/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
       )
 
 
