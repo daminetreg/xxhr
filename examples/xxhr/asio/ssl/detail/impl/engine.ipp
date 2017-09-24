@@ -35,8 +35,9 @@ namespace detail {
 #if !defined(BOOST_ASIO_ENABLE_OLD_SSL)
 
 
-engine::engine(br_ssl_engine_context* context)
-  : ssl_(context)
+engine::engine(br_ssl_client_context* context)
+  : ssl_(&context->eng),
+    client_ctx(context)
 {
   //if (!ssl_)
   //{
@@ -183,13 +184,20 @@ engine::want engine::read(const boost::asio::mutable_buffer& data,
 boost::asio::mutable_buffers_1 engine::get_output(
     const boost::asio::mutable_buffer& data)
 {
+  std::cout << "get_output " << buffer_size(data) << std::endl;
   size_t length;
 	auto* buf_sendrec = br_ssl_engine_sendrec_buf(ssl_, &length);
 	if (length > buffer_size(data)) {
 		length = buffer_size(data);
 	}
-	memcpy(buffer_cast<void*>(data), buf_sendrec, length);
-  ::br_ssl_engine_sendrec_ack(ssl_, length);
+
+  if (length > 0) {
+    memcpy(buffer_cast<void*>(data), buf_sendrec, length);
+  //XXX: The following has to be called when the data was transmitted, 
+  // with the corresponding lenghth which could be written.
+    ::br_ssl_engine_sendrec_ack(ssl_, length);
+    std::cout << "get_output acked" << length << std::endl;
+  }
 
   return boost::asio::buffer(data,
       length > 0 ? static_cast<std::size_t>(length) : 0);
@@ -198,14 +206,21 @@ boost::asio::mutable_buffers_1 engine::get_output(
 boost::asio::const_buffer engine::put_input(
     const boost::asio::const_buffer& data)
 {
+    std::cout << "put_input -- " << buffer_size(data) << std::endl;
   size_t length{};
+
+  if (buffer_size(data) == 0) {
+    return boost::asio::buffer(data);
+  }
+
   auto* buf_recvrec = ::br_ssl_engine_recvrec_buf(ssl_, &length);
+  std::cout << "put_input -- recv_rec_size : " << length << std::endl;
   //XXX: Check not zero (length)
   if (length > buffer_size(data)) {
     length = buffer_size(data);
   }
   //XXX: ?unsigned char or void* ?
-  std::memcpy(buf_recvrec, boost::asio::buffer_cast<const unsigned char*>(data), length);
+  std::memcpy(buf_recvrec, boost::asio::buffer_cast<const void*>(data), length);
   ::br_ssl_engine_recvrec_ack(ssl_, length);
 
   return boost::asio::buffer(data +
@@ -245,9 +260,23 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
     void* data, std::size_t length, boost::system::error_code& ec,
     std::size_t* bytes_transferred)
 {
-  int result = (this->*op)(data, length);
+  //br_ssl_engine_flush(ssl_, 0);
+
   auto state = ::br_ssl_engine_current_state(ssl_);
+  std::cout << "state_before : " <<  state << std::endl;
+  if (state & BR_SSL_SENDREC)
+  {
+    std::cout << "We do want_output before anything else !" << std::endl;
+    ec = boost::system::error_code();
+    return want_output_and_retry;
+  }
+
+  int result = (this->*op)(data, length);
+  state = ::br_ssl_engine_current_state(ssl_);
   auto ssl_error = ::br_ssl_engine_last_error(ssl_);
+
+
+  std::cout << "state_after : " <<  state << std::endl;
 
   if (ssl_error != 0)
   {
@@ -259,19 +288,21 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
   if (result > 0 && bytes_transferred)
     *bytes_transferred = static_cast<std::size_t>(result);
 
-  if (state & BR_SSL_SENDAPP)
+  if (state & BR_SSL_SENDREC)
   {
     ec = boost::system::error_code();
-    return want_output_and_retry;
+    std::cout << "want_output - " << bytes_transferred << std::endl;
+    return want_output;
   }
   //else if (pending_output_after > pending_output_before)
   //{
   //  ec = boost::system::error_code();
   //  return result > 0 ? want_output : want_output_and_retry;
   //}
-  else if (state & BR_SSL_RECVAPP)
+  else if (state & BR_SSL_RECVREC)
   {
     ec = boost::system::error_code();
+    std::cout << "want_input_and_retry" << std::endl;
     return want_input_and_retry;
   }
   else if (state &  BR_SSL_CLOSED)
@@ -281,6 +312,8 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
   }
   else
   {
+    std::cout << "want_nothing" << std::endl;
+
     ec = boost::system::error_code();
     return want_nothing;
   }
@@ -289,14 +322,15 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
 int engine::do_accept(void*, std::size_t)
 {
   boost::asio::detail::static_mutex::scoped_lock lock(accept_mutex());
-  server_ctx.eng = *ssl_;
-  return ::br_ssl_server_reset(&server_ctx);
+  return ::br_ssl_server_reset(server_ctx);
 }
 
-int engine::do_connect(void*, std::size_t)
+int engine::do_connect(void* data, std::size_t length)
 {
-  client_ctx.eng = *ssl_;
-  return ::br_ssl_client_reset(&client_ctx, nullptr, 0);
+
+  auto ret =  ::br_ssl_client_reset(client_ctx, nullptr, 0);
+  std::cout << "do_connect " << ret << std::endl;
+  return ret;
 }
 
 int engine::do_shutdown(void*, std::size_t)
@@ -308,6 +342,7 @@ int engine::do_shutdown(void*, std::size_t)
 
 int engine::do_read(void* data, std::size_t length)
 {
+  std::cout << "do_read " << length << std::endl;
   size_t alen;
 	auto* buf_recvapp = br_ssl_engine_recvapp_buf(ssl_, &alen);
 	if (alen > length) {
@@ -322,6 +357,7 @@ int engine::do_read(void* data, std::size_t length)
 
 int engine::do_write(void* data, std::size_t length)
 {
+    std::cout << "do_write " << length << std::endl;
 	unsigned char *buf;
 	size_t alen;
 
@@ -335,7 +371,12 @@ int engine::do_write(void* data, std::size_t length)
 	}
 	memcpy(buf, data, alen);
 	br_ssl_engine_sendapp_ack(ssl_, alen);
+
+    if (alen > 0) {
+        br_ssl_engine_flush(ssl_, 0); // Required otherwise data not commited to be sent
+    }
   
+    std::cout << "do_write returned " << (int)alen << std::endl;
   //XXX: Needs better bounding length < INT_MAX ? static_cast<int>(length) : INT_MAX);
 	return (int)alen;
 }

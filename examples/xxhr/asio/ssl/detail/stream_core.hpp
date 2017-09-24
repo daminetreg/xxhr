@@ -42,7 +42,7 @@ struct stream_core
   // sufficient to hold the largest possible TLS record.
   enum { max_tls_record_size = 17 * 1024 };
 
-  stream_core(br_ssl_engine_context* context, boost::asio::io_service& io_service)
+  stream_core(br_ssl_client_context* context, boost::asio::io_service& io_service)
     : engine_(context),
       pending_read_(io_service),
       pending_write_(io_service),

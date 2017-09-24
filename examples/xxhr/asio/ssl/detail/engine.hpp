@@ -62,7 +62,7 @@ public:
   };
 
   // Construct a new engine for the specified context.
-  BOOST_ASIO_DECL explicit engine(br_ssl_engine_context* context);
+  BOOST_ASIO_DECL explicit engine(br_ssl_client_context* context);
 
   // Destructor.
   BOOST_ASIO_DECL ~engine();
@@ -151,8 +151,9 @@ private:
 
   unsigned char iobuf[BR_SSL_BUFSIZE_BIDI];
 
-	br_ssl_client_context client_ctx;
-	br_ssl_server_context server_ctx;
+	br_ssl_client_context* client_ctx;
+	//TODO: put in a variant wiht client_ctx 
+  br_ssl_server_context* server_ctx;
 };
 
 #endif // !defined(BOOST_ASIO_ENABLE_OLD_SSL)

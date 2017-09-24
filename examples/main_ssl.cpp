@@ -71,9 +71,7 @@ public:
     if (!error)
     {
 
-      constexpr auto* query = 
-R"(GET /index.html HTTP/1.0\r\n
-Host: localhost\r\n\r\n)";
+      constexpr auto* query = "GET /index.html HTTP/1.0\r\nHost: localhost\r\n\r\n";
 
 
       size_t request_length = strlen(query);

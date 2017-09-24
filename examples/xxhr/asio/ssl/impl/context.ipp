@@ -145,7 +145,7 @@ context::context(context::method m)
   case context::tlsv12_client:
     //TODO: Use folders of trusts anchors
     ::br_ssl_client_init_full(&sc, &xc, TAs, TAs_NUM);
-    handle_ = &sc.eng;
+    handle_ = &sc;
     break;
   case context::tlsv1_server:
   case context::tlsv11_server:
@@ -154,7 +154,7 @@ context::context(context::method m)
     break;
   }
 
-  auto err = ::br_ssl_engine_last_error(handle_);
+  auto err = ::br_ssl_engine_last_error(&handle_->eng);
   if (err != 0)
   {
     boost::system::error_code ec(
@@ -355,7 +355,7 @@ boost::system::error_code context::use_certificate(
   }
 
   ec = boost::system::error_code(
-      static_cast<int>(::br_ssl_engine_last_error(handle_)),
+      static_cast<int>(::br_ssl_engine_last_error(&handle_->eng)),
       boost::asio::error::get_ssl_category());
   return ec;
 }
