@@ -286,7 +286,14 @@ namespace xxhr {
 
     xhr.set("onreadystatechange", js::bind(&Session::Impl::on_readystate, shared_from_this(), _1));
 
-    xhr.call<val>("send");
+    if (body_) {
+      xhr.call<val>("send", *body_);
+    } else if (multipart_) {
+      xhr.call<val>("send", *multipart_);
+    } else {
+      xhr.call<val>("send");
+    }
+
   }
 
   void Session::Impl::DELETE()  { this->QUERY("DELETE"); }
