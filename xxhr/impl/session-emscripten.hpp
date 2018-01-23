@@ -128,6 +128,7 @@ namespace xxhr {
     Url url_;
     Parameters parameters_;
     Cookies cookies_;
+    Header headers;
 
     // XXX: SHould be used in query open if not none.
     boost::optional<Authentication> auth_;
@@ -163,9 +164,7 @@ namespace xxhr {
 
 
   void Session::Impl::SetHeader(const Header& header) {
-    for (auto item = header.cbegin(); item != header.cend(); ++item) {
-      xhr.call<val>("setRequestHeader", item->first, item->second);
-    }
+    headers.insert(header.begin(), header.end());
   }
 
   void Session::Impl::SetTimeout(const Timeout& timeout) {
@@ -282,6 +281,10 @@ namespace xxhr {
       xhr.call<val>("open", method, url_, true, auth_->username(), auth_->password() );
     } else {
       xhr.call<val>("open", method, url_, true);
+    }
+    
+    for (auto item = headers.cbegin(); item != headers.cend(); ++item) {
+      xhr.call<val>("setRequestHeader", item->first, item->second);
     }
 
     xhr.set("onreadystatechange", js::bind(&Session::Impl::on_readystate, shared_from_this(), _1));
