@@ -288,10 +288,17 @@ engine::want engine::perform(int (engine::* op)(void*, std::size_t),
   if (result > 0 && bytes_transferred)
     *bytes_transferred = static_cast<std::size_t>(result);
 
+  if (state & BR_SSL_SENDAPP) //XXX: Seems good but somehow I cannot read the stuffs from do_read.
+    {
+      ec = boost::system::error_code();
+      std::cout << "want_nothing" << std::endl;
+      return want_nothing;
+    }
+
   if (state & BR_SSL_SENDREC)
   {
     ec = boost::system::error_code();
-    std::cout << "want_output - " << bytes_transferred << std::endl;
+    std::cout << "want_output - " << result << std::endl;
     return want_output;
   }
   //else if (pending_output_after > pending_output_before)
@@ -351,13 +358,14 @@ int engine::do_read(void* data, std::size_t length)
 	memcpy(data, buf_recvapp, alen);
 	br_ssl_engine_recvapp_ack(ssl_, alen);
 
+    std::cout << "do_read :: " << std::string((const char*)data, alen) << std::endl;
   //XXX: Needs better bounding length < INT_MAX ? static_cast<int>(length) : INT_MAX);
   return (int)alen;
 }
 
 int engine::do_write(void* data, std::size_t length)
 {
-    std::cout << "do_write " << length << std::endl;
+    std::cout << "do_write " << length << " : " << std::string((const char*)data, length) << std::endl;
 	unsigned char *buf;
 	size_t alen;
 
