@@ -1,7 +1,8 @@
 {
-  "boostorg/optional" : { "@" : "boost-1.62.0", "-I" : "include/" }
-  , "boostorg/algorithm" : { "@" : "boost-1.62.0", "-I" : "include/" }
-  , "boostorg/serialization" : { "@" : "boost-1.62.0", "-I" : "include/" }
-  , "boostorg/asio" : { "@" : "boost-1.62.0", "-I" : "include/" }
+  "boostorg/optional" : { "@" : "boost-1.67.0", "-I" : "include/" }
+  , "boostorg/algorithm" : { "@" : "boost-1.67.0", "-I" : "include/" }
+  , "boostorg/serialization" : { "@" : "boost-1.67.0", "-I" : "include/" }
+  , "boostorg/asio" : { "@" : "boost-1.67.0", "-I" : "include/" }
+  , "boostorg/beast" : { "@" : "boost-1.67.0", "-I" : "include/"  }
   , "daminetreg/js-bind" : { "@" : "v0.0.1" }
 }
