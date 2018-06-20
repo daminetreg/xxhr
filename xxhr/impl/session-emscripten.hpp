@@ -30,8 +30,6 @@
 
 namespace xxhr {
 
-  constexpr const auto CRLF = "\r\n";
-
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     using val = emscripten::val;
     using str = std::string;
@@ -211,13 +209,15 @@ namespace xxhr {
         //buf["size"] = part.value.size();
 
         //formdata.call<val>("append", buf );
-      } else {
+      } else if (part.is_buffer) {
         auto buf = val::global("Blob").new_( part.value );
         if (!part.content_type.empty()) { buf["mimetype"] = val(part.content_type); }
         buf["size"] = val(part.value.size());
 
         formdata.call<val>("append", part.name, buf );
-      }
+      } 
+
+      // TODO : Implement normal form text value for web platform
     }
 
     multipart_ = formdata;
