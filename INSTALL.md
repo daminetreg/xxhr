@@ -14,11 +14,11 @@ xxhr can be installed in three ways :
 ```
 -I xxhr/ \
 -I xxhr/deps/boostorg/algorithm/include/ \
--I xxhr/deps/boostorg/align/include/ \
 -I xxhr/deps/boostorg/array/include/ \
 -I xxhr/deps/boostorg/asio/include/ \
 -I xxhr/deps/boostorg/assert/include/ \
 -I xxhr/deps/boostorg/atomic/include/ \
+-I xxhr/deps/boostorg/beast/include/ \
 -I xxhr/deps/boostorg/bind/include/ \
 -I xxhr/deps/boostorg/chrono/include/ \
 -I xxhr/deps/boostorg/concept_check/include/ \
@@ -75,9 +75,9 @@ xxhr can be installed in three ways :
 -I xxhr/deps/boostorg/typeof/include/ \
 -I xxhr/deps/boostorg/utility/include/ \
 -I xxhr/deps/boostorg/variant/include/ \
+-I xxhr/deps/boostorg/winapi/include/ \
 -I xxhr/deps/cpp-pre/type_traits/ \
 -I xxhr/deps/daminetreg/js-bind/ \
--I xxhr/deps/header-only/bearssl/include/ \
 ```
 
 ## Install
