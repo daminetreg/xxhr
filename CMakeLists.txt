@@ -13,7 +13,7 @@
 # * xxhr : current project name
 # * . : current project srcs folder.
 #
-# *                                                                   : all deps direct and transitive 
+# *                                                                    : all deps direct and transitive 
 #   -  : The cmake package name from the cmake_package_map otherwise: cpp-js
 #   -  : The cmake target name from cmake_package_map otherwise: ::
 #   - cpp-js : the github organization name
@@ -124,6 +124,13 @@ endif()
 # container
 if (INGLUED)
   include_directories(AFTER deps/boostorg/container/include/)
+else ()
+  find_package(Boost REQUIRED)
+endif()
+
+# container_hash
+if (INGLUED)
+  include_directories(AFTER deps/boostorg/container_hash/include/)
 else ()
   find_package(Boost REQUIRED)
 endif()
@@ -588,6 +595,7 @@ else()
       Boost::boost
       Boost::boost
       Boost::boost
+      Boost::boost
       cpp-pre::type_traits
       daminetreg::js-bind
   )
@@ -746,6 +754,14 @@ if (INGLUED)
       DESTINATION ${include_install_dir}/./deps
       FILES_MATCHING PATTERN "*.[ih]*"
       PATTERN deps/boostorg/container/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
+      )
+
+
+  install(
+      DIRECTORY deps/boostorg/container_hash/include/
+      DESTINATION ${include_install_dir}/./deps
+      FILES_MATCHING PATTERN "*.[ih]*"
+      PATTERN deps/boostorg/container_hash/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
       )
 
 

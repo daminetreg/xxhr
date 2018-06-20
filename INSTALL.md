@@ -24,6 +24,7 @@ xxhr can be installed in three ways :
 -I xxhr/deps/boostorg/concept_check/include/ \
 -I xxhr/deps/boostorg/config/include/ \
 -I xxhr/deps/boostorg/container/include/ \
+-I xxhr/deps/boostorg/container_hash/include/ \
 -I xxhr/deps/boostorg/context/include/ \
 -I xxhr/deps/boostorg/core/include/ \
 -I xxhr/deps/boostorg/coroutine/include/ \
