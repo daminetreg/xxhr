@@ -124,7 +124,7 @@ namespace xxhr {
 
     private:
     Url url_;
-    Parameters parameters_;
+    Parameters parameters_; // TODO: implement parameters
     Cookies cookies_;
     Header headers;
 

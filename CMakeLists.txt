@@ -23,13 +23,10 @@
 #   -  : same as above but with a guaranteed end slash.
 #
 
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.5.0)
 
 project(xxhr VERSION "0.0.1")
 enable_testing()
-
-#set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-std=c++17 -fpermissive)
 
 # Compile with shipped-with headers or without 
 option(INGLUED "Enable use of #inglued shipped with dependencies." ON)
@@ -43,12 +40,16 @@ string(TOUPPER "${CMAKE_CXX_COMPILER_ID}" COMPILER_IN_USE)
 if ("${COMPILER_IN_USE}" STREQUAL "GNU" OR "${COMPILER_IN_USE}" MATCHES "CLANG")
 	add_definitions(
     -Wall
-#		-Werror
+		-Werror
 		-Wno-unused-local-typedefs
 		-Wno-unused-variable
   )
 endif()
 
+# XXX: nxxm cannot ship this for the moment. An option would be to ship it with nxxm until headerizer is finished.
+add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
+find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 
 # algorithm
@@ -518,6 +519,8 @@ endif()
 include_directories(BEFORE ${CMAKE_CURRENT_LIST_DIR})
 add_library(xxhr INTERFACE)
 add_library(cpp-js::xxhr ALIAS xxhr)
+
+target_link_libraries(xxhr INTERFACE ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 set(include_install_dir "include")
 

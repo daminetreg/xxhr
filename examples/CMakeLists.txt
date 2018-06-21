@@ -4,17 +4,14 @@ if (DEFINED EMSCRIPTEN)
   endif()
 endif()
 
-
 add_executable(xxhr_main main.cpp)
 target_link_libraries(xxhr_main cpp-js::xxhr)
 
 add_executable(xxhr_sync main_syncapi.cpp)
-target_link_libraries(xxhr_main cpp-js::xxhr)
+target_link_libraries(xxhr_sync cpp-js::xxhr)
 
 add_executable(xxhr_introductory introductory.cpp)
-target_link_libraries(xxhr_main cpp-js::xxhr)
-
-find_package(Threads REQUIRED)
+target_link_libraries(xxhr_introductory cpp-js::xxhr)
 
 if (DEFINED EMSCRIPTEN)
 set_target_properties(xxhr_main 

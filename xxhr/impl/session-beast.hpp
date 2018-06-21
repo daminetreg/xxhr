@@ -2,6 +2,7 @@
 #define XXHR_DETAIL_SESSION_BEAST_HPP
 
 #include <functional>
+#include <fstream>
 #include <regex>
 #include <cstdlib>
 #include <functional>
@@ -34,38 +35,16 @@
 #include <boost/asio/ssl/stream.hpp>
 
 
-namespace xxhr::detail {
-
-//
-// Copyright (c) 2016-2017 Vinnie Falco (vinnie dot falco at gmail dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-// Official repository: https://github.com/boostorg/beast
-//
-
-//------------------------------------------------------------------------------
-//
-// Example: HTTP SSL client, asynchronous
-//
-//------------------------------------------------------------------------------
-
-
-
-using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
-namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
-namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
-
-//------------------------------------------------------------------------------
-
-// Report a failure
-inline void fail(boost::system::error_code ec, char const* what) { 
-  std::cerr << what << ": " << ec.message() << "\n";
-}
-
-
 namespace xxhr {
+
+  using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+  namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
+  namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
+
+  // Report a failure
+  inline void fail(boost::system::error_code ec, char const* what) { 
+    std::cerr << what << ": " << ec.message() << "\n";
+  }
 
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     public:
@@ -103,7 +82,7 @@ namespace xxhr {
       on_response = functor;
     }
 
-    void QUERY(const std::string& method);
+    void QUERY(http::verb method);
 
     void DELETE();
     void GET();
@@ -114,8 +93,11 @@ namespace xxhr {
     void PUT();
 
     private:
+    Url url_;
+    Parameters parameters_; // TODO: implement parameters
     http::request<http::string_body> req_;
-    std::chrono::millisecond timeout_;
+    //TODO: implement asio steady_timer on run
+    std::chrono::milliseconds timeout_;
 
     std::function<void(Response&&)> on_response;
 
@@ -155,7 +137,7 @@ namespace xxhr {
             host,
             port,
             std::bind(
-                &session::on_resolve,
+                &Session::Impl::on_resolve,
                 shared_from_this(),
                 std::placeholders::_1,
                 std::placeholders::_2));
@@ -175,7 +157,7 @@ namespace xxhr {
             results.begin(),
             results.end(),
             std::bind(
-                &session::on_connect,
+                &Session::Impl::on_connect,
                 shared_from_this(),
                 std::placeholders::_1));
     }
@@ -190,7 +172,7 @@ namespace xxhr {
         stream_.async_handshake(
             ssl::stream_base::client,
             std::bind(
-                &session::on_handshake,
+                &Session::Impl::on_handshake,
                 shared_from_this(),
                 std::placeholders::_1));
     }
@@ -204,7 +186,7 @@ namespace xxhr {
         // Send the HTTP request to the remote host
         http::async_write(stream_, req_,
             std::bind(
-                &session::on_write,
+                &Session::Impl::on_write,
                 shared_from_this(),
                 std::placeholders::_1,
                 std::placeholders::_2));
@@ -223,7 +205,7 @@ namespace xxhr {
         // Receive the HTTP response
         http::async_read(stream_, buffer_, res_,
             std::bind(
-                &session::on_read,
+                &Session::Impl::on_read,
                 shared_from_this(),
                 std::placeholders::_1,
                 std::placeholders::_2));
@@ -241,13 +223,33 @@ namespace xxhr {
 
         // Write the message to standard out
         std::cout << res_ << std::endl;
+        
+        Header response_headers;
+        Cookies response_cookies;
+        for (auto&& header : res_.base()) {
+          if (header.name() == http::field::set_cookie) {
+            response_cookies.parse_cookie_string(std::string(header.value()));
+          } else {
+            response_headers.insert_or_assign(std::string(header.name_string()), std::string(header.value()));
+          }
+        }
 
-        on_response(res_.body());
+        on_response(xxhr::Response(
+          res_.result_int(),
+          res_.body(),
+          response_headers,
+          url_,
+          response_cookies,
+          Error{}
+        ));
+
+        //TODO: error cases into response
+
 
         // Gracefully close the stream
         stream_.async_shutdown(
             std::bind(
-                &session::on_shutdown,
+                &Session::Impl::on_shutdown,
                 shared_from_this(),
                 std::placeholders::_1));
     }
@@ -302,7 +304,7 @@ namespace xxhr {
 
   void Session::Impl::SetPayload(Payload&& payload) {
     req_.set(http::field::content_type, "application/x-www-form-urlencoded");
-    req_.body = payload.content;
+    req_.body() = payload.content;
   }
 
   void Session::Impl::SetPayload(const Payload& payload) {
@@ -370,7 +372,7 @@ Simple file.
         body.write(file_content.data(), file_content.size());
       } else if (part.is_buffer) {
         body << "Content-Type: application/octet-stream" << CRLF;
-        body.write(part.data, part.datalen);
+        body.write(reinterpret_cast<const char*>(part.data), part.datalen);
       } else {
         body << part.value;
       }
@@ -378,9 +380,12 @@ Simple file.
       body << boundary_str << CRLF;
     }
 
-    req.body = body;
+    req_.body() = body.str();
   }
 
+  void Session::Impl::SetMultipart(const Multipart& multipart) {
+    SetMultipart(std::move(const_cast<Multipart&>(multipart)));
+  }
 
   void Session::Impl::SetRedirect(const bool& ) {
     //TODO: implement following redirects
@@ -401,22 +406,25 @@ Simple file.
 
   }
 
-  void Session::Impl::SetBody(Body&& body) { req_.body = body; }
-  void Session::Impl::SetBody(const Body& body) { req_.body  = body; }
+  void Session::Impl::SetBody(Body&& body) { req_.body() = body; }
+  void Session::Impl::SetBody(const Body& body) { req_.body()  = body; }
 
-  void Session::Impl::QUERY(const std::string& method) {
-    req_.method = method;
+  void Session::Impl::QUERY(http::verb method) {
+    req_.method(method);
 
-    http_session->run(host.data(), port.data(), target.data(), 11);
+    //TODO: parse url into host port and target
+    run("api.github.com", "443", "/v3/code_search", 11);
+
+    ioc.run();
   }
 
-  void Session::Impl::DELETE()  { this->QUERY("DELETE"); }
-  void Session::Impl::GET()     { this->QUERY("GET"); }
-  void Session::Impl::HEAD()    { this->QUERY("HEAD"); }
-  void Session::Impl::OPTIONS() { this->QUERY("OPTIONS"); }
-  void Session::Impl::PATCH()   { this->QUERY("PATCH"); }
-  void Session::Impl::POST()    { this->QUERY("POST"); }
-  void Session::Impl::PUT()     { this->QUERY("PUT"); }
+  void Session::Impl::DELETE()  { this->QUERY(http::verb::delete_); }
+  void Session::Impl::GET()     { this->QUERY(http::verb::get); }
+  void Session::Impl::HEAD()    { this->QUERY(http::verb::head); }
+  void Session::Impl::OPTIONS() { this->QUERY(http::verb::options); }
+  void Session::Impl::PATCH()   { this->QUERY(http::verb::patch); }
+  void Session::Impl::POST()    { this->QUERY(http::verb::post); }
+  void Session::Impl::PUT()     { this->QUERY(http::verb::put); }
 
 
 

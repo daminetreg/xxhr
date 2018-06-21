@@ -19,13 +19,10 @@
 #   - {{include_path_end_backslash}} : same as above but with a guaranteed end slash.
 #
 
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.5.0)
 
 project({{project}} VERSION "0.0.1")
 enable_testing()
-
-#set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-std=c++17 -fpermissive)
 
 # Compile with shipped-with headers or without 
 option(INGLUED "Enable use of #inglued shipped with dependencies." ON)
@@ -45,6 +42,10 @@ if ("${COMPILER_IN_USE}" STREQUAL "GNU" OR "${COMPILER_IN_USE}" MATCHES "CLANG")
   )
 endif()
 
+# XXX: nxxm cannot ship this for the moment. An option would be to ship it with nxxm until headerizer is finished.
+add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
+find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 
 {{#deps}}
@@ -61,6 +62,8 @@ endif()
 include_directories(BEFORE ${CMAKE_CURRENT_LIST_DIR})
 add_library({{project}} INTERFACE)
 add_library({{org}}::{{project}} ALIAS {{project}})
+
+target_link_libraries({{project}} INTERFACE ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 set(include_install_dir "include")
 
