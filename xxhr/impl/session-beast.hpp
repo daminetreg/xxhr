@@ -44,10 +44,7 @@ namespace xxhr {
 
   using plain_or_tls = std::variant<std::monostate, tcp::socket, ssl::stream<tcp::socket>>;
 
-  // Report a failure
-  inline void fail(boost::system::error_code ec, char const* what) { 
-    std::cerr << what << ": " << ec.message() << "\n";
-  }
+  
 
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     public:
@@ -98,14 +95,14 @@ namespace xxhr {
     private:
     util::url_parts url_parts_;
     std::string url_;
-    Parameters parameters_; // TODO: implement parameters
+    Parameters parameters_;
     http::request<http::string_body> req_;
-    //TODO: implement asio steady_timer on run
-    std::chrono::milliseconds timeout_;
+    std::chrono::milliseconds timeout_ = std::chrono::milliseconds{0};
 
     std::function<void(Response&&)> on_response;
 
     boost::asio::io_context ioc;
+    boost::asio::steady_timer timeouter{ioc};
     ssl::context ctx{ssl::context::sslv23_client};
     tcp::resolver resolver_{ioc};
     plain_or_tls stream_; 
@@ -122,6 +119,20 @@ namespace xxhr {
 
     tcp::socket& plain_stream() {
       return std::get<tcp::socket>(stream_);
+    }
+
+    void fail(boost::system::error_code ec, xxhr::ErrorCode xxhr_ec) { 
+      //TODO: if (trace)
+      std::cerr << ec << ": " << ec.message() << " distilled into : " << uint32_t(xxhr_ec) << "\n";
+
+      on_response(xxhr::Response(
+        444, // do like nginx use 444 for errors which are on the layer belows http.
+        std::string{},
+        Header{},
+        url_,
+        Cookies{},
+        Error{xxhr_ec}
+      ));
     }
 
     // Start the asynchronous operation
@@ -154,7 +165,7 @@ namespace xxhr {
 
     void on_resolve( boost::system::error_code ec, tcp::resolver::results_type results) {
         if(ec)
-            return fail(ec, "resolve");
+          return fail(ec, ErrorCode::HOST_RESOLUTION_FAILURE);
 
         // Make the connection on the IP address we get from a lookup
         tcp::socket* socket;
@@ -176,7 +187,7 @@ namespace xxhr {
 
     void on_connect(boost::system::error_code ec) {
         if(ec)
-            return fail(ec, "connect");
+          return fail(ec, ErrorCode::CONNECTION_FAILURE);
 
         if (is_tls_stream()) {
           // Perform the SSL handshake
@@ -196,7 +207,7 @@ namespace xxhr {
 
     void on_stream_ready(boost::system::error_code ec) {
         if(ec)
-            return fail(ec, "handshake");
+          return fail(ec, ErrorCode::SSL_CONNECT_ERROR);
 
         // Send the HTTP request to the remote host
         std::visit([this](auto& stream) {
@@ -216,7 +227,7 @@ namespace xxhr {
         boost::ignore_unused(bytes_transferred);
 
         if(ec)
-            return fail(ec, "write");
+          return fail(ec, ErrorCode::NETWORK_SEND_FAILURE);
         
         // Receive the HTTP response
         std::visit([this](auto& stream) {
@@ -235,17 +246,23 @@ namespace xxhr {
     void on_read( boost::system::error_code ec, std::size_t bytes_transferred) {
         boost::ignore_unused(bytes_transferred);
 
+        timeouter.cancel();
+
         if(ec)
-            return fail(ec, "read");
+          return fail(ec, ErrorCode::NETWORK_RECEIVE_ERROR);
 
         // Write the message to standard out
         Header response_headers;
         Cookies response_cookies;
         for (auto&& header : res_.base()) {
           if (header.name() == http::field::set_cookie) {
-            response_cookies.parse_cookie_string(std::string(header.value()));
+            response_cookies
+              .parse_cookie_string(std::string(header.value()));
           } else {
-            response_headers.insert_or_assign(std::string(header.name_string()), std::string(header.value()));
+            response_headers
+              .insert_or_assign(
+                  std::string(header.name_string()),
+                  std::string(header.value()));
           }
         }
 
@@ -257,9 +274,6 @@ namespace xxhr {
           response_cookies,
           Error{}
         ));
-
-        //TODO: error cases into response
-
 
         // Gracefully close the stream
         if (is_tls_stream()) {
@@ -281,9 +295,29 @@ namespace xxhr {
           ec.assign(0, ec.category());
       }
       if(ec)
-          return fail(ec, "shutdown");
+          return fail(ec, ErrorCode::GENERIC_SSL_ERROR);
 
       // If we get here then the connection is closed gracefully
+    }
+
+    void on_timeout(const boost::system::error_code& ec) {
+      if (ec != boost::asio::error::operation_aborted) {
+        
+        ioc.stop();
+
+        tcp::socket* socket;
+        if (is_tls_stream()) {
+          socket = &tls_stream().next_layer();
+        } else {
+          socket = &plain_stream();
+        }
+
+        boost::system::error_code ec_dontthrow;
+        socket->cancel(ec_dontthrow);
+        socket->close(ec_dontthrow);
+
+        fail(ec, ErrorCode::OPERATION_TIMEDOUT);
+      }
     }
 
 
@@ -437,7 +471,7 @@ Simple file.
     std::stringstream target; target << url_parts_.path << url_parts_.parameters << parameters_.content;
     req_.target(target.str());
     req_.set(http::field::host, url_parts_.host);
-    req_.set(http::field::user_agent, "xxhr/v0.0.1");
+    req_.set(http::field::user_agent, "xxhr/v0.0.1"); //TODO: add a way to override from user and make a version macro
 
     if (url_parts_.https()) {
       stream_.emplace<ssl::stream<tcp::socket>>(ioc, ctx);
@@ -446,6 +480,11 @@ Simple file.
     }
 
     register_request();
+
+    if (timeout_ != std::chrono::milliseconds(0)) {
+      timeouter.expires_after(timeout_);
+      timeouter.async_wait(std::bind(&Session::Impl::on_timeout, shared_from_this(), std::placeholders::_1)); 
+    }
 
     ioc.run();
   }
