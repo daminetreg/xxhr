@@ -13,7 +13,7 @@
 # * xxhr : current project name
 # * . : current project srcs folder.
 #
-# *                                                                    : all deps direct and transitive 
+# *                                                                     : all deps direct and transitive 
 #   -  : The cmake package name from the cmake_package_map otherwise: cpp-js
 #   -  : The cmake target name from cmake_package_map otherwise: ::
 #   - cpp-js : the github organization name
@@ -40,7 +40,7 @@ string(TOUPPER "${CMAKE_CXX_COMPILER_ID}" COMPILER_IN_USE)
 if ("${COMPILER_IN_USE}" STREQUAL "GNU" OR "${COMPILER_IN_USE}" MATCHES "CLANG")
 	add_definitions(
     -Wall
-		-Werror
+#		-Werror
 		-Wno-unused-local-typedefs
 		-Wno-unused-variable
   )
@@ -51,6 +51,13 @@ add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 
+
+# better-enums
+if (INGLUED)
+  include_directories(AFTER deps/aantron/better-enums/)
+else ()
+  find_package(aantron REQUIRED)
+endif()
 
 # algorithm
 if (INGLUED)
@@ -535,6 +542,7 @@ if (INGLUED)
 else()
 
   target_link_libraries(xxhr INTERFACE 
+      aantron::better-enums
       Boost::boost
       Boost::boost
       Boost::boost
@@ -670,6 +678,14 @@ install(
 
 # Install the deps when run in INGLUED mode
 if (INGLUED)
+
+
+  install(
+      DIRECTORY deps/aantron/better-enums/
+      DESTINATION ${include_install_dir}/./deps
+      FILES_MATCHING PATTERN "*.[ih]*"
+      PATTERN deps/aantron/better-enums/deps EXCLUDE # Transitive deps are hikedup on `glue seal`.
+      )
 
 
   install(

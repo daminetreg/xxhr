@@ -30,7 +30,7 @@ BETTER_ENUM(ErrorCode, unsigned int,
     SSL_CACERT_ERROR,
     GENERIC_SSL_ERROR,
     UNSUPPORTED_PROTOCOL,
-    UNKNOWN_ERROR = 1000,
+    UNKNOWN_ERROR = 1000
 );
 
 class Error {
@@ -39,14 +39,14 @@ class Error {
     Error(ErrorCode code) : code{code} {}
 
     explicit operator bool() const {
-        return code != ErrorCode::OK;
+        return code != +ErrorCode::OK;
     }
 
     ErrorCode code;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Error& err) {
-  os << "error:" << static_cast<unsigned int>(err.code) << " " << err.code;
+  os << "error:" << static_cast<unsigned int>(err.code) << " " << err.code._to_string();
   return os;
 }
 

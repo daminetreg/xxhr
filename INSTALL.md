@@ -13,6 +13,7 @@ xxhr can be installed in three ways :
 ### GCC / Clang / MSVC
 ```
 -I xxhr/ \
+-I xxhr/deps/aantron/better-enums/ \
 -I xxhr/deps/boostorg/algorithm/include/ \
 -I xxhr/deps/boostorg/array/include/ \
 -I xxhr/deps/boostorg/asio/include/ \
