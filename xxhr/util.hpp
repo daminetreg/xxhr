@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <regex>
 
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
@@ -18,13 +19,27 @@
 
 namespace xxhr {
 namespace util {
-
+ 
   inline Header parseHeader(const std::string& headers);
   inline size_t writeFunction(void* ptr, size_t size, size_t nmemb, std::string* data);
   inline std::vector<std::string> split(const std::string& to_split, char delimiter);
   inline std::string urlEncode(const std::string& response);
   inline std::string decode64(const std::string &val);
   inline std::string encode64(const std::string &val);
+
+  struct url_parts {
+    std::string protocol;
+    std::string host;
+    std::string port;
+    std::string path;
+    std::string parameters;
+    std::string fragment;
+
+    bool https() const {
+      return protocol == "https";
+    }
+  };
+  inline url_parts parse_url(const std::string &url);
 
 } // namespace util
 } // namespace xxhr
@@ -117,6 +132,27 @@ namespace util {
       using It = base64_from_binary<transform_width<std::string::const_iterator, 6, 8>>;
       auto tmp = std::string(It(std::begin(val)), It(std::end(val)));
       return tmp.append((3 - val.size() % 3) % 3, '=');
+  }
+
+  inline url_parts parse_url(const std::string &url) {
+    url_parts ret;
+    std::regex ex("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
+    std::cmatch what;
+    if (regex_match(url.c_str(), what, ex)) {
+        ret.protocol = std::string(what[1].first, what[1].second);
+        ret.host   = std::string(what[2].first, what[2].second);
+        ret.port     = std::string(what[3].first, what[3].second);
+
+        if (ret.port.empty()) {
+          ret.port = (ret.protocol == "https") ? "443" : "80";
+        }
+
+        ret.path     = std::string(what[4].first, what[4].second);
+        ret.parameters    = std::string(what[5].first, what[5].second);
+        ret.fragment = std::string(what[6].first, what[6].second);
+    }
+
+    return ret;
   }
 
 

@@ -9,8 +9,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <variant>
+#include <utility>
 
-#include <boost/optional.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
 
 #include <xxhr/auth.hpp>
@@ -40,6 +41,8 @@ namespace xxhr {
   using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
   namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
   namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
+
+  using plain_or_tls = std::variant<std::monostate, tcp::socket, ssl::stream<tcp::socket>>;
 
   // Report a failure
   inline void fail(boost::system::error_code ec, char const* what) { 
@@ -93,7 +96,8 @@ namespace xxhr {
     void PUT();
 
     private:
-    Url url_;
+    util::url_parts url_parts_;
+    std::string url_;
     Parameters parameters_; // TODO: implement parameters
     http::request<http::string_body> req_;
     //TODO: implement asio steady_timer on run
@@ -104,56 +108,64 @@ namespace xxhr {
     boost::asio::io_context ioc;
     ssl::context ctx{ssl::context::sslv23_client};
     tcp::resolver resolver_{ioc};
-    ssl::stream<tcp::socket> stream_{ioc, ctx};
+    plain_or_tls stream_; 
     boost::beast::flat_buffer buffer_; // (Must persist between reads)
     http::response<http::string_body> res_;
 
+    bool is_tls_stream() {
+      return std::holds_alternative<ssl::stream<tcp::socket>>(stream_);
+    }
+
+    ssl::stream<tcp::socket>& tls_stream() {
+      return std::get<ssl::stream<tcp::socket>>(stream_);
+    }
+
+    tcp::socket& plain_stream() {
+      return std::get<tcp::socket>(stream_);
+    }
+
     // Start the asynchronous operation
-    void
-    run(
-        char const* host,
-        char const* port,
-        char const* target,
-        int version)
-    {
+    void register_request() {
+
+      if (is_tls_stream()) {
+
+        auto& stream = tls_stream();
+
         // Set SNI Hostname (many hosts need this to handshake successfully)
-        // XXX: openssl specificae, abstract this please
-        if(! SSL_set_tlsext_host_name(stream_.native_handle(), host))
+        // XXX: openssl specificae, abstract this shit please
+        if(! SSL_set_tlsext_host_name(stream.native_handle(), url_parts_.host.data()))
         {
             boost::system::error_code ec{static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()};
             std::cerr << ec.message() << "\n";
             return;
         }
+      }
 
-        // Set up an HTTP GET request message
-        req_.version(version);
-        req_.method(http::verb::get);
-        req_.target(target);
-        req_.set(http::field::host, host);
-        req_.set(http::field::user_agent, "octoxxit/v0.0.1");
-
-        // Look up the domain name
-        resolver_.async_resolve(
-            host,
-            port,
-            std::bind(
-                &Session::Impl::on_resolve,
-                shared_from_this(),
-                std::placeholders::_1,
-                std::placeholders::_2));
+      // Look up the domain name
+      resolver_.async_resolve(
+          url_parts_.host.data(),
+          url_parts_.port.data(),
+          std::bind(
+              &Session::Impl::on_resolve,
+              shared_from_this(),
+              std::placeholders::_1,
+              std::placeholders::_2));
     }
 
-    void
-    on_resolve(
-        boost::system::error_code ec,
-        tcp::resolver::results_type results)
-    {
+    void on_resolve( boost::system::error_code ec, tcp::resolver::results_type results) {
         if(ec)
             return fail(ec, "resolve");
 
         // Make the connection on the IP address we get from a lookup
+        tcp::socket* socket;
+        if (is_tls_stream()) {
+          socket = &tls_stream().next_layer();
+        } else {
+          socket = &plain_stream();
+        }
+
         boost::asio::async_connect(
-            stream_.next_layer(),
+            *socket,
             results.begin(),
             results.end(),
             std::bind(
@@ -162,68 +174,71 @@ namespace xxhr {
                 std::placeholders::_1));
     }
 
-    void
-    on_connect(boost::system::error_code ec)
-    {
+    void on_connect(boost::system::error_code ec) {
         if(ec)
             return fail(ec, "connect");
 
-        // Perform the SSL handshake
-        stream_.async_handshake(
-            ssl::stream_base::client,
-            std::bind(
-                &Session::Impl::on_handshake,
-                shared_from_this(),
-                std::placeholders::_1));
+        if (is_tls_stream()) {
+          // Perform the SSL handshake
+          auto& stream = tls_stream();
+          stream.async_handshake(
+              ssl::stream_base::client,
+              std::bind(
+                  &Session::Impl::on_stream_ready,
+                  shared_from_this(),
+                  std::placeholders::_1));
+        } else {
+          // Plain HTTP
+          // consider handshake was performed.
+          on_stream_ready(ec);
+        }
     }
 
-    void
-    on_handshake(boost::system::error_code ec)
-    {
+    void on_stream_ready(boost::system::error_code ec) {
         if(ec)
             return fail(ec, "handshake");
 
         // Send the HTTP request to the remote host
-        http::async_write(stream_, req_,
-            std::bind(
-                &Session::Impl::on_write,
-                shared_from_this(),
-                std::placeholders::_1,
-                std::placeholders::_2));
+        std::visit([this](auto& stream) {
+          if constexpr (std::is_same_v<std::monostate,std::decay_t<decltype(stream)>>) return;
+          else {
+            http::async_write(stream, req_,
+                std::bind(
+                    &Session::Impl::on_write,
+                    shared_from_this(),
+                    std::placeholders::_1,
+                    std::placeholders::_2));
+          }
+        }, stream_);
     }
 
-    void
-    on_write(
-        boost::system::error_code ec,
-        std::size_t bytes_transferred)
-    {
+    void on_write( boost::system::error_code ec, std::size_t bytes_transferred) {
         boost::ignore_unused(bytes_transferred);
 
         if(ec)
             return fail(ec, "write");
         
         // Receive the HTTP response
-        http::async_read(stream_, buffer_, res_,
-            std::bind(
-                &Session::Impl::on_read,
-                shared_from_this(),
-                std::placeholders::_1,
-                std::placeholders::_2));
+        std::visit([this](auto& stream) {
+          if constexpr (std::is_same_v<std::monostate,std::decay_t<decltype(stream)>>) return;
+          else {
+            http::async_read(stream, buffer_, res_,
+                std::bind(
+                    &Session::Impl::on_read,
+                    shared_from_this(),
+                    std::placeholders::_1,
+                    std::placeholders::_2));
+          }
+        }, stream_);
     }
 
-    void
-    on_read(
-        boost::system::error_code ec,
-        std::size_t bytes_transferred)
-    {
+    void on_read( boost::system::error_code ec, std::size_t bytes_transferred) {
         boost::ignore_unused(bytes_transferred);
 
         if(ec)
             return fail(ec, "read");
 
         // Write the message to standard out
-        std::cout << res_ << std::endl;
-        
         Header response_headers;
         Cookies response_cookies;
         for (auto&& header : res_.base()) {
@@ -247,32 +262,37 @@ namespace xxhr {
 
 
         // Gracefully close the stream
-        stream_.async_shutdown(
+        if (is_tls_stream()) {
+          auto& stream = tls_stream();
+          stream.async_shutdown(
             std::bind(
-                &Session::Impl::on_shutdown,
-                shared_from_this(),
-                std::placeholders::_1));
+              &Session::Impl::on_shutdown,
+              shared_from_this(),
+              std::placeholders::_1));
+        } else {
+          on_shutdown(ec);
+        }
     }
 
-    void
-    on_shutdown(boost::system::error_code ec)
-    {
-        if(ec == boost::asio::error::eof)
-        {
-            // Rationale:
-            // http://stackoverflow.com/questions/25587403/boost-asio-ssl-async-shutdown-always-finishes-with-an-error
-            ec.assign(0, ec.category());
-        }
-        if(ec)
-            return fail(ec, "shutdown");
+    void on_shutdown(boost::system::error_code ec) {
+      if(ec == boost::asio::error::eof) {
+          // Rationale:
+          // http://stackoverflow.com/questions/25587403/boost-asio-ssl-async-shutdown-always-finishes-with-an-error
+          ec.assign(0, ec.category());
+      }
+      if(ec)
+          return fail(ec, "shutdown");
 
-        // If we get here then the connection is closed gracefully
+      // If we get here then the connection is closed gracefully
     }
 
 
   };
 
-  void Session::Impl::SetUrl(const Url& url) { url_ = url; }
+  void Session::Impl::SetUrl(const Url& url) {
+    url_ = url; 
+    url_parts_ = util::parse_url(url); 
+  }
   void Session::Impl::SetParameters(Parameters&& parameters) {
     parameters_ = std::move(parameters);
   }
@@ -412,8 +432,20 @@ Simple file.
   void Session::Impl::QUERY(http::verb method) {
     req_.method(method);
 
-    //TODO: parse url into host port and target
-    run("api.github.com", "443", "/v3/code_search", 11);
+    // Set up an HTTP GET request message
+    req_.version(11);
+    std::stringstream target; target << url_parts_.path << url_parts_.parameters << parameters_.content;
+    req_.target(target.str());
+    req_.set(http::field::host, url_parts_.host);
+    req_.set(http::field::user_agent, "xxhr/v0.0.1");
+
+    if (url_parts_.https()) {
+      stream_.emplace<ssl::stream<tcp::socket>>(ioc, ctx);
+    } else {
+      stream_.emplace<tcp::socket>(ioc);
+    }
+
+    register_request();
 
     ioc.run();
   }

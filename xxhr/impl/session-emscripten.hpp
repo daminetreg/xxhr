@@ -4,7 +4,7 @@
 #include <functional>
 #include <regex>
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/algorithm/string/trim_all.hpp>
 
 #include <emscripten.h>
@@ -129,7 +129,7 @@ namespace xxhr {
     Header headers;
 
     // XXX: SHould be used in query open if not none.
-    boost::optional<Authentication> auth_;
+    std::optional<Authentication> auth_;
 
     //! Payload to be given to xhr send.
     boost::optional<std::string> body_;
