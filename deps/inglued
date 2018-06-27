@@ -6,4 +6,5 @@
   , "boostorg/beast" : { "@" : "boost-1.67.0", "-I" : "include/"  }
   , "boostorg/container_hash" : { "@" : "boost-1.67.0", "-I" : "include/"  }
   , "daminetreg/js-bind" : { "@" : "v0.0.1" }
+  , "aantron/better-enums" : { "@" : "0.11.1" }
 }

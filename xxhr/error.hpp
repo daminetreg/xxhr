@@ -4,12 +4,16 @@
 #include <cstdint>
 #include <string>
 
+#include <enum.h>
+
 #include "xxhrtypes.hpp"
 #include "defines.hpp"
 
 namespace xxhr {
 
-enum class ErrorCode {
+
+  //TODO: refactor into system.error_code own category.
+BETTER_ENUM(ErrorCode, unsigned int,
     OK = 0,
     CONNECTION_FAILURE,
     EMPTY_RESPONSE,
@@ -27,7 +31,7 @@ enum class ErrorCode {
     GENERIC_SSL_ERROR,
     UNSUPPORTED_PROTOCOL,
     UNKNOWN_ERROR = 1000,
-};
+);
 
 class Error {
   public:
@@ -40,6 +44,11 @@ class Error {
 
     ErrorCode code;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Error& err) {
+  os << "error:" << static_cast<unsigned int>(err.code) << " " << err.code;
+  return os;
+}
 
 } // namespace xxhr
 
