@@ -10,6 +10,7 @@
 #include <type_traits>
 
 namespace xxhr {
+  using namespace std::literals::chrono_literals; // Improves readability of user code by allowing to write suffixes.
 
 class Timeout {
   public:

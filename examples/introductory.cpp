@@ -15,7 +15,7 @@ int main() {
           << resp.error << std::endl;
       }
     },
-    Timeout(4)
+    Timeout(3000ms)
   );
 
   return 0;
