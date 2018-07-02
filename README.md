@@ -18,7 +18,7 @@ The underlying backend for the implementation for all native platforms will be B
 ## License
 xxhr is a rewrite of the [cpr](https://github.com/whoshuu/cpr) project from Huu Nguyen ( [https://github.com/whoshuu](@whoshuu) ) with a different philosophy :
   - Easy to consume: no binaries dependencies, only headers (no curl).
-  - Asynchronous by essence
+  - Asynchronous API by essence
 
 [Boost Sofware License](./LICENSE.md), please just reproduce copyrights : 
 

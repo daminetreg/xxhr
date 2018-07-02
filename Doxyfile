@@ -753,7 +753,8 @@ WARN_LOGFILE           =
 INPUT                  = LICENSE.md \
                          INSTALL.md \
                          doc/INDEX.md \
-                         doc/tutorial_test.md \
+                         examples/introductory.cpp \
+                         examples/getting_started.cpp \
                          xxhr/api.hpp \
                          xxhr/apisync.hpp \
                          xxhr/cookies.hpp \
