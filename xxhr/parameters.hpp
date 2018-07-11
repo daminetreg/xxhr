@@ -20,6 +20,14 @@ struct Parameter {
     std::string value;
 };
 
+/**
+ * \brief Allows passing an initializer list of named HTTP Parameters that will be URL Encoded within the request URI ( *i.e.* In the form your/url?param=value).
+ *
+ * For example querying google about this library can be done with :
+ *
+ * \snippet examples/parameters.cpp Parameters-snippet
+ *
+ */
 class Parameters {
   public:
     Parameters() = default;

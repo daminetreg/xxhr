@@ -760,7 +760,8 @@ INPUT                  = LICENSE.md \
                          xxhr/cookies.hpp \
                          xxhr/response.hpp \
                          xxhr/handler.hpp \
-                         xxhr/error.hpp
+                         xxhr/error.hpp \
+                         xxhr/parameters.hpp
 
 
 # This tag can be used to specify the character encoding of the source files

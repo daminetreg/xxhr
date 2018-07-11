@@ -16,6 +16,10 @@ target_link_libraries(xxhr_introductory cpp-js::xxhr)
 add_executable(getting_started getting_started.cpp)
 target_link_libraries(getting_started cpp-js::xxhr)
 
+add_executable(parameters parameters.cpp)
+target_link_libraries(parameters cpp-js::xxhr)
+
+
 if (DEFINED EMSCRIPTEN)
 set_target_properties(xxhr_main 
   PROPERTIES SUFFIX ".html"

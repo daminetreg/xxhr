@@ -10,7 +10,7 @@ int main() {
   using namespace xxhr;
 //! [using-xxhr]
 
-//! [GET-query]
+//! [GET-request]
   GET( "https://tools.ietf.org/rfc/rfc2616"s, 
     on_response = [](auto&& resp) {
 
@@ -18,9 +18,9 @@ int main() {
 
     }
   );
-//! [GET-query]
+//! [GET-request]
 
-//! [GET-query-error-handling]
+//! [GET-request-error-handling]
   GET( "https://tools.ietf.org/rfc/rfc2616"s, 
     on_response = [](auto&& resp) {
       
@@ -33,11 +33,24 @@ int main() {
       }
     }
   );
-//! [GET-query-error-handling]
+//! [GET-request-error-handling]
 
 //TODO: can I remove Url ? in favor of string (at least with suffix)
   
-//! [GET-query-timeout]
+//! [GET-request-timeout]
+
+  GET( 
+    "https://tools.ietf.org/rfc/rfc2616"s,
+    Timeout{3s},
+    on_response = [](auto&& resp) {
+      if (resp.error.code == +ErrorCode::TIMEDOUT)
+        std::cout << "Timed out !\n";
+    }
+  );
+
+//! [GET-request-timeout]
+
+//! [GET-request-retry]
 
   auto retries_count = 3;
   std::function<void(xxhr::Response&&)> retry_on_fail;
@@ -45,37 +58,25 @@ int main() {
   auto do_request = [&]() { 
     GET( 
       "https://tools.ietf.org/rfc/rfc2616"s,
-      on_response = retry_on_fail,
-      Timeout(3s)
+      on_response = retry_on_fail
     );
   };
 
   retry_on_fail = [&](auto&& resp) {
+    
 
-    if (!resp.error) {
-
-      std::cout << resp.text;
-
+    if ( resp.error && (retries_count > 0) ) {
+      std::cout << "Error : " << resp.error << " retrying \n";
+      --retries_count;
+      do_request();
     } else {
-
-      if (resp.error.code == +ErrorCode::TIMEDOUT) {
-
-        if (retries_count > 0) {
-          std::cout << "Timed Out, retrying : " << std::endl;
-          --retries_count;
-          do_request();
-        } else {
-          std::cout << "Timed Out aborting." << std::endl;
-        }
-      } else {
-        std::cout << "Please plug back the Internet : " << resp.error;
-      }
+      // do something with the last resp
     }
   };
 
   do_request();
 
-//! [GET-query-timeout]
+//! [GET-request-retry]
 
   return 0;
 }
@@ -104,18 +105,25 @@ int main() {
   - [OPTIONS](@ref xxhr::OPTIONS) 
   - [PATCH](@ref xxhr::PATCH) 
    
-  From there on, all goes asynchronous with the [on_response](@ref xxhr::on_response) continuation handler which expects a lambda or whatever Callable which accepts a [Response](@ref xxhr::Response) : 
+  From there on, all goes asynchronous with the [on_response](@ref xxhr::on_response) continuation handler which expects a lambda or whatever Callable which accepts a [Response](@ref xxhr::Response).
 
-  \snippet this GET-query
+  To get started, nothing better than downloading the everlasting HTTP Request For Comment : 
 
-  ## Under HTTP it can go wrong
+  \snippet this GET-request
+
+  ## Below HTTP it can go wrong
   HTTP is the icing on the cake of network communications, there are alot of OSI layer below, that we don't care of but which might prevent your app from running correctly.
 
   Therefore you can check an xxhr::Response for the `resp.error` field :
-  \snippet this GET-query-error-handling 
+  \snippet this GET-request-error-handling 
   
   ### users aren't patient
-  To improve your application resiliency you can specify an xxhr::Timeout with the query, which will calls the on_response callback early with the xxhr::Error code : `ErrorCode::TIMEDOUT`.
+  To avoid blocking your application with never ending HTTP requests you can specify an xxhr::Timeout, which will calls the on_response callback early with the xxhr::Error code : `ErrorCode::TIMEDOUT`.
 
-  \snippet this GET-query-timeout
+  \snippet this GET-request-timeout
+
+  ### Try again !
+  It's always good to give some more chances to the same action, this can easily be achieved by wrapping the request calls in a lambda :
+
+  \snippet this GET-request-retry
 */
