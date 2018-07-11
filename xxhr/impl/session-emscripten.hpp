@@ -101,16 +101,16 @@ namespace xxhr {
         on_response(
             Response{
               xhr["status"].as<size_t>(),
+              (xhr["status"].as<size_t>() == 0) ?
+                  Error{ErrorCode::CONNECTION_FAILURE} 
+                : Error{},
               xhr["responseText"].as<std::string>(),
               (!xhr.call<val>("getAllResponseHeaders").isNull()) ?
                   parse_raw_headers( xhr.call<std::string>("getAllResponseHeaders"))
                 : Header{}
               ,
               url_,
-              response_cookies,
-              (xhr["status"].as<size_t>() == 0) ?
-                  Error{ErrorCode::CONNECTION_FAILURE} 
-                : Error{}
+              response_cookies
             }
         );
 

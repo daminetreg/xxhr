@@ -6,7 +6,7 @@ void introductory() {
 
   using namespace xxhr;
 
-  GET( Url{"http://www.lecbna.org/"}, 
+  GET( "http://www.lecbna.org/"s, 
     on_response = [](auto&& resp) {
       std::cout << resp.text;
     }

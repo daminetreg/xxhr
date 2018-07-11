@@ -15,7 +15,7 @@ This a pure modern C++ library, not just a wrapper around C cURL, which is avail
   * No binary dependencies
   * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
   * [Extremely cross-platform](doc/supported_platforms.md) : Native or WebAssembly.
-  * Performant \& Fast to setup \& learn 
+  * Performant, easy to setup \& learn !
 
 ## API: asynchronously intuitive
 \include examples/introductory.hpp

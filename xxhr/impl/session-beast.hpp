@@ -126,12 +126,12 @@ namespace xxhr {
       std::cerr << ec << ": " << ec.message() << " distilled into : " << uint32_t(xxhr_ec) << "\n";
 
       on_response(xxhr::Response(
-        444, // do like nginx use 444 for errors which are on the layer belows http.
+        0, // 0 for errors which are on the layer belows http, like XmlHttpRequest.
+        Error{xxhr_ec},
         std::string{},
         Header{},
         url_,
-        Cookies{},
-        Error{xxhr_ec}
+        Cookies{}
       ));
     }
 
@@ -268,11 +268,11 @@ namespace xxhr {
 
         on_response(xxhr::Response(
           res_.result_int(),
+          Error{},
           res_.body(),
           response_headers,
           url_,
-          response_cookies,
-          Error{}
+          response_cookies
         ));
 
         // Gracefully close the stream
@@ -316,7 +316,7 @@ namespace xxhr {
         socket->cancel(ec_dontthrow);
         socket->close(ec_dontthrow);
 
-        fail(ec, ErrorCode::OPERATION_TIMEDOUT);
+        fail(ec, ErrorCode::TIMEDOUT);
       }
     }
 
@@ -348,12 +348,14 @@ namespace xxhr {
 
   void Session::Impl::SetAuth(const Authentication& auth) {
     namespace http = boost::beast::http;
-    req_.set(http::field::authorization, util::encode64(auth.GetAuthString()));
+    std::stringstream ss; ss << "Basic " << util::encode64(auth.GetAuthString());
+    req_.set(http::field::authorization, ss.str());
   }
 
   void Session::Impl::SetDigest(const Digest& auth) {
     namespace http = boost::beast::http;
-    req_.set(http::field::authorization, util::encode64(auth.GetAuthString()));
+    std::stringstream ss; ss << "Basic " << util::encode64(auth.GetAuthString());
+    req_.set(http::field::authorization, ss.str());
   }
 
   void Session::Impl::SetPayload(Payload&& payload) {
@@ -468,7 +470,7 @@ Simple file.
 
     // Set up an HTTP GET request message
     req_.version(11);
-    std::stringstream target; target << url_parts_.path << url_parts_.parameters << parameters_.content;
+    std::stringstream target; target << url_parts_.path << "?" << url_parts_.parameters << parameters_.content;
     req_.target(target.str());
     req_.set(http::field::host, url_parts_.host);
     req_.set(http::field::user_agent, "xxhr/v0.0.1"); //TODO: add a way to override from user and make a version macro

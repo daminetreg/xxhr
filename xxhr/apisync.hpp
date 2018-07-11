@@ -7,21 +7,20 @@
 namespace xxhr {
 
   /**
-   * \brief Simple helper object for the non-recommended good old synchronous
+   * \brief Helper object for the non-recommended good old synchronous
    *        way of programming.
    *
-   *        **Note** that using this will not have great performance when you
-   *        compile for the web browser platform. This will hang the browser UI
-   *        until the request complete and some browsers (chrome) might not
-   *        allocate execution time for the request to happen.
+   * **Note** that using this will not have great performance when you
+   * compile for the web browser platform. This will hang the browser UI
+   * until the request complete and some browsers (chrome) might not
+   * allocate execution time for the request to happen.
    *
-   *
-   *        \begincode{.cpp}
-   *        xxhr::sync sync_;
-   *        xxhr::GET(xxhr::Url{"http://somewhere.com"}, 
-   *          xxhr::on_response = sync_);
-   *        auto response = sync_();
-   *        \endcode{}
+   * ```cpp
+   * xxhr::sync sync_;
+   * xxhr::GET(xxhr::Url{"http://somewhere.com"}, 
+   *   xxhr::on_response = sync_);
+   * auto response = sync_();
+   * ```
    *
    */
   struct sync {

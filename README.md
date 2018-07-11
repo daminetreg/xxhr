@@ -11,8 +11,7 @@ The underlying backend for the implementation for all native platforms will be B
 
 ## Roadmap
 
-### End of September 2017
-  - Implement native (windows, linux, macos) http client backend with ssl (header only).
+### End of 2018
   - Implement HTTP2 support.
 
 ## License

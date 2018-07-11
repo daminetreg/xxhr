@@ -12,9 +12,12 @@
 namespace xxhr {
 
 
-  //TODO: refactor into system.error_code own category.
+//TODO: refactor into system.error_code own category.
+
 BETTER_ENUM(ErrorCode, unsigned int,
+//! [ErrorCodes]
     OK = 0,
+    TIMEDOUT,
     CONNECTION_FAILURE,
     EMPTY_RESPONSE,
     HOST_RESOLUTION_FAILURE,
@@ -22,7 +25,6 @@ BETTER_ENUM(ErrorCode, unsigned int,
     INVALID_URL_FORMAT,
     NETWORK_RECEIVE_ERROR,
     NETWORK_SEND_FAILURE,
-    OPERATION_TIMEDOUT,
     PROXY_RESOLUTION_FAILURE,
     SSL_CONNECT_ERROR,
     SSL_LOCAL_CERTIFICATE_ERROR,
@@ -31,8 +33,15 @@ BETTER_ENUM(ErrorCode, unsigned int,
     GENERIC_SSL_ERROR,
     UNSUPPORTED_PROTOCOL,
     UNKNOWN_ERROR = 1000
+//! [ErrorCodes]
 );
 
+/** 
+ * \brief Represents Errors happening at a lower layer than HTTP.
+ * 
+ * Possible error codes are : 
+ * \snippet this ErrorCodes
+ */
 class Error {
   public:
     Error() : code{ErrorCode::OK} {}

@@ -21,6 +21,9 @@ namespace xxhr {
   using Header = std::map<std::string, std::string, CaseInsensitiveCompare>;
   using Url = std::string;
 
+  // We import ""s to be able to create Url without typing the cumbersome Url{"www.site.com"} but "www.site.com"s instead.
+  using namespace std::string_literals; // Sadly `using std::string_literals::operator""s;` throws an erroneous warning IMHO.
+
 } // namespace xxhr
 
 #endif
