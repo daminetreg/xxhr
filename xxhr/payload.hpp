@@ -12,6 +12,8 @@
 
 namespace xxhr {
 
+  //TODO: refactor to std::pair
+
 struct Pair {
     template <typename KeyType, typename ValueType,
               typename std::enable_if<!std::is_integral<ValueType>::value, bool>::type = true>
@@ -25,6 +27,9 @@ struct Pair {
     std::string value;
 };
 
+/**
+ * \brief Form encoded payload for POST or PUT request. Simply made of key values pairs.
+ */
 class Payload {
   public:
     template <class It>

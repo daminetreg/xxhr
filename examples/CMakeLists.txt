@@ -19,6 +19,11 @@ target_link_libraries(getting_started cpp-js::xxhr)
 add_executable(parameters parameters.cpp)
 target_link_libraries(parameters cpp-js::xxhr)
 
+add_executable(authentication authentication.cpp)
+target_link_libraries(authentication cpp-js::xxhr)
+
+add_executable(multipart multipart.cpp)
+target_link_libraries(multipart cpp-js::xxhr)
 
 if (DEFINED EMSCRIPTEN)
 set_target_properties(xxhr_main 

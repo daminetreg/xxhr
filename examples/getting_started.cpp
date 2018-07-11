@@ -35,8 +35,6 @@ int main() {
   );
 //! [GET-request-error-handling]
 
-//TODO: can I remove Url ? in favor of string (at least with suffix)
-  
 //! [GET-request-timeout]
 
   GET( 

@@ -11,6 +11,9 @@
 
 namespace xxhr {
 
+/**
+ * \brief Local file path to send in an xxhr::Multipart 
+ */
 struct File {
     template <typename StringType>
     explicit File(StringType&& filepath)
@@ -18,6 +21,9 @@ struct File {
     std::string filepath;
 };
 
+/**
+ * \brief In memory buffer to send in an xxhr::Multipart.
+ */
 struct Buffer {
     typedef const unsigned char* data_t;
 
@@ -40,6 +46,9 @@ struct Buffer {
     std::string filename;
 };
 
+/**
+ * \brief Buffer or File part of an xxhr::Multipart transfer.
+ */
 struct Part {
     Part(const std::string& name, const std::string& value, const std::string& content_type = {})
             : name{name}, value{value}, content_type{content_type}, is_file{false},
@@ -63,6 +72,16 @@ struct Part {
     bool is_buffer;
 };
 
+/**
+ * \brief Allows to specify HTTP Multipart requests. Useful in xxhr::POST context to perform data upload.
+ 
+ * The Multipart requests can be made of many xxhr::Part which are either buffers or file. 
+ * Typically a file upload service will expect a file part in it's multipart request handling.
+ *
+ * See uploading sample : 
+ *
+ * \snippet examples/multipart.cpp Multipart-snippet
+ */
 class Multipart {
   public:
     Multipart(const std::initializer_list<Part>& parts) : parts{parts} {}

@@ -23,22 +23,44 @@ namespace util {
   inline Header parseHeader(const std::string& headers);
   inline size_t writeFunction(void* ptr, size_t size, size_t nmemb, std::string* data);
   inline std::vector<std::string> split(const std::string& to_split, char delimiter);
+
+  /**
+   * \brief Simple URL Encoding function useful for uses in different contexts.
+   */
   inline std::string urlEncode(const std::string& response);
   inline std::string decode64(const std::string &val);
   inline std::string encode64(const std::string &val);
 
+  /**
+   * \brief Parts of a parsed url.
+   */
   struct url_parts {
+
+    //!
     std::string protocol;
+
+    //!
     std::string host;
+
+    //!
     std::string port;
+
+    //!
     std::string path;
+
+    //!
     std::string parameters;
+
+    //!
     std::string fragment;
 
+    //! Wether the url requires TLS
     bool https() const {
       return protocol == "https";
     }
   };
+
+  //! Parses an URL into xxhr::util::url_parts 
   inline url_parts parse_url(const std::string &url);
 
 } // namespace util

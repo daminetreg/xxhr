@@ -7,6 +7,14 @@
 
 namespace xxhr {
 
+/**
+ * \brief Some Web APIs requires authenticating via HTTP Digest auth ( *i.e.* base64 encoded user and password authentication).
+ *
+ * This can be done as follow : 
+ * 
+ * \snippet eamples/authentication.cpp Authentication-snippet
+ *
+ */
 class Authentication {
   public:
     template <typename UserType, typename PassType>

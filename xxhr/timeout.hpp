@@ -13,7 +13,10 @@ namespace xxhr {
   using namespace std::literals::chrono_literals; // Improves readability of user code by allowing to write suffixes.
 
 /**
- * \brief 
+ * \brief A timeout specification to cut short slow HTTP queries.
+ *
+ * \snippet examples/getting_started.cpp GET-request-timeout
+ *
  */
 class Timeout {
   public:
