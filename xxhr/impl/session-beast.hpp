@@ -437,6 +437,7 @@ Simple file.
     }
 
     req_.body() = body.str();
+    req_.set(http::field::content_length, req_.body().size());
   }
 
   void Session::Impl::SetMultipart(const Multipart& multipart) {
@@ -470,7 +471,10 @@ Simple file.
 
     // Set up an HTTP GET request message
     req_.version(11);
-    std::stringstream target; target << url_parts_.path << "?" << url_parts_.parameters << parameters_.content;
+    std::stringstream target; target << url_parts_.path;
+    if ( !url_parts_.parameters.empty() || !parameters_.content.empty() ) {
+      target << "?" << url_parts_.parameters << parameters_.content;
+    }
     req_.target(target.str());
     req_.set(http::field::host, url_parts_.host);
     req_.set(http::field::user_agent, "xxhr/v0.0.1"); //TODO: add a way to override from user and make a version macro
