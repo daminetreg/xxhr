@@ -760,6 +760,7 @@ INPUT                  = LICENSE.md \
                          xxhr/auth.hpp \
                          xxhr/body.hpp \
                          xxhr/cookies.hpp \
+                         xxhr/digest.hpp \
                          xxhr/error.hpp \
                          xxhr/handler.hpp \
                          xxhr/max_redirects.hpp \

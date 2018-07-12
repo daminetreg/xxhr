@@ -353,6 +353,7 @@ namespace xxhr {
   }
 
   void Session::Impl::SetDigest(const Digest& auth) {
+    //TODO: Replace BASIC auth here by Digest based authentication (MD5 summing the info)
     namespace http = boost::beast::http;
     std::stringstream ss; ss << "Basic " << util::encode64(auth.GetAuthString());
     req_.set(http::field::authorization, ss.str());
