@@ -1,8 +1,23 @@
-image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
+stages:
+  - build
 
-build:
+build-ubuntu:
+  stage: build
+  image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
   script:
-    - mkdir build/ && cd build/ 
-    - cmake .. -DUNIT_TESTS=ON && cmake --build .
-    - ctest . --verbose
+    - mkdir build/ && cd build/ && cmake .. && cmake --build .
 
+build-macos:
+  stage: build
+  tags:
+    - macOS
+  script:
+    - mkdir build/ && cd build/ && cmake .. && cmake --build .
+
+build-win:
+  stage: build
+  tags:
+    - win10
+  script:
+    - set PreferredToolArchitecture=x64
+    - mkdir build && cd build && cmake .. && cmake --build .
