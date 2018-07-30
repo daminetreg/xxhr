@@ -1,7 +1,7 @@
 #include <xxhr/xxhr.hpp>
 #include <iostream>
 
-#include <xxhr/apisync.hpp>
+#include <xxhr/sync.hpp>
 
 
 int main(int argc, char** argv) {
@@ -10,7 +10,9 @@ int main(int argc, char** argv) {
   //! [sync-snippet]
   xxhr::sync sync_;
   GET("https://tools.ietf.org/rfc/rfc2616"s, on_response = sync_);
-  auto response = sync_(); // blocks until response arrives
+  
+  // blocks until response arrives
+  auto response = sync_();
 
   std::cout << "Finally we got the reply : " << response.status_code << " and content : " << response.text << std::endl;
   //! [sync-snippet]
@@ -26,6 +28,6 @@ int main(int argc, char** argv) {
 
   But if really it's your last resort, then you can simply use the xxhr::sync helper as follow :  
 
-  \snippet this sync-snippet
+  \snippet examples/sync.cpp sync-snippet
 
 */

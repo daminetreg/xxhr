@@ -21,11 +21,9 @@ struct Parameter {
 };
 
 /**
- * \brief Allows passing an initializer list of named HTTP Parameters that will be URL Encoded within the request URI ( *i.e.* In the form your/url?param=value).
+ * \brief Allows passing an initializer list of named HTTP Parameters that will be URL Encoded within the request URI or xxhr::Body ( *i.e.* In the form your/url?param=value).
  *
- * For example querying google about this library can be done with :
- *
- * \snippet examples/parameters.cpp Parameters-snippet
+ * \copydoc parameters-cpp
  *
  */
 class Parameters {
@@ -33,11 +31,12 @@ class Parameters {
     Parameters() = default;
     Parameters(const std::initializer_list<Parameter>& parameters) {
       for (const auto& parameter : parameters) {
-          AddParameter(parameter);
+          this->insert(parameter);
       }
     }
 
-    void AddParameter(const Parameter& parameter) {
+    //! adds another parameter
+    void insert(const Parameter& parameter) {
       if (!content.empty()) {
           content += "&";
       }

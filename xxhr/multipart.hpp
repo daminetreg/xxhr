@@ -78,12 +78,7 @@ struct Part {
  * The Multipart requests can be made of many xxhr::Part which are either buffers or file. 
  * Typically a file upload service will expect a file part in it's multipart request handling.
  *
- * See uploading sample : 
- *
- * \snippet examples/multipart.cpp Multipart-snippet
- *
- * ## More examples
- * You can see more examples of this API : @ref multipart-cpp
+ * \copydoc multipart-cpp
  */
 class Multipart {
   public:

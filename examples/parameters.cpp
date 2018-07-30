@@ -10,6 +10,7 @@ int main(int argc, char** argv) {
 //! [Parameters-snippet]
   GET("https://www.google.com/search"s, 
 
+    // This will end up in the URI as : https://www.google.com/search?q=...&ie=...
     Parameters{
       {"q", "xxhr c++ library"},
       {"ie", "utf-8"},
@@ -79,32 +80,29 @@ int main(int argc, char** argv) {
 }
 
 /*! \page parameters-cpp Passing POST, PUT or GET parameters
+ *  
+ *  [TOC]
  *
  *  xxhr::Parameters allows to provide a list of parameters that will be passed to the corresponding url.
- *
- *  \tableofcontents
- *  @tableofcontents 
  *
  *  ## GET parameters
  *  Those parameters are appended URI Encoded to the URI, therefore note that sensitive information might be leaked to HTTP Proxy logs or other infrastructure in between xxhr and the server.
  *
  *  Let's query google search : 
  *
- *  \snippet this Parameters-snippet
+ *  \snippet examples/parameters.cpp Parameters-snippet
  *
  *  ## POST form urlencoded Parameters
- *  While you can perform an xxhr::Multipart POST request, there is often for non-file upload forms the use of POST requests with `application/x-www-form-urlencoded` parameters.
+ *  To perform an HTTP POST request with `application/x-www-form-urlencoded` parameters you can wrap Parameters into xxhr::Body.
  *
- *  In this context, you might also need to send URI xxhr::Parameters as in the example above.
+ *  In this context, you might also need to send URI xxhr::Parameters as in the example above. Therefore sending form-urlencoded parameter can be combined as follow : 
  *
- *  Therefore sending form-encoded parameter can be combined as follow : 
- *
- *  \snippet this Parameters-snippet-POST
+ *  \snippet examples/parameters.cpp Parameters-snippet-POST
  *
  *  ## POST Raw payload
  *  One can send a raw POST Payload without any encoding by instead passing a string for the xxhr::Body parameter : 
  *  
- *  \snippet this Parameters-snippet-POST-raw
+ *  \snippet examples/parameters.cpp Parameters-snippet-POST-raw
  *
  *  ## Works for any HTTP verbs
  *  Naturally all the above works for any HTTP verbs: POST, PUT, OPTIONS...

@@ -11,8 +11,6 @@ namespace xxhr {
  *
  * **Please note that this authentication mode as of xxhr v0.0.2 is supported only in WebAssembly backend.**
  *
- * This can be done as follow : 
- * 
  * \snippet examples/authentication.cpp Authentication-snippet-digest
  *
  */

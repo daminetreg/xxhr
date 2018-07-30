@@ -22,7 +22,6 @@
 #include <xxhr/max_redirects.hpp>
 #include <xxhr/multipart.hpp>
 #include <xxhr/parameters.hpp>
-#include <xxhr/proxies.hpp>
 #include <xxhr/response.hpp>
 #include <xxhr/timeout.hpp>
 
@@ -56,8 +55,6 @@ namespace xxhr {
     void SetAuth(const Authentication& auth);
     void SetDigest(const Digest& auth);
 
-    void SetProxies(Proxies&& proxies);
-    void SetProxies(const Proxies& proxies);
     void SetMultipart(Multipart&& multipart);
     void SetMultipart(const Multipart& multipart);
     void SetRedirect(const bool& redirect);
@@ -350,37 +347,6 @@ namespace xxhr {
     req_.set(http::field::authorization, ss.str());
   }
 
-  void Session::Impl::SetProxies(const Proxies& ) { 
-    /* TODO: there isn't anything worse than http proxies. */ }
-  void Session::Impl::SetProxies(Proxies&& ) { 
-    /* TODO: there isn't anything worse than http proxies. */ }
- 
-
-
-/*
- 
-Upgrade-Insecure-Requests: 1
-Content-Type: multipart/form-data; boundary=---------------------------8721656041911415653955004498
-Content-Length: 465
-
------------------------------8721656041911415653955004498
-Content-Disposition: form-data; name="myTextField"
-
-Test
------------------------------8721656041911415653955004498
-Content-Disposition: form-data; name="myCheckBox"
-
-on
------------------------------8721656041911415653955004498
-Content-Disposition: form-data; name="myFile"; filename="test.txt"
-Content-Type: text/plain
-
-Simple file.
------------------------------8721656041911415653955004498--
-
-
- */
-
   void Session::Impl::SetMultipart(Multipart&& multipart) {
     constexpr auto boundary_str = "---------------------------5602587876013262401422655391";
     constexpr auto boundary_delim = "--";
@@ -515,8 +481,6 @@ Simple file.
   void Session::SetTimeout(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetAuth(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetDigest(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetProxies(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
-  void Session::SetProxies(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetMultipart(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetMultipart(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetRedirect(const bool& redirect) { pimpl_->SetRedirect(redirect); }
@@ -531,8 +495,6 @@ Simple file.
   void Session::SetOption(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetOption(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetOption(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetOption(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
-  void Session::SetOption(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetOption(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetOption(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetOption(const bool& redirect) { pimpl_->SetRedirect(redirect); }

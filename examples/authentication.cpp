@@ -48,12 +48,12 @@ int main(int argc, char** argv) {
 
   Otherwise you'll get an xxhr::Response::status_code 404.
 
-  \snippet this Authentication-snippet
+  \snippet examples/authentication.cpp Authentication-snippet
 
   ## Digest Authentication
 
   To initiate a Digest authentication use in-place of xxhr::Authentication the xxhr::Digest parameter: 
 
-  \snippet this Authentication-snippet-digest
+  \snippet examples/authentication.cpp Authentication-snippet-digest
 
 */

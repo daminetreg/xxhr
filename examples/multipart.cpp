@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   POST("http://httpbin.org/post"s, 
     
     Multipart{
-      {"somefile", File{"../xxhr/api.hpp"} }
+      {"somefile", File{"../../xxhr/api.hpp"} }
     },
 
     on_response = [](auto&& resp) {
@@ -21,14 +21,15 @@ int main(int argc, char** argv) {
 //! [Multipart-snippet]
 
 
-  auto buffer = "this is some buffer"s;
 //! [Multipart-snippet-many]
+  auto buffer = "this is some buffer"s;
+
   POST("http://httpbin.org/post"s, 
     
     Multipart{
-      {"somefile", File{"../xxhr/api.hpp"} }
-      , {"other", File{"../xxhr/multipart.hpp"} }
-      , {"and_another", File{"../README.md"} }
+      {"somefile", File{"../../xxhr/api.hpp"} }
+      , {"other", File{"../../xxhr/multipart.hpp"} }
+      , {"and_another", File{"../../README.md"} }
       , {"somebuffer", Buffer{buffer.begin(), buffer.end(), "IN_MEMORY_FILE"} }
     },
 
@@ -44,18 +45,16 @@ int main(int argc, char** argv) {
 
 /*! \page multipart-cpp Uploading files
   
-  Uploading files requires the use of xxhr::Multipart, with xxhr this is really simple.
+  Uploading files requires the use Multipart, with xxhr this is really simple.
 
   Given a web server expecting a field named **somefile** an xxhr::File or xxhr::Buffer can be passed as in the following example.
 
-  \snippet this Multipart-snippet
+  \snippet examples/multipart.cpp Multipart-snippet
 
   ## Multiple files at once
   It is possible, as it is a Multipart query to add many xxhr::File or xxhr::Buffer.
 
-  \snippet this Multipart-snippet-many
+  \snippet examples/multipart.cpp Multipart-snippet-many
 
-  ## Webserver example
-  To test file upload, you can easily use the [PHP Upload webserver](examples/test/multipart/upload.php) which is there for testing purposes in the examples folder.
 */
 

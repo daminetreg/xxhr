@@ -1,5 +1,5 @@
-#ifndef XXHR_APISYNC_HPP
-#define XXHR_APISYNC_HPP
+#ifndef XXHR_SYNC_HPP
+#define XXHR_SYNC_HPP
 
 #include <xxhr/response.hpp>
 #include <future>
@@ -8,19 +8,14 @@ namespace xxhr {
 
   /**
    * \brief Helper object for the non-recommended good old synchronous
-   *        way of programming.
+   *        way of thinking.
    *
    * **Note** that using this will not have great performance when you
    * compile for the web browser platform. This will hang the browser UI
    * until the request complete and some browsers (chrome) might not
    * allocate execution time for the request to happen.
    *
-   * ```cpp
-   * xxhr::sync sync_;
-   * xxhr::GET(xxhr::Url{"http://somewhere.com"}, 
-   *   xxhr::on_response = sync_);
-   * auto response = sync_();
-   * ```
+   * \copydoc syncapi-cpp
    *
    */
   struct sync {

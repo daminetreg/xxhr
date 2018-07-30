@@ -4,41 +4,31 @@ if (DEFINED EMSCRIPTEN)
   endif()
 endif()
 
-add_executable(xxhr_main main.cpp)
-target_link_libraries(xxhr_main cpp-js::xxhr)
+# \brief add_example(NAME <test name>)
+# A <test name>.cpp has to exists for the test to be valid. 
+# The main method <test name>.cpp should return non-zero on failure.
+function(add_example)
+  set(options)
+  set(oneValueArgs NAME)
+  set(multiValueArgs LIBS)
+  cmake_parse_arguments(add_example "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-add_executable(xxhr_sync main_syncapi.cpp)
-target_link_libraries(xxhr_sync cpp-js::xxhr)
+  add_executable(${add_example_NAME} ${add_example_NAME}.cpp)
+  target_link_libraries(${add_example_NAME} cpp-js::xxhr)
+  add_test(NAME ${add_example_NAME} COMMAND $<TARGET_FILE:${add_example_NAME}>)
 
-add_executable(xxhr_introductory introductory.cpp)
-target_link_libraries(xxhr_introductory cpp-js::xxhr)
+  if (DEFINED EMSCRIPTEN)
+    set_target_properties(${add_example_NAME}
+      PROPERTIES SUFFIX ".html"
+      LINK_FLAGS " --bind -s  NO_EXIT_RUNTIME=1")
+  endif (DEFINED EMSCRIPTEN)
 
-add_executable(getting_started getting_started.cpp)
-target_link_libraries(getting_started cpp-js::xxhr)
+endfunction(add_example)
 
-add_executable(retrying retrying.cpp)
-target_link_libraries(retrying cpp-js::xxhr)
-
-add_executable(parameters parameters.cpp)
-target_link_libraries(parameters cpp-js::xxhr)
-
-add_executable(authentication authentication.cpp)
-target_link_libraries(authentication cpp-js::xxhr)
-
-add_executable(multipart multipart.cpp)
-target_link_libraries(multipart cpp-js::xxhr)
-
-if (DEFINED EMSCRIPTEN)
-set_target_properties(xxhr_main 
-  PROPERTIES SUFFIX ".html"
-  LINK_FLAGS " -g4 --bind -s  NO_EXIT_RUNTIME=1")
-
-set_target_properties(xxhr_sync 
-  PROPERTIES SUFFIX ".html"
-  LINK_FLAGS " --bind")
-
-set_target_properties(xxhr_introductory 
-  PROPERTIES SUFFIX ".html"
-  LINK_FLAGS " --bind -s  NO_EXIT_RUNTIME=1")
-
-endif (DEFINED EMSCRIPTEN)
+add_example(NAME sync)
+add_example(NAME introductory)
+add_example(NAME getting_started)
+add_example(NAME retrying)
+add_example(NAME parameters)
+add_example(NAME authentication)
+add_example(NAME multipart)

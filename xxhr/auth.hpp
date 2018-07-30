@@ -10,9 +10,7 @@ namespace xxhr {
 /**
  * \brief Some Web APIs requires authenticating via HTTP Basic auth ( *i.e.* base64 encoded user and password authentication).
  *
- * This can be done as follow : 
- * 
- * \snippet examples/authentication.cpp Authentication-snippet
+ * \copydoc authentication-cpp
  *
  */
 class Authentication {

@@ -24,7 +24,6 @@
 #include <xxhr/multipart.hpp>
 #include <xxhr/parameters.hpp>
 #include <xxhr/payload.hpp>
-#include <xxhr/proxies.hpp>
 #include <xxhr/response.hpp>
 #include <xxhr/timeout.hpp>
 
@@ -44,8 +43,6 @@ namespace xxhr {
     void SetAuth(const Authentication& auth);
     void SetDigest(const Digest& auth);
 
-    void SetProxies(Proxies&& proxies);
-    void SetProxies(const Proxies& proxies);
     void SetMultipart(Multipart&& multipart);
     void SetMultipart(const Multipart& multipart);
     void SetRedirect(const bool& redirect);
@@ -173,9 +170,6 @@ namespace xxhr {
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
-  void Session::Impl::SetProxies(const Proxies& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies. */ }
-  void Session::Impl::SetProxies(Proxies&& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies.*/ }
-  
   void Session::Impl::SetMultipart(Multipart&& multipart) {
     val formdata = val::global("FormData").new_();
 
@@ -332,8 +326,6 @@ namespace xxhr {
   void Session::SetTimeout(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetAuth(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetDigest(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetProxies(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
-  void Session::SetProxies(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetMultipart(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetMultipart(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetRedirect(const bool& redirect) { pimpl_->SetRedirect(redirect); }
@@ -348,8 +340,6 @@ namespace xxhr {
   void Session::SetOption(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetOption(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetOption(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetOption(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
-  void Session::SetOption(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetOption(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetOption(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetOption(const bool& redirect) { pimpl_->SetRedirect(redirect); }
