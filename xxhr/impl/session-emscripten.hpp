@@ -44,11 +44,6 @@ namespace xxhr {
     void SetAuth(const Authentication& auth);
     void SetDigest(const Digest& auth);
 
-    //! Set the body of the request url encoded
-    void SetPayload(Payload&& payload);
-    
-    //! Set the body of the request url encoded
-    void SetPayload(const Payload& payload);
     void SetProxies(Proxies&& proxies);
     void SetProxies(const Proxies& proxies);
     void SetMultipart(Multipart&& multipart);
@@ -58,10 +53,7 @@ namespace xxhr {
     void SetCookies(const Cookies& cookies, bool delete_them = false);
     void CookiesCleanup();
 
-    //! Set the provided body of request raw, without urlencoding
-    void SetBody(Body&& body);
-    
-    //! Set the provided body of request raw, without urlencoding
+    //! Set the provided body
     void SetBody(const Body& body);
 
     template<class Handler>
@@ -181,15 +173,6 @@ namespace xxhr {
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
-  void Session::Impl::SetPayload(Payload&& payload) {
-    xhr.call<val>("setRequestHeader", str("Content-type"), str("application/x-www-form-urlencoded"));
-    body_ = payload.content;
-  }
-
-  void Session::Impl::SetPayload(const Payload& payload) {
-    SetPayload(std::move(const_cast<Payload&>(payload)));
-  }
-
   void Session::Impl::SetProxies(const Proxies& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies. */ }
   void Session::Impl::SetProxies(Proxies&& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies.*/ }
   
@@ -271,8 +254,14 @@ namespace xxhr {
   //! After sending remove request specific cookies from global document
   void Session::Impl::CookiesCleanup() { SetCookies(cookies_, true); }
 
-  void Session::Impl::SetBody(Body&& body) { body_ = body; }
-  void Session::Impl::SetBody(const Body& body) { body_ = body; }
+  void Session::Impl::SetBody(const Body& body) { 
+
+    if (body.is_form_encoded) {
+      xhr.call<val>("setRequestHeader", str("Content-type"), str("application/x-www-form-urlencoded"));
+    }
+
+    body_ = body.content; 
+  }
 
   void Session::Impl::QUERY(const std::string& method) {
     using namespace std::placeholders;
@@ -343,8 +332,6 @@ namespace xxhr {
   void Session::SetTimeout(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetAuth(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetDigest(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetPayload(const Payload& payload) { pimpl_->SetPayload(payload); }
-  void Session::SetPayload(Payload&& payload) { pimpl_->SetPayload(std::move(payload)); }
   void Session::SetProxies(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
   void Session::SetProxies(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetMultipart(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
@@ -353,7 +340,7 @@ namespace xxhr {
   void Session::SetMaxRedirects(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
   void Session::SetCookies(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
-  void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
+  void Session::SetBody(Body&& body) { pimpl_->SetBody(body); }
   void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
   void Session::SetOption(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
   void Session::SetOption(Parameters&& parameters) { pimpl_->SetParameters(std::move(parameters)); }
@@ -361,8 +348,6 @@ namespace xxhr {
   void Session::SetOption(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetOption(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetOption(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetOption(const Payload& payload) { pimpl_->SetPayload(payload); }
-  void Session::SetOption(Payload&& payload) { pimpl_->SetPayload(std::move(payload)); }
   void Session::SetOption(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
   void Session::SetOption(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetOption(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
@@ -371,7 +356,7 @@ namespace xxhr {
   void Session::SetOption(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
   void Session::SetOption(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetOption(const Body& body) { pimpl_->SetBody(body); }
-  void Session::SetOption(Body&& body) { pimpl_->SetBody(std::move(body)); }
+  void Session::SetOption(Body&& body) { pimpl_->SetBody(body); }
 
   template<class Handler>
   void Session::SetOption(const on_response_<Handler>&& on_response) {pimpl_->SetHandler(std::move(on_response)); }

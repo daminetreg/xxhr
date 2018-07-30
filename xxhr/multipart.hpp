@@ -81,6 +81,9 @@ struct Part {
  * See uploading sample : 
  *
  * \snippet examples/multipart.cpp Multipart-snippet
+ *
+ * ## More examples
+ * You can see more examples of this API : @ref multipart-cpp
  */
 class Multipart {
   public:

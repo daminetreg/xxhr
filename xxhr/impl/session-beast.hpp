@@ -22,7 +22,6 @@
 #include <xxhr/max_redirects.hpp>
 #include <xxhr/multipart.hpp>
 #include <xxhr/parameters.hpp>
-#include <xxhr/payload.hpp>
 #include <xxhr/proxies.hpp>
 #include <xxhr/response.hpp>
 #include <xxhr/timeout.hpp>
@@ -57,11 +56,6 @@ namespace xxhr {
     void SetAuth(const Authentication& auth);
     void SetDigest(const Digest& auth);
 
-    //! Set the body of the request url encoded
-    void SetPayload(Payload&& payload);
-    
-    //! Set the body of the request url encoded
-    void SetPayload(const Payload& payload);
     void SetProxies(Proxies&& proxies);
     void SetProxies(const Proxies& proxies);
     void SetMultipart(Multipart&& multipart);
@@ -71,10 +65,7 @@ namespace xxhr {
     void SetCookies(const Cookies& cookies, bool delete_them = false);
     void CookiesCleanup();
 
-    //! Set the provided body of request raw, without urlencoding
-    void SetBody(Body&& body);
-    
-    //! Set the provided body of request raw, without urlencoding
+    //! Set the provided body of request
     void SetBody(const Body& body);
 
     template<class Handler>
@@ -359,15 +350,6 @@ namespace xxhr {
     req_.set(http::field::authorization, ss.str());
   }
 
-  void Session::Impl::SetPayload(Payload&& payload) {
-    req_.set(http::field::content_type, "application/x-www-form-urlencoded");
-    req_.body() = payload.content;
-  }
-
-  void Session::Impl::SetPayload(const Payload& payload) {
-    SetPayload(std::move(const_cast<Payload&>(payload)));
-  }
-
   void Session::Impl::SetProxies(const Proxies& ) { 
     /* TODO: there isn't anything worse than http proxies. */ }
   void Session::Impl::SetProxies(Proxies&& ) { 
@@ -411,14 +393,13 @@ Simple file.
       auto& part = *it;
       
       body << boundary_delim << boundary_str << CRLF;
-       
+
+      body << "Content-Disposition: form-data; name=\"" << part.name << "\"; " << "filename=\"" << part.value << "\"" << CRLF
+       << "Content-Type: application/octet-stream" 
+       << CRLF
+       << CRLF;      
 
       if (part.is_file) {
-        body << "Content-Disposition: form-data; name=\"" << part.name << "\"; " << "filename=\"" << part.name << "\"" << CRLF
-          << "Content-Type: application/octet-stream" 
-          << CRLF
-          << CRLF;
-
         std::ifstream ifs(part.value, std::ios::in | std::ios::binary); 
         ifs.exceptions(std::ios::badbit);
 
@@ -430,10 +411,6 @@ Simple file.
         ifs.read(const_cast<char*>(file_content.data()), file_size);
         body.write(file_content.data(), file_content.size());
       } else if (part.is_buffer) {
-        body << "Content-Disposition: form-data; name=\"" << part.name << "\"" << CRLF
-          << "Content-Type: application/octet-stream" 
-          << CRLF
-          << CRLF;
 
         body.write(reinterpret_cast<const char*>(part.data), part.datalen);
 
@@ -477,8 +454,15 @@ Simple file.
 
   }
 
-  void Session::Impl::SetBody(Body&& body) { req_.body() = body; }
-  void Session::Impl::SetBody(const Body& body) { req_.body()  = body; }
+  void Session::Impl::SetBody(const Body& body) { 
+
+    if (body.is_form_encoded) {
+      req_.set(http::field::content_type, "application/x-www-form-urlencoded");
+    }
+
+    req_.body() = body.content; 
+  
+  }
 
   void Session::Impl::QUERY(http::verb method) {
     req_.method(method);
@@ -531,8 +515,6 @@ Simple file.
   void Session::SetTimeout(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetAuth(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetDigest(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetPayload(const Payload& payload) { pimpl_->SetPayload(payload); }
-  void Session::SetPayload(Payload&& payload) { pimpl_->SetPayload(std::move(payload)); }
   void Session::SetProxies(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
   void Session::SetProxies(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetMultipart(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
@@ -541,7 +523,7 @@ Simple file.
   void Session::SetMaxRedirects(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
   void Session::SetCookies(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
-  void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
+  void Session::SetBody(Body&& body) { pimpl_->SetBody(body); }
   void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
   void Session::SetOption(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
   void Session::SetOption(Parameters&& parameters) { pimpl_->SetParameters(std::move(parameters)); }
@@ -549,8 +531,6 @@ Simple file.
   void Session::SetOption(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetOption(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetOption(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetOption(const Payload& payload) { pimpl_->SetPayload(payload); }
-  void Session::SetOption(Payload&& payload) { pimpl_->SetPayload(std::move(payload)); }
   void Session::SetOption(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
   void Session::SetOption(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetOption(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }

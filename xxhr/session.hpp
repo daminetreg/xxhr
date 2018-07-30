@@ -12,7 +12,6 @@
 #include "max_redirects.hpp"
 #include "multipart.hpp"
 #include "parameters.hpp"
-#include "payload.hpp"
 #include "proxies.hpp"
 #include "response.hpp"
 #include "timeout.hpp"
@@ -32,8 +31,6 @@ class Session {
   void SetTimeout(const Timeout& timeout);
   void SetAuth(const Authentication& auth);
   void SetDigest(const Digest& auth);
-  void SetPayload(Payload&& payload);
-  void SetPayload(const Payload& payload);
   void SetProxies(Proxies&& proxies);
   void SetProxies(const Proxies& proxies);
   void SetMultipart(Multipart&& multipart);
@@ -52,8 +49,6 @@ class Session {
   void SetOption(const Timeout& timeout);
   void SetOption(const Authentication& auth);
   void SetOption(const Digest& auth);
-  void SetOption(Payload&& payload);
-  void SetOption(const Payload& payload);
   void SetOption(Proxies&& proxies);
   void SetOption(const Proxies& proxies);
   void SetOption(Multipart&& multipart);

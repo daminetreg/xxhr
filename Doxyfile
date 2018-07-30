@@ -754,6 +754,10 @@ INPUT                  = doc/INDEX.md \
                          examples/introductory.cpp \
                          examples/getting_started.cpp \
                          examples/retrying.cpp \
+                         examples/multipart.cpp \
+                         examples/authentication.cpp \
+                         examples/main_syncapi.cpp \
+                         examples/parameters.cpp \
                          xxhr/api.hpp \
                          xxhr/apisync.hpp \
                          xxhr/auth.hpp \

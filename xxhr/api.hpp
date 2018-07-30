@@ -9,7 +9,6 @@
 #include "defines.hpp"
 #include "digest.hpp"
 #include "multipart.hpp"
-#include "payload.hpp"
 #include "response.hpp"
 #include "session.hpp"
 #include "handler.hpp"
