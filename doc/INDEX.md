@@ -7,7 +7,8 @@ http[s] queries made easy for C++ developer.
 
 We deliver here an easy to use and reuse library to perform all possible HTTP 1.1 communications. 
 
-This a pure modern C++ library, not just a wrapper around C cURL, which is available on all imaginable platforms where C++ is.
+This a pure modern header-only C++ library which is available on all imaginable platforms where C++ is.
+
 
 ## Key Principles
 
@@ -16,6 +17,14 @@ This a pure modern C++ library, not just a wrapper around C cURL, which is avail
   * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
   * [Extremely cross-platform](doc/supported_platforms.md) : Native or WebAssembly.
   * Performant, easy to setup \& learn !
+
+## Platforms
+![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/feature/beast-for-nonweb-platforms/pipeline.svg)
+
+- WebAssembly
+- macOS
+- Linux
+- Windows
 
 ## API: asynchronously intuitive
 \include examples/introductory.hpp

@@ -750,11 +750,10 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = LICENSE.md \
-                         INSTALL.md \
-                         doc/INDEX.md \
+INPUT                  = doc/INDEX.md \
                          examples/introductory.cpp \
                          examples/getting_started.cpp \
+                         examples/retrying.cpp \
                          xxhr/api.hpp \
                          xxhr/apisync.hpp \
                          xxhr/auth.hpp \
@@ -771,6 +770,8 @@ INPUT                  = LICENSE.md \
                          xxhr/timeout.hpp \
                          xxhr/xxhrtypes.hpp \
                          xxhr/util.hpp \
+                         LICENSE.md \
+                         INSTALL.md \
 
                          
 

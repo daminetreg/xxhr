@@ -48,33 +48,6 @@ int main() {
 
 //! [GET-request-timeout]
 
-//! [GET-request-retry]
-
-  auto retries_count = 3;
-  std::function<void(xxhr::Response&&)> retry_on_fail;
-
-  auto do_request = [&]() { 
-    GET( 
-      "https://tools.ietf.org/rfc/rfc2616"s,
-      on_response = retry_on_fail
-    );
-  };
-
-  retry_on_fail = [&](auto&& resp) {
-    
-
-    if ( resp.error && (retries_count > 0) ) {
-      std::cout << "Error : " << resp.error << " retrying \n";
-      --retries_count;
-      do_request();
-    } else {
-      // do something with the last resp
-    }
-  };
-
-  do_request();
-
-//! [GET-request-retry]
 
   return 0;
 }
@@ -110,7 +83,7 @@ int main() {
   \snippet this GET-request
 
   ## Below HTTP it can go wrong
-  HTTP is the icing on the cake of network communications, there are alot of OSI layer below, that we don't care of but which might prevent your app from running correctly.
+  HTTP is the icing on the cake of network communications, there are alot of OSI layer below, that we shouldn't care of but which might prevent your app from running correctly.
 
   Therefore you can check an xxhr::Response for the `resp.error` field :
   \snippet this GET-request-error-handling 
@@ -120,8 +93,6 @@ int main() {
 
   \snippet this GET-request-timeout
 
-  ### Try again !
-  It's always good to give some more chances to the same action, this can easily be achieved by wrapping the request calls in a lambda :
+  For more details see @ref retrying-cpp 
 
-  \snippet this GET-request-retry
 */
