@@ -35,3 +35,25 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+
+/*! \page authentication-cpp HTTP Authentication
+  \tableofcontents
+
+  Passing an xxhr::Authentication is enough to transmit user and password information. In HTTP there are two ways : Basic and Digest authentication.
+
+  It is recommended to use authentication, even the Digest one only on a TLS connection.
+
+  ## Basic Authentication
+  In this example we query the Github REST search api, if you've setup 2-Factor Authentication on your github account you should use a [github personal access token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/) to test this example and use it in place of password.
+
+  Otherwise you'll get an xxhr::Response::status_code 404.
+
+  \snippet this Authentication-snippet
+
+  ## Digest Authentication
+
+  To initiate a Digest authentication use in-place of xxhr::Authentication the xxhr::Digest parameter: 
+
+  \snippet this Authentication-snippet-digest
+
+*/
