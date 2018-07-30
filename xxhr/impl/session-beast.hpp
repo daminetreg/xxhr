@@ -400,22 +400,25 @@ Simple file.
  */
 
   void Session::Impl::SetMultipart(Multipart&& multipart) {
-    constexpr auto boundary_str = "---------------------------8721656041911415653955004498";
+    constexpr auto boundary_str = "---------------------------5602587876013262401422655391";
+    constexpr auto boundary_delim = "--";
 
     req_.set(http::field::content_type, std::string("multipart/form-data; boundary=") + boundary_str);
 
     std::stringstream body;
 
-    for (auto& part : multipart.parts) {
+    for (auto it = multipart.parts.begin(); it != multipart.parts.end(); ++it) {
+      auto& part = *it;
       
-      body << boundary_str << CRLF;
-      body << "Content-Disposition: form-data; name=" << part.name 
-        << CRLF
-        << CRLF;
+      body << boundary_delim << boundary_str << CRLF;
        
 
       if (part.is_file) {
-        body << "Content-Type: application/octet-stream" << CRLF;
+        body << "Content-Disposition: form-data; name=\"" << part.name << "\"; " << "filename=\"" << /*part.name <<*/ "Yabe.desktop" << "\"" << CRLF
+          //<< "Content-Type: application/octet-stream" 
+          << "Content-Type: application/x-desktop" 
+          << CRLF
+          << CRLF;
 
         std::ifstream ifs(part.value, std::ios::in | std::ios::binary); 
         ifs.exceptions(std::ios::badbit);
@@ -428,17 +431,28 @@ Simple file.
         ifs.read(const_cast<char*>(file_content.data()), file_size);
         body.write(file_content.data(), file_content.size());
       } else if (part.is_buffer) {
-        body << "Content-Type: application/octet-stream" << CRLF;
+        body << "Content-Disposition: form-data; name=\"" << part.name << "\"" << CRLF
+          << "Content-Type: application/octet-stream" 
+          << CRLF
+          << CRLF;
+
         body.write(reinterpret_cast<const char*>(part.data), part.datalen);
+
       } else {
         body << part.value;
       }
 
-      body << boundary_str << CRLF;
+      if (it != std::prev(multipart.parts.end())) {
+        body << CRLF << boundary_delim <<  boundary_str << CRLF;
+      } else {
+        body << CRLF << boundary_delim << boundary_str << boundary_delim << CRLF;
+      }
+
     }
 
+
     req_.body() = body.str();
-    req_.set(http::field::content_length, req_.body().size());
+    std::cout << body.str() << std::endl;
   }
 
   void Session::Impl::SetMultipart(const Multipart& multipart) {
@@ -470,7 +484,6 @@ Simple file.
   void Session::Impl::QUERY(http::verb method) {
     req_.method(method);
 
-    // Set up an HTTP GET request message
     req_.version(11);
     std::stringstream target; target << url_parts_.path;
     if ( !url_parts_.parameters.empty() || !parameters_.content.empty() ) {
@@ -479,6 +492,7 @@ Simple file.
     req_.target(target.str());
     req_.set(http::field::host, url_parts_.host);
     req_.set(http::field::user_agent, "xxhr/v0.0.1"); //TODO: add a way to override from user and make a version macro
+    req_.prepare_payload(); // Compute Content-Length and related headers
 
     if (url_parts_.https()) {
       stream_.emplace<ssl::stream<tcp::socket>>(ioc, ctx);

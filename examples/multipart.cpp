@@ -8,10 +8,11 @@ int main(int argc, char** argv) {
   using namespace xxhr;
 
 //! [Multipart-snippet]
-  POST("http://ptsv2.com/t/xxhr/post"s, 
+  POST("http://127.0.0.1/multipart/upload.php"s, 
     
     Multipart{
-      {"somefile", File{"../xxhr/api.hpp"} }
+      //{"somefile", File{"../xxhr/api.hpp"} }
+      {"somefile", File{"/home/daminetreg/Desktop/Yabe.desktop"} }
     },
 
     on_response = [](auto&& resp) {
