@@ -414,9 +414,8 @@ Simple file.
        
 
       if (part.is_file) {
-        body << "Content-Disposition: form-data; name=\"" << part.name << "\"; " << "filename=\"" << /*part.name <<*/ "Yabe.desktop" << "\"" << CRLF
-          //<< "Content-Type: application/octet-stream" 
-          << "Content-Type: application/x-desktop" 
+        body << "Content-Disposition: form-data; name=\"" << part.name << "\"; " << "filename=\"" << part.name << "\"" << CRLF
+          << "Content-Type: application/octet-stream" 
           << CRLF
           << CRLF;
 
