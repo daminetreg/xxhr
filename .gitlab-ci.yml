@@ -5,14 +5,16 @@ build-ubuntu:
   stage: build
   image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
   script:
-    - mkdir build/ && cd build/ && cmake .. && cmake --build .
+    - mkdir build/ && cd build/ && cmake .. -DUNIT_TESTS=ON && cmake --build .
+    - ctest . --verbose
 
 build-macos:
   stage: build
   tags:
     - macOS
   script:
-    - mkdir build/ && cd build/ && cmake .. && cmake --build .
+    - mkdir build/ && cd build/ && cmake .. -DUNIT_TESTS=ON && cmake --build .
+    - ctest . --verbose
 
 build-win:
   stage: build
@@ -20,4 +22,5 @@ build-win:
     - win10
   script:
     - set PreferredToolArchitecture=x64
-    - mkdir build && cd build && cmake .. && cmake --build .
+    - mkdir build && cd build && cmake .. -DUNIT_TESTS=ON && cmake --build .
+    - ctest . --verbose
