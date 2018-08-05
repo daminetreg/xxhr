@@ -42,6 +42,7 @@ option(INGLUED "Enable use of #inglued shipped with dependencies." ON)
 # Compile unit tests
 option(UNIT_TESTS "Enable Unit Testing" OFF)
 
+add_compile_options(-std=c++17)
 
 # Warning as errors to ensure xxhr quality
 string(TOUPPER "${CMAKE_CXX_COMPILER_ID}" COMPILER_IN_USE)
