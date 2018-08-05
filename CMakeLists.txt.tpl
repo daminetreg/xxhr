@@ -19,6 +19,14 @@
 #   - {{include_path_end_backslash}} : same as above but with a guaranteed end slash.
 #
 
+##### PLATFORM Provided Libraries #####
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.23.10.tar.gz"
+    SHA1 "1233baf66650caf986d509b6985bcfa23cd7c519"
+)
+##### PLATFORM Provided Libraries #####
+
 cmake_minimum_required(VERSION 3.5.0)
 
 project({{project}} VERSION "0.0.2")
@@ -45,6 +53,8 @@ endif()
 # XXX: nxxm cannot ship this for the moment. An option would be to ship it with nxxm until headerizer is finished.
 add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 find_package(Threads REQUIRED)
+
+hunter_add_package(OpenSSL)
 find_package(OpenSSL REQUIRED)
 
 
@@ -63,7 +73,7 @@ include_directories(BEFORE ${CMAKE_CURRENT_LIST_DIR})
 add_library({{project}} INTERFACE)
 add_library({{org}}::{{project}} ALIAS {{project}})
 
-target_link_libraries({{project}} INTERFACE ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries({{project}} INTERFACE OpenSSL::SSL OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
 
 set(include_install_dir "include")
 
