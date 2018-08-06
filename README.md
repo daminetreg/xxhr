@@ -1,4 +1,4 @@
-![xxhr logo](./doc/logo.ai.png)
+![xxhr logo](./doc/logo.png)
 # xxhr : c++ http requests
 Intuitive c++ http client library.
 
