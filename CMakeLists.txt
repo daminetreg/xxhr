@@ -55,8 +55,6 @@ if ("${COMPILER_IN_USE}" STREQUAL "GNU" OR "${COMPILER_IN_USE}" MATCHES "CLANG")
   )
 endif()
 
-# XXX: nxxm cannot ship this for the moment. An option would be to ship it with nxxm until headerizer is finished.
-add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 find_package(Threads REQUIRED)
 
 hunter_add_package(OpenSSL)
@@ -539,6 +537,7 @@ add_library(xxhr INTERFACE)
 add_library(cpp-js::xxhr ALIAS xxhr)
 
 target_link_libraries(xxhr INTERFACE OpenSSL::SSL OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
+target_compile_definitions(xxhr INTERFACE -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_LIB)
 
 set(include_install_dir "include")
 
