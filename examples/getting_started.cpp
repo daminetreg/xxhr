@@ -72,7 +72,7 @@ int main() {
   - [POST](@ref xxhr::POST) 
   - [PUT](@ref xxhr::PUT) 
   - [HEAD](@ref xxhr::HEAD) 
-  - [DELETE](@ref xxhr::DELETE) 
+  - [DELETE](@ref xxhr::DELETE_) 
   - [OPTIONS](@ref xxhr::OPTIONS) 
   - [PATCH](@ref xxhr::PATCH) 
    

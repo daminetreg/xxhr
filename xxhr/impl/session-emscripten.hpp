@@ -60,7 +60,7 @@ namespace xxhr {
 
     void QUERY(const std::string& method);
 
-    void DELETE();
+    void DELETE_();
     void GET();
     void HEAD();
     void OPTIONS();
@@ -282,7 +282,7 @@ namespace xxhr {
 
   }
 
-  void Session::Impl::DELETE()  { this->QUERY("DELETE"); }
+  void Session::Impl::DELETE_()  { this->QUERY("DELETE"); }
   void Session::Impl::GET()     { this->QUERY("GET"); }
   void Session::Impl::HEAD()    { this->QUERY("HEAD"); }
   void Session::Impl::OPTIONS() { this->QUERY("OPTIONS"); }
@@ -351,7 +351,7 @@ namespace xxhr {
   template<class Handler>
   void Session::SetOption(const on_response_<Handler>&& on_response) {pimpl_->SetHandler(std::move(on_response)); }
 
-  void Session::DELETE()  { pimpl_->DELETE(); }
+  void Session::DELETE_()  { pimpl_->DELETE_(); }
   void Session::GET()     { pimpl_->GET(); }
   void Session::HEAD()    { pimpl_->HEAD(); }
   void Session::OPTIONS() { pimpl_->OPTIONS(); }

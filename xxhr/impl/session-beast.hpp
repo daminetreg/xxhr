@@ -72,7 +72,7 @@ namespace xxhr {
 
     void QUERY(http::verb method);
 
-    void DELETE();
+    void DELETE_();
     void GET();
     void HEAD();
     void OPTIONS();
@@ -459,7 +459,7 @@ namespace xxhr {
     ioc.run();
   }
 
-  void Session::Impl::DELETE()  { this->QUERY(http::verb::delete_); }
+  void Session::Impl::DELETE_()  { this->QUERY(http::verb::delete_); }
   void Session::Impl::GET()     { this->QUERY(http::verb::get); }
   void Session::Impl::HEAD()    { this->QUERY(http::verb::head); }
   void Session::Impl::OPTIONS() { this->QUERY(http::verb::options); }
@@ -506,7 +506,7 @@ namespace xxhr {
   template<class Handler>
   void Session::SetOption(const on_response_<Handler>&& on_response) {pimpl_->SetHandler(std::move(on_response)); }
 
-  void Session::DELETE()  { pimpl_->DELETE(); }
+  void Session::DELETE_()  { pimpl_->DELETE_(); }
   void Session::GET()     { pimpl_->GET(); }
   void Session::HEAD()    { pimpl_->HEAD(); }
   void Session::OPTIONS() { pimpl_->OPTIONS(); }
