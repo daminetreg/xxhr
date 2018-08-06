@@ -1,4 +1,5 @@
 ![xxhr logo](./doc/logo.png)
+[![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/feature/beast-for-nonweb-platforms/pipeline.svg)](https://git.lecbna.org/daminetreg/xxhr/commits/feature/beast-for-nonweb-platforms)
 # xxhr : c++ http requests
 Intuitive c++ http client library.
 
