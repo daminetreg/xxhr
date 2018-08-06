@@ -20,12 +20,12 @@ namespace xxhr {
    */
   struct sync {
 
-    std::shared_ptr<std::promise<xxhr::Response>> sync 
+    std::shared_ptr<std::promise<xxhr::Response>> sync_promise
       = std::make_shared<std::promise<xxhr::Response>>();
 
-    void operator()(xxhr::Response&& resp) { sync->set_value(resp); };
+    void operator()(xxhr::Response&& resp) { sync_promise->set_value(resp); };
 
-    xxhr::Response operator()() { return sync->get_future().get(); };
+    xxhr::Response operator()() { return sync_promise->get_future().get(); };
   };
 }
 
