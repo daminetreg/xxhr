@@ -537,7 +537,7 @@ add_library(xxhr INTERFACE)
 add_library(cpp-js::xxhr ALIAS xxhr)
 
 target_link_libraries(xxhr INTERFACE OpenSSL::SSL OpenSSL::Crypto ${CMAKE_THREAD_LIBS_INIT})
-target_compile_definitions(xxhr INTERFACE -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_NO_LIB)
+target_compile_definitions(xxhr INTERFACE -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_ALL_NO_LIB)
 
 set(include_install_dir "include")
 
