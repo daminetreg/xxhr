@@ -86,6 +86,8 @@ namespace xxhr {
     Parameters parameters_;
     http::request<http::string_body> req_;
     std::chrono::milliseconds timeout_ = std::chrono::milliseconds{0};
+    bool redirect_ = true;
+    std::int32_t number_of_redirects = std::numeric_limits<std::int32_t>::max();
 
     std::function<void(Response&&)> on_response;
 
@@ -243,7 +245,7 @@ namespace xxhr {
         Header response_headers;
         Cookies response_cookies;
         for (auto&& header : res_.base()) {
-          if (header.name() == http::field::set_cookie) {
+          if (header.name() == http::field::set_cookie) { // TODO: case insensitive
             response_cookies
               .parse_cookie_string(std::string(header.value()));
           } else {
@@ -253,15 +255,6 @@ namespace xxhr {
                   std::string(header.value()));
           }
         }
-
-        on_response(xxhr::Response(
-          res_.result_int(),
-          Error{},
-          res_.body(),
-          response_headers,
-          url_,
-          response_cookies
-        ));
 
         // Gracefully close the stream
         if (is_tls_stream()) {
@@ -274,14 +267,34 @@ namespace xxhr {
         } else {
           on_shutdown(ec);
         }
+
+
+        if (response_headers.find("Location") != response_headers.end()) {
+          SetUrl(response_headers["Location"]);
+          if ( (redirect_) && (number_of_redirects > 0) )  {
+            --number_of_redirects;
+            QUERY(req_.method()); // Follow the redirection
+          }
+        } else {
+
+          on_response(xxhr::Response(
+            res_.result_int(),
+            Error{},
+            res_.body(),
+            response_headers,
+            url_,
+            response_cookies
+          ));
+
+       }
     }
 
     void on_shutdown(boost::system::error_code ec) {
-      if(ec == boost::asio::error::eof) {
+      //if(ec == boost::asio::error::eof) {
           // Rationale:
           // http://stackoverflow.com/questions/25587403/boost-asio-ssl-async-shutdown-always-finishes-with-an-error
           ec.assign(0, ec.category());
-      }
+      //}
       if(ec)
           return fail(ec, ErrorCode::GENERIC_SSL_ERROR);
 
@@ -401,11 +414,11 @@ namespace xxhr {
     SetMultipart(std::move(const_cast<Multipart&>(multipart)));
   }
 
-  void Session::Impl::SetRedirect(const bool& ) {
-    //TODO: implement following redirects
+  void Session::Impl::SetRedirect(const bool& redirect ) {
+    redirect_ = redirect;
   }
-  void Session::Impl::SetMaxRedirects(const MaxRedirects& ) {
-    //TODO: implement max redirect
+  void Session::Impl::SetMaxRedirects(const MaxRedirects& max_redirects ) {
+    number_of_redirects = max_redirects.number_of_redirects;
   }
 
   void Session::Impl::SetCookies(const Cookies& cookies, bool delete_them) {
@@ -431,6 +444,9 @@ namespace xxhr {
   }
 
   void Session::Impl::QUERY(http::verb method) {
+    // Cleanup for subsequent calls
+    res_ = http::response<http::string_body>();
+
     req_.method(method);
 
     req_.version(11);
@@ -456,16 +472,15 @@ namespace xxhr {
       timeouter.async_wait(std::bind(&Session::Impl::on_timeout, shared_from_this(), std::placeholders::_1)); 
     }
 
-    ioc.run();
   }
 
-  void Session::Impl::DELETE_()  { this->QUERY(http::verb::delete_); }
-  void Session::Impl::GET()     { this->QUERY(http::verb::get); }
-  void Session::Impl::HEAD()    { this->QUERY(http::verb::head); }
-  void Session::Impl::OPTIONS() { this->QUERY(http::verb::options); }
-  void Session::Impl::PATCH()   { this->QUERY(http::verb::patch); }
-  void Session::Impl::POST()    { this->QUERY(http::verb::post); }
-  void Session::Impl::PUT()     { this->QUERY(http::verb::put); }
+  void Session::Impl::DELETE_()  { this->QUERY(http::verb::delete_); ioc.run(); }
+  void Session::Impl::GET()     { this->QUERY(http::verb::get); ioc.run();}
+  void Session::Impl::HEAD()    { this->QUERY(http::verb::head); ioc.run();}
+  void Session::Impl::OPTIONS() { this->QUERY(http::verb::options); ioc.run();}
+  void Session::Impl::PATCH()   { this->QUERY(http::verb::patch); ioc.run();}
+  void Session::Impl::POST()    { this->QUERY(http::verb::post); ioc.run();}
+  void Session::Impl::PUT()     { this->QUERY(http::verb::put); ioc.run();}
 
 
 
