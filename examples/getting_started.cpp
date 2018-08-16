@@ -53,8 +53,11 @@ int main() {
 }
 
 
-/*! \page getting-started-cpp Getting Started
+/*! \page getting-started-cpp GETting Started
   \tableofcontents
+
+  ## Download 
+  Simply [download latest stable zip](https://github.com/daminetreg/xxhr/archive/master.zip) or `git clone https://github.com/daminetreg/xxhr.git`.
 
   ## Include xxhr convenience header
   The library is really lightweight, therefore it makes sense to include all definitions at once.

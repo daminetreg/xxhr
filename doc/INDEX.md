@@ -2,21 +2,14 @@ xxhr : c++ http requests                         {#mainpage}
 ========================
 A simple, yet modern, http client library, all dependencies included !
 
-## Motivation
-http[s] queries made easy for C++ developer.
+## API: asynchronously intuitive
+\include examples/introductory.hpp
 
-We deliver here an easy to use and reuse library to perform all possible HTTP 1.1 communications. 
+## GETting Started
 
-This a pure modern header-only C++ library which is available on all imaginable platforms where C++ is.
-
-
-## Key Principles
-
-  * Just headers files
-  * No binary dependencies
-  * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
-  * [Extremely cross-platform](doc/supported_platforms.md) : Native or WebAssembly.
-  * Performant, easy to setup \& learn !
+* [Latest stable zip](https://github.com/daminetreg/xxhr/archive/master.zip) or `git clone https://github.com/daminetreg/xxhr.git`
+* `#include <xxhr/xxhr.hpp>`
+* [GET Started](@ref getting-started-cpp).
 
 ## Platforms
 ![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/feature/beast-for-nonweb-platforms/pipeline.svg)
@@ -26,9 +19,21 @@ This a pure modern header-only C++ library which is available on all imaginable 
 - Linux
 - Windows
 
-## API: asynchronously intuitive
-\include examples/introductory.hpp
+## Motivation
+http[s] queries made async & easy for C++ developer.
 
-## Getting Started
+The API is exclusively async
+  - to target all modern platforms and runtimes ( *e.g.* Mobile OS, Web Browser, Windows 10... ).
+  - to build responsive UIs. 
 
-**Just include us** `#include <xxhr/xxhr.hpp>` : [Getting Started](@ref getting-started-cpp).
+Pure & modern, this header-only C++ library is available for WebAssembly and on all C++ compatible platforms.
+
+## Key Principles
+
+  * Just headers files
+  * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
+  * Async API.
+  * [Extremely cross-platform](doc/supported_platforms.md) : Native or WebAssembly.
+  * Performant, easy to setup \& learn !
+
+
