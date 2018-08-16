@@ -46,6 +46,10 @@ namespace xxhr {
 
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     public:
+    Impl() {
+      // We need to download whatever fits in RAM
+      res_parser_.body_limit(std::numeric_limits<std::uint64_t>::max());
+    }
 
     void SetUrl(const Url& url);
     void SetParameters(const Parameters& parameters);
@@ -97,6 +101,8 @@ namespace xxhr {
     tcp::resolver resolver_{ioc};
     plain_or_tls stream_; 
     boost::beast::flat_buffer buffer_; // (Must persist between reads)
+
+    http::response_parser<http::string_body> res_parser_;
     http::response<http::string_body> res_;
 
     bool is_tls_stream() {
@@ -223,12 +229,13 @@ namespace xxhr {
         std::visit([this](auto& stream) {
           if constexpr (std::is_same_v<std::monostate,std::decay_t<decltype(stream)>>) return;
           else {
-            http::async_read(stream, buffer_, res_,
+            http::async_read(stream, buffer_, res_parser_,
                 std::bind(
                     &Session::Impl::on_read,
                     shared_from_this(),
                     std::placeholders::_1,
                     std::placeholders::_2));
+
           }
         }, stream_);
     }
@@ -240,6 +247,8 @@ namespace xxhr {
 
         if(ec)
           return fail(ec, ErrorCode::NETWORK_RECEIVE_ERROR);
+
+        res_ = res_parser_.get();
 
         // Write the message to standard out
         Header response_headers;
