@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <sstream>
 
 #include <enum.h>
 
@@ -52,10 +53,17 @@ class Error {
     }
 
     ErrorCode code;
+
+    //! Converts Error to human readable std::string
+    operator std::string() const {
+      std::stringstream ss;
+      ss << "error:" << static_cast<unsigned int>(this->code) << " " << this->code._to_string();
+      return ss.str();
+    }
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Error& err) {
-  os << "error:" << static_cast<unsigned int>(err.code) << " " << err.code._to_string();
+  os << std::string(err);
   return os;
 }
 

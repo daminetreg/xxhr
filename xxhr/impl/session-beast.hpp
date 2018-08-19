@@ -49,6 +49,7 @@ namespace xxhr {
     Impl() {
       // We need to download whatever fits in RAM
       res_parser_.body_limit(std::numeric_limits<std::uint64_t>::max());
+      //TODO: change the limit for uploading too
     }
 
     void SetUrl(const Url& url);
