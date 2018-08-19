@@ -47,10 +47,7 @@ namespace xxhr {
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     public:
     Impl() {
-      // We need to download whatever fits in RAM
-      res_parser_.body_limit(std::numeric_limits<std::uint64_t>::max());
-      //TODO: change the limit for uploading too
-    }
+          }
 
     void SetUrl(const Url& url);
     void SetParameters(const Parameters& parameters);
@@ -103,8 +100,7 @@ namespace xxhr {
     plain_or_tls stream_; 
     boost::beast::flat_buffer buffer_; // (Must persist between reads)
 
-    http::response_parser<http::string_body> res_parser_;
-    http::response<http::string_body> res_;
+    std::shared_ptr<http::response_parser<http::string_body>> res_parser_ = std::make_shared<http::response_parser<http::string_body>>();
 
     bool is_tls_stream() {
       return std::holds_alternative<ssl::stream<tcp::socket>>(stream_);
@@ -230,7 +226,7 @@ namespace xxhr {
         std::visit([this](auto& stream) {
           if constexpr (std::is_same_v<std::monostate,std::decay_t<decltype(stream)>>) return;
           else {
-            http::async_read(stream, buffer_, res_parser_,
+            http::async_read(stream, buffer_, *res_parser_,
                 std::bind(
                     &Session::Impl::on_read,
                     shared_from_this(),
@@ -249,12 +245,12 @@ namespace xxhr {
         if(ec)
           return fail(ec, ErrorCode::NETWORK_RECEIVE_ERROR);
 
-        res_ = res_parser_.get();
+        http::response<http::string_body> res = res_parser_->get();
 
         // Write the message to standard out
         Header response_headers;
         Cookies response_cookies;
-        for (auto&& header : res_.base()) {
+        for (auto&& header : res.base()) {
           if (header.name() == http::field::set_cookie) { // TODO: case insensitive
             response_cookies
               .parse_cookie_string(std::string(header.value()));
@@ -288,9 +284,9 @@ namespace xxhr {
         } else {
 
           on_response(xxhr::Response(
-            res_.result_int(),
+            res.result_int(),
             Error{},
-            res_.body(),
+            res.body(),
             response_headers,
             url_,
             response_cookies
@@ -455,7 +451,13 @@ namespace xxhr {
 
   void Session::Impl::QUERY(http::verb method) {
     // Cleanup for subsequent calls
-    res_ = http::response<http::string_body>();
+    res_parser_ = std::make_shared<http::response_parser<http::string_body>>();
+
+    // We need to download whatever fits in RAM
+    res_parser_->body_limit(std::numeric_limits<std::uint64_t>::max());
+    //TODO: change the limit for uploading too
+    
+
 
     req_.method(method);
 
