@@ -7,8 +7,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <regex>
 
+#include <boost/xpressive/xpressive.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
@@ -156,22 +156,32 @@ namespace util {
       return tmp.append((3 - val.size() % 3) % 3, '=');
   }
 
+
+  const boost::xpressive::sregex url_regex = 
+    boost::xpressive::sregex::compile("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
+
   inline url_parts parse_url(const std::string &url) {
     url_parts ret;
-    std::regex ex("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
-    std::cmatch what;
-    if (regex_match(url.c_str(), what, ex)) {
-        ret.protocol = std::string(what[1].first, what[1].second);
-        ret.host   = std::string(what[2].first, what[2].second);
-        ret.port     = std::string(what[3].first, what[3].second);
+    
+    // Way too slow on MSVC (55 seconds in avg for an URI, less than one ms on Gcc / clang )
+    //std::regex ex("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
+    //std::smatch what;
+    //if (regex_match(url, what, ex)) {
+    using namespace boost::xpressive;
+    smatch what;
+    if( regex_match( url, what, url_regex ) ) {
+
+        ret.protocol = what[1];
+        ret.host   = what[2];
+        ret.port     = what[3];
 
         if (ret.port.empty()) {
           ret.port = (ret.protocol == "https") ? "443" : "80";
         }
 
-        ret.path     = std::string(what[4].first, what[4].second);
-        ret.parameters    = std::string(what[5].first, what[5].second);
-        ret.fragment = std::string(what[6].first, what[6].second);
+        ret.path     = what[4];
+        ret.parameters    = what[5];
+        ret.fragment = what[6];
     }
 
     return ret;
