@@ -82,13 +82,17 @@ namespace xxhr {
     void POST();
     void PUT();
 
-    private:
+  private:
+    void full_request(http::verb method);
+    void do_one_request(http::verb method);
+
     util::url_parts url_parts_;
     std::string url_;
     Parameters parameters_;
     http::request<http::string_body> req_;
     std::chrono::milliseconds timeout_ = std::chrono::milliseconds{0};
     bool redirect_ = true;
+    bool follow_next_redirect = false;
     std::int32_t number_of_redirects = std::numeric_limits<std::int32_t>::max();
 
     std::function<void(Response&&)> on_response;
@@ -279,7 +283,7 @@ namespace xxhr {
           SetUrl(response_headers["Location"]);
           if ( (redirect_) && (number_of_redirects > 0) )  {
             --number_of_redirects;
-            QUERY(req_.method()); // Follow the redirection
+            follow_next_redirect = true; // Follow the redirection
           }
         } else {
 
@@ -449,8 +453,10 @@ namespace xxhr {
   
   }
 
-  void Session::Impl::QUERY(http::verb method) {
+
+  void Session::Impl::do_one_request(http::verb method) {
     // Cleanup for subsequent calls
+    follow_next_redirect = false;
     res_parser_ = std::make_shared<http::response_parser<http::string_body>>();
 
     // We need to download whatever fits in RAM
@@ -486,13 +492,22 @@ namespace xxhr {
 
   }
 
-  void Session::Impl::DELETE_()  { this->QUERY(http::verb::delete_); ioc.run(); }
-  void Session::Impl::GET()     { this->QUERY(http::verb::get); ioc.run();}
-  void Session::Impl::HEAD()    { this->QUERY(http::verb::head); ioc.run();}
-  void Session::Impl::OPTIONS() { this->QUERY(http::verb::options); ioc.run();}
-  void Session::Impl::PATCH()   { this->QUERY(http::verb::patch); ioc.run();}
-  void Session::Impl::POST()    { this->QUERY(http::verb::post); ioc.run();}
-  void Session::Impl::PUT()     { this->QUERY(http::verb::put); ioc.run();}
+  void Session::Impl::full_request(http::verb verb) {
+    do { 
+      ioc.reset(); 
+      do_one_request(verb); 
+      ioc.run(); 
+    } while (follow_next_redirect);
+  }
+
+
+  void Session::Impl::DELETE_() { full_request(http::verb::delete_); }
+  void Session::Impl::GET()   { full_request(http::verb::get); }
+  void Session::Impl::HEAD()    { full_request(http::verb::head); }
+  void Session::Impl::OPTIONS() { full_request(http::verb::options); }
+  void Session::Impl::PATCH()   { full_request(http::verb::patch); }
+  void Session::Impl::POST()    { full_request(http::verb::post); }
+  void Session::Impl::PUT()     { full_request(http::verb::put); }
 
 
 
