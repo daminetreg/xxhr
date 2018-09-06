@@ -1,0 +1,6 @@
+{
+   "daminetreg/js-bind" : { "@" : "v0.0.1" }
+  , "aantron/better-enums" : { "@" : "0.11.1" }
+
+  , "platform_deps" : [ "Boost::+boost", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto"  ]
+}
