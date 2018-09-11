@@ -2,6 +2,8 @@
    "daminetreg/js-bind" : { "@" : "v0.0.1" }
   , "aantron/better-enums" : { "@" : "0.11.1" }
 
-  , "platform" : [ "Boost::+boost" ]
-  , "platform:gcc-7-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
+  , "platform" : [ "Boost::+boost", "Boost::system" ]
+  , "platform:gcc-7-cxx17" : [ "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
+  , "platform:clang-cxx17" : [ "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
+  , "platform:vs-15-2017-win64-cxx17" : [ "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
 }
