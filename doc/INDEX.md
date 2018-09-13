@@ -7,12 +7,18 @@ A simple, yet modern, http client library, all dependencies included !
 
 ## GETting Started
 
-* [Latest stable zip](https://github.com/daminetreg/xxhr/archive/master.zip) or `git clone https://github.com/daminetreg/xxhr.git`
-* `#include <xxhr/xxhr.hpp>`
+* `#include <xxhr/xxhr.hpp>` with [`.nxxm/deps`](https://nxxm.github.io) : 
+
+```
+{
+  "daminetreg/xxhr" : { "@" : "v1.0.0" }
+}
+```
+
 * [GET Started](@ref getting-started-cpp).
 
 ## Platforms
-![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/feature/beast-for-nonweb-platforms/pipeline.svg)
+![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/master/pipeline.svg)
 
 - WebAssembly
 - macOS

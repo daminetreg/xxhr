@@ -57,7 +57,13 @@ int main() {
   \tableofcontents
 
   ## Download 
-  Simply [download latest stable zip](https://github.com/daminetreg/xxhr/archive/master.zip) or `git clone https://github.com/daminetreg/xxhr.git`.
+  Drop the following in your [`.nxxm/deps`](https://nxxm.github.io) : 
+
+  ```
+  {
+    "daminetreg/xxhr" : { "@" : "v1.0.0" }
+  }
+  ```
 
   ## Include xxhr convenience header
   The library is really lightweight, therefore it makes sense to include all definitions at once.

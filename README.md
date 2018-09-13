@@ -1,12 +1,17 @@
 ![xxhr logo](./doc/logo.png)
-[![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/feature/beast-for-nonweb-platforms/pipeline.svg)](https://git.lecbna.org/daminetreg/xxhr/commits/feature/beast-for-nonweb-platforms)
+[![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/master/pipeline.svg)](https://git.lecbna.org/daminetreg/xxhr/commits/master)
 
 # xxhr : c++ http requests
 Intuitive c++ http client library for WASM and all other platforms.
 
+* `#include <xxhr/xxhr.hpp>` with [`.nxxm/deps`](https://nxxm.github.io) : 
 
-* [Latest stable zip](https://github.com/daminetreg/xxhr/archive/master.zip) or `git clone https://github.com/daminetreg/xxhr.git`.
-* `#include <xxhr/xxhr.hpp>` with [`nxxm .`](https://nxxm.github.io)
+```
+{
+  "daminetreg/xxhr" : { "@" : "v1.0.0" }
+}
+```
+
 * [GETing Started Tutorial](https://daminetreg.github.io/xxhr/html/getting-started-cpp.html)
 * [Reference Documentation](https://daminetreg.github.io/xxhr/html/namespacexxhr.html)
 * [Examples](https://daminetreg.github.io/xxhr/html/pages.html)
