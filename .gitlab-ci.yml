@@ -1,18 +1,26 @@
 stages:
   - build
 
-build-ubuntu:
+build:ubuntu:
   stage: build
   image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
   script:
-    - mkdir build/ && cd build/ && cmake .. -DCMAKE_TOOLCHAIN_FILE=deps/polly/gcc-7-cxx17.cmake -DUNIT_TESTS=ON && cmake --build . && ctest . --verbose
+    - echo '[ { "auth_info" : { "user" : "${GH_USER}", "pass" : "${GH_PASS}" } } ]' > ~/.nxxm/.auth
+    - nxxm . -t gcc-7-cxx17 --test all
+
+build:wasm:
+  stage: build
+  image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
+  script:
+    - echo '[ { "auth_info" : { "user" : "${GH_USER}", "pass" : "${GH_PASS}" } } ]' > ~/.nxxm/.auth
+    - nxxm . 
 
 build-macos:
   stage: build
   tags:
     - macOS
   script:
-    - mkdir build/ && cd build/ && cmake .. -DCMAKE_TOOLCHAIN_FILE=deps/polly/clang-cxx17.cmake -DUNIT_TESTS=ON && cmake --build . && ctest . --verbose
+    - nxxm . -t clang-7-cxx17 --test all
 
 build-win:
   stage: build
@@ -20,4 +28,4 @@ build-win:
     - win10
   script:
     - set PreferredToolArchitecture=x64
-    - mkdir build && cd build && cmake .. -DCMAKE_TOOLCHAIN_FILE=deps/polly/cxx17.cmake -DUNIT_TESTS=ON && cmake --build . && ctest . -C Debug --verbose
+    - nxxm . -t vs-15-2017-win64-cxx17 --test all
