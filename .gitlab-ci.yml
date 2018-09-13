@@ -5,14 +5,14 @@ build:ubuntu:
   stage: build
   image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
   script:
-    - echo '[ { "auth_info" : { "user" : "${GH_USER}", "pass" : "${GH_PASS}" } } ]' > ~/.nxxm/.auth
+    - scripts/add-gh-auth
     - nxxm . -t gcc-7-cxx17 --test all
 
 build:wasm:
   stage: build
   image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
   script:
-    - echo '[ { "auth_info" : { "user" : "${GH_USER}", "pass" : "${GH_PASS}" } } ]' > ~/.nxxm/.auth
+    - scripts/add-gh-auth
     - nxxm . 
 
 build-macos:

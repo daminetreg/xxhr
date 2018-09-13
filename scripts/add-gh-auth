@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo '[ { "auth_info" : { "user" : "${GH_USER}", "pass" : "${GH_PASS}" } } ]' > ~/.nxxm/.auth
