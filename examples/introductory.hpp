@@ -6,7 +6,7 @@ void introductory() {
 
   using namespace xxhr;
 
-  GET( "https://tools.ietf.org/rfc/rfc2616"s, 
+  GET( "http://httpbin.org/anything"s, 
     on_response = [](auto reply) { std::cout << reply.text; }
   );
 

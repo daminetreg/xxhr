@@ -15,7 +15,7 @@ int main() {
 //! [GET-request-retry]
   auto do_request = [&]() { 
     GET( 
-      "https://tools.ietf.org/rfc/rfc2616"s,
+      "http://httpbin.org/post"s,
       on_response = retry_on_fail
     );
   };

@@ -11,7 +11,7 @@ int main() {
 //! [using-xxhr]
 
 //! [GET-request]
-  GET( "https://tools.ietf.org/rfc/rfc2616"s, 
+  GET( "http://httpbin.org/anything"s, 
     on_response = [](auto&& resp) {
 
       std::cout << resp.text;
@@ -21,7 +21,7 @@ int main() {
 //! [GET-request]
 
 //! [GET-request-error-handling]
-  GET( "https://tools.ietf.org/rfc/rfc2616"s, 
+  GET( "http://httpbin.org/anything"s, 
     on_response = [](auto&& resp) {
       
       if (!resp.error) {
@@ -38,7 +38,7 @@ int main() {
 //! [GET-request-timeout]
 
   GET( 
-    "https://tools.ietf.org/rfc/rfc2616"s,
+    "http://httpbin.org/anything"s,
     Timeout{3s},
     on_response = [](auto&& resp) {
       if (resp.error.code == +ErrorCode::TIMEDOUT)

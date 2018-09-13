@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
   using namespace xxhr;
   //! [sync-snippet]
   xxhr::sync sync_;
-  GET("https://tools.ietf.org/rfc/rfc2616"s, on_response = sync_);
+  GET("http://httpbin.org/post"s, on_response = sync_);
   
   // blocks until response arrives
   auto response = sync_();

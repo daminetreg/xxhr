@@ -4,8 +4,9 @@
 # xxhr : c++ http requests
 Intuitive c++ http client library for WASM and all other platforms.
 
+
 * [Latest stable zip](https://github.com/daminetreg/xxhr/archive/master.zip) or `git clone https://github.com/daminetreg/xxhr.git`.
-* `#include <xxhr/xxhr.hpp>`
+* `#include <xxhr/xxhr.hpp>` with [`nxxm .`](https://nxxm.github.io)
 * [GETing Started Tutorial](https://daminetreg.github.io/xxhr/html/getting-started-cpp.html)
 * [Reference Documentation](https://daminetreg.github.io/xxhr/html/namespacexxhr.html)
 * [Examples](https://daminetreg.github.io/xxhr/html/pages.html)

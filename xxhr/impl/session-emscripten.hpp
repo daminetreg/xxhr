@@ -23,7 +23,6 @@
 #include <xxhr/max_redirects.hpp>
 #include <xxhr/multipart.hpp>
 #include <xxhr/parameters.hpp>
-#include <xxhr/payload.hpp>
 #include <xxhr/response.hpp>
 #include <xxhr/timeout.hpp>
 
