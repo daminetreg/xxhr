@@ -1,3 +1,4 @@
 #!/bin/bash
 
+mkdir -p ~/.nxxm/.auth
 echo '[ { "auth_info" : { "user" : "${GH_USER}", "pass" : "${GH_PASS}" } } ]' > ~/.nxxm/.auth
