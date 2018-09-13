@@ -76,6 +76,7 @@ namespace xxhr {
     };
 
     void on_readystate(val event) {
+      //std::cout << "xxhr::on_readystate: " <<  xhr["statusText"].as<std::string>() << " status : " << xhr["status"].as<size_t>() << std::endl;
 
       if (xhr["readyState"].as<size_t>() == DONE) {
 
@@ -103,10 +104,10 @@ namespace xxhr {
         );
 
 
-      } else if (xhr["readyState"].as<size_t>() == LOADING) {
+      } /*else if (xhr["readyState"].as<size_t>() == LOADING) {
         std::cout << "xxhr::on_readystate: LOADING. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
         std::cout << "Partial data received: " << xhr["statusText"].as<std::string>().size() << std::endl;
-      }
+      }*/
 
     }
 
