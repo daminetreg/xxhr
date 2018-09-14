@@ -20,7 +20,7 @@ build-macos:
   tags:
     - macOS
   script:
-    - nxxm . -t clang-7-cxx17 --test all --dont-upgrade
+    - nxxm . -t clang-cxx17 --test all --dont-upgrade
 
 build-win:
   stage: build
