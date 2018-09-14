@@ -7,8 +7,16 @@
 
 namespace xxhr {
 
+/**
+ * \brief Some Web APIs requires authenticating via HTTP Basic auth ( *i.e.* base64 encoded user and password authentication).
+ *
+ * \copydoc authentication-cpp
+ *
+ */
 class Authentication {
   public:
+
+    //! Specify username and password for basic auth
     template <typename UserType, typename PassType>
     Authentication(UserType&& username, PassType&& password)
             : username_{XXHR_FWD(username)}, password_{XXHR_FWD(password)},
@@ -16,7 +24,9 @@ class Authentication {
 
     const char* GetAuthString() const noexcept { return auth_string_.data(); }
 
+    //! 
     std::string username() const { return username_; }
+    //! 
     std::string password() const { return password_; }
 
   private:

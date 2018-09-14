@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/xpressive/xpressive.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
@@ -18,13 +19,49 @@
 
 namespace xxhr {
 namespace util {
-
+ 
   inline Header parseHeader(const std::string& headers);
   inline size_t writeFunction(void* ptr, size_t size, size_t nmemb, std::string* data);
   inline std::vector<std::string> split(const std::string& to_split, char delimiter);
+
+  /**
+   * \brief Simple URL Encoding function useful for uses in different contexts.
+   */
   inline std::string urlEncode(const std::string& response);
   inline std::string decode64(const std::string &val);
   inline std::string encode64(const std::string &val);
+
+  /**
+   * \brief Parts of a parsed url.
+   */
+  struct url_parts {
+
+    //!
+    std::string protocol;
+
+    //!
+    std::string host;
+
+    //!
+    std::string port;
+
+    //!
+    std::string path;
+
+    //!
+    std::string parameters;
+
+    //!
+    std::string fragment;
+
+    //! Wether the url requires TLS
+    bool https() const {
+      return protocol == "https";
+    }
+  };
+
+  //! Parses an URL into xxhr::util::url_parts 
+  inline url_parts parse_url(const std::string &url);
 
 } // namespace util
 } // namespace xxhr
@@ -117,6 +154,37 @@ namespace util {
       using It = base64_from_binary<transform_width<std::string::const_iterator, 6, 8>>;
       auto tmp = std::string(It(std::begin(val)), It(std::end(val)));
       return tmp.append((3 - val.size() % 3) % 3, '=');
+  }
+
+
+  const boost::xpressive::sregex url_regex = 
+    boost::xpressive::sregex::compile("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
+
+  inline url_parts parse_url(const std::string &url) {
+    url_parts ret;
+    
+    // Way too slow on MSVC (55 seconds in avg for an URI, less than one ms on Gcc / clang )
+    //std::regex ex("(http|https)://([^/ :]+):?([^/ ]*)(/?[^ #?]*)\\x3f?([^ #]*)#?([^ ]*)");
+    //std::smatch what;
+    //if (regex_match(url, what, ex)) {
+    using namespace boost::xpressive;
+    smatch what;
+    if( regex_match( url, what, url_regex ) ) {
+
+        ret.protocol = what[1];
+        ret.host   = what[2];
+        ret.port     = what[3];
+
+        if (ret.port.empty()) {
+          ret.port = (ret.protocol == "https") ? "443" : "80";
+        }
+
+        ret.path     = what[4];
+        ret.parameters    = what[5];
+        ret.fragment = what[6];
+    }
+
+    return ret;
   }
 
 

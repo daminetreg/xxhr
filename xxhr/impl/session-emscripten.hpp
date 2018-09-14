@@ -4,7 +4,7 @@
 #include <functional>
 #include <regex>
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/algorithm/string/trim_all.hpp>
 
 #include <emscripten.h>
@@ -23,14 +23,10 @@
 #include <xxhr/max_redirects.hpp>
 #include <xxhr/multipart.hpp>
 #include <xxhr/parameters.hpp>
-#include <xxhr/payload.hpp>
-#include <xxhr/proxies.hpp>
 #include <xxhr/response.hpp>
 #include <xxhr/timeout.hpp>
 
 namespace xxhr {
-
-  constexpr const auto CRLF = "\r\n";
 
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     using val = emscripten::val;
@@ -46,13 +42,6 @@ namespace xxhr {
     void SetAuth(const Authentication& auth);
     void SetDigest(const Digest& auth);
 
-    //! Set the body of the request url encoded
-    void SetPayload(Payload&& payload);
-    
-    //! Set the body of the request url encoded
-    void SetPayload(const Payload& payload);
-    void SetProxies(Proxies&& proxies);
-    void SetProxies(const Proxies& proxies);
     void SetMultipart(Multipart&& multipart);
     void SetMultipart(const Multipart& multipart);
     void SetRedirect(const bool& redirect);
@@ -60,10 +49,7 @@ namespace xxhr {
     void SetCookies(const Cookies& cookies, bool delete_them = false);
     void CookiesCleanup();
 
-    //! Set the provided body of request raw, without urlencoding
-    void SetBody(Body&& body);
-    
-    //! Set the provided body of request raw, without urlencoding
+    //! Set the provided body
     void SetBody(const Body& body);
 
     template<class Handler>
@@ -73,7 +59,7 @@ namespace xxhr {
 
     void QUERY(const std::string& method);
 
-    void DELETE();
+    void DELETE_();
     void GET();
     void HEAD();
     void OPTIONS();
@@ -90,6 +76,7 @@ namespace xxhr {
     };
 
     void on_readystate(val event) {
+      //std::cout << "xxhr::on_readystate: " <<  xhr["statusText"].as<std::string>() << " status : " << xhr["status"].as<size_t>() << std::endl;
 
       if (xhr["readyState"].as<size_t>() == DONE) {
 
@@ -103,34 +90,35 @@ namespace xxhr {
         on_response(
             Response{
               xhr["status"].as<size_t>(),
+              (xhr["status"].as<size_t>() == 0) ?
+                  Error{ErrorCode::CONNECTION_FAILURE} 
+                : Error{},
               xhr["responseText"].as<std::string>(),
               (!xhr.call<val>("getAllResponseHeaders").isNull()) ?
                   parse_raw_headers( xhr.call<std::string>("getAllResponseHeaders"))
                 : Header{}
               ,
               url_,
-              response_cookies,
-              (xhr["status"].as<size_t>() == 0) ?
-                  Error{ErrorCode::CONNECTION_FAILURE} 
-                : Error{}
+              response_cookies
             }
         );
 
 
-      } else if (xhr["readyState"].as<size_t>() == LOADING) {
+      } /*else if (xhr["readyState"].as<size_t>() == LOADING) {
         std::cout << "xxhr::on_readystate: LOADING. " << url_ << " :: " << " " << xhr["status"].as<size_t>() << ": " << xhr["statusText"].as<std::string>() << std::endl;
         std::cout << "Partial data received: " << xhr["statusText"].as<std::string>().size() << std::endl;
-      }
+      }*/
 
     }
 
     private:
     Url url_;
-    Parameters parameters_;
+    Parameters parameters_; // TODO: implement parameters
     Cookies cookies_;
+    Header headers;
 
     // XXX: SHould be used in query open if not none.
-    boost::optional<Authentication> auth_;
+    std::optional<Authentication> auth_;
 
     //! Payload to be given to xhr send.
     boost::optional<std::string> body_;
@@ -163,9 +151,7 @@ namespace xxhr {
 
 
   void Session::Impl::SetHeader(const Header& header) {
-    for (auto item = header.cbegin(); item != header.cend(); ++item) {
-      xhr.call<val>("setRequestHeader", item->first, item->second);
-    }
+    headers.insert(header.begin(), header.end());
   }
 
   void Session::Impl::SetTimeout(const Timeout& timeout) {
@@ -184,18 +170,6 @@ namespace xxhr {
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
-  void Session::Impl::SetPayload(Payload&& payload) {
-    xhr.call<val>("setRequestHeader", str("Content-type"), str("application/x-www-form-urlencoded"));
-    body_ = payload.content;
-  }
-
-  void Session::Impl::SetPayload(const Payload& payload) {
-    SetPayload(std::move(const_cast<Payload&>(payload)));
-  }
-
-  void Session::Impl::SetProxies(const Proxies& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies. */ }
-  void Session::Impl::SetProxies(Proxies&& ) { /* We cannot affect this in a webbrowser. Anyway there is nothing worse than http proxies.*/ }
-  
   void Session::Impl::SetMultipart(Multipart&& multipart) {
     val formdata = val::global("FormData").new_();
 
@@ -212,13 +186,15 @@ namespace xxhr {
         //buf["size"] = part.value.size();
 
         //formdata.call<val>("append", buf );
-      } else {
+      } else if (part.is_buffer) {
         auto buf = val::global("Blob").new_( part.value );
         if (!part.content_type.empty()) { buf["mimetype"] = val(part.content_type); }
         buf["size"] = val(part.value.size());
 
         formdata.call<val>("append", part.name, buf );
-      }
+      } 
+
+      // TODO : Implement normal form text value for web platform
     }
 
     multipart_ = formdata;
@@ -272,8 +248,14 @@ namespace xxhr {
   //! After sending remove request specific cookies from global document
   void Session::Impl::CookiesCleanup() { SetCookies(cookies_, true); }
 
-  void Session::Impl::SetBody(Body&& body) { body_ = body; }
-  void Session::Impl::SetBody(const Body& body) { body_ = body; }
+  void Session::Impl::SetBody(const Body& body) { 
+
+    if (body.is_form_encoded) {
+      xhr.call<val>("setRequestHeader", str("Content-type"), str("application/x-www-form-urlencoded"));
+    }
+
+    body_ = body.content; 
+  }
 
   void Session::Impl::QUERY(const std::string& method) {
     using namespace std::placeholders;
@@ -283,13 +265,24 @@ namespace xxhr {
     } else {
       xhr.call<val>("open", method, url_, true);
     }
+    
+    for (auto item = headers.cbegin(); item != headers.cend(); ++item) {
+      xhr.call<val>("setRequestHeader", item->first, item->second);
+    }
 
     xhr.set("onreadystatechange", js::bind(&Session::Impl::on_readystate, shared_from_this(), _1));
 
-    xhr.call<val>("send");
+    if (body_) {
+      xhr.call<val>("send", *body_);
+    } else if (multipart_) {
+      xhr.call<val>("send", *multipart_);
+    } else {
+      xhr.call<val>("send");
+    }
+
   }
 
-  void Session::Impl::DELETE()  { this->QUERY("DELETE"); }
+  void Session::Impl::DELETE_()  { this->QUERY("DELETE"); }
   void Session::Impl::GET()     { this->QUERY("GET"); }
   void Session::Impl::HEAD()    { this->QUERY("HEAD"); }
   void Session::Impl::OPTIONS() { this->QUERY("OPTIONS"); }
@@ -333,17 +326,13 @@ namespace xxhr {
   void Session::SetTimeout(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetAuth(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetDigest(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetPayload(const Payload& payload) { pimpl_->SetPayload(payload); }
-  void Session::SetPayload(Payload&& payload) { pimpl_->SetPayload(std::move(payload)); }
-  void Session::SetProxies(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
-  void Session::SetProxies(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetMultipart(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetMultipart(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetRedirect(const bool& redirect) { pimpl_->SetRedirect(redirect); }
   void Session::SetMaxRedirects(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
   void Session::SetCookies(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
-  void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
+  void Session::SetBody(Body&& body) { pimpl_->SetBody(body); }
   void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
   void Session::SetOption(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
   void Session::SetOption(Parameters&& parameters) { pimpl_->SetParameters(std::move(parameters)); }
@@ -351,22 +340,18 @@ namespace xxhr {
   void Session::SetOption(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetOption(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetOption(const Digest& auth) { pimpl_->SetDigest(auth); }
-  void Session::SetOption(const Payload& payload) { pimpl_->SetPayload(payload); }
-  void Session::SetOption(Payload&& payload) { pimpl_->SetPayload(std::move(payload)); }
-  void Session::SetOption(const Proxies& proxies) { pimpl_->SetProxies(proxies); }
-  void Session::SetOption(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxies)); }
   void Session::SetOption(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetOption(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetOption(const bool& redirect) { pimpl_->SetRedirect(redirect); }
   void Session::SetOption(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
   void Session::SetOption(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
   void Session::SetOption(const Body& body) { pimpl_->SetBody(body); }
-  void Session::SetOption(Body&& body) { pimpl_->SetBody(std::move(body)); }
+  void Session::SetOption(Body&& body) { pimpl_->SetBody(body); }
 
   template<class Handler>
   void Session::SetOption(const on_response_<Handler>&& on_response) {pimpl_->SetHandler(std::move(on_response)); }
 
-  void Session::DELETE()  { pimpl_->DELETE(); }
+  void Session::DELETE_()  { pimpl_->DELETE_(); }
   void Session::GET()     { pimpl_->GET(); }
   void Session::HEAD()    { pimpl_->HEAD(); }
   void Session::OPTIONS() { pimpl_->OPTIONS(); }

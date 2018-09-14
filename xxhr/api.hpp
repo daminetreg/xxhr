@@ -9,7 +9,6 @@
 #include "defines.hpp"
 #include "digest.hpp"
 #include "multipart.hpp"
-#include "payload.hpp"
 #include "response.hpp"
 #include "session.hpp"
 #include "handler.hpp"
@@ -62,7 +61,7 @@ void HEAD(Ts&&... ts) { Session session; priv::set_option(session, XXHR_FWD(ts).
  * \brief HTTP DELETE Request.
  */
 template <typename... Ts>
-void DELETE(Ts&&... ts) { Session session; priv::set_option(session, XXHR_FWD(ts)...); session.DELETE(); }
+void DELETE_(Ts&&... ts) { Session session; priv::set_option(session, XXHR_FWD(ts)...); session.DELETE_(); }
 
 /**
  * \brief HTTP OPTIONS Request.

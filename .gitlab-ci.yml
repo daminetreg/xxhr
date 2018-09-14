@@ -1,0 +1,31 @@
+stages:
+  - build
+
+build:ubuntu:
+  stage: build
+  image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
+  script:
+    - scripts/add-gh-auth
+    - nxxm . -t gcc-7-cxx17 --test all --dont-upgrade
+
+build:wasm:
+  stage: build
+  image: registry.gitlab.com/nxxm/nxxm/ci/ubuntu-cpp:latest
+  script:
+    - scripts/add-gh-auth
+    - nxxm . 
+
+build-macos:
+  stage: build
+  tags:
+    - macOS
+  script:
+    - nxxm . -t clang-cxx17 --test all --dont-upgrade
+
+build-win:
+  stage: build
+  tags:
+    - win10
+  script:
+    - set PreferredToolArchitecture=x64
+    - nxxm . -t vs-15-2017-win64-cxx17 --test all --dont-upgrade

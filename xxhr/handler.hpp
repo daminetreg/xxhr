@@ -30,6 +30,12 @@ namespace xxhr {
     Handler handler_;
   };
 
+  /**
+   * \brief Continuation callback ( _i.e._ signature : `void callback(xxhr::Response)`)
+   * for the asynchronous HTTP operations. It is called in any cases with the response 
+   * and if any the error conditions. See [xxhr::Response](@ref xxhr::Response) for 
+   * status_code and response body.
+   */
   constexpr make_handler_t<on_response_> on_response;
 }
 

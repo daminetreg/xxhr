@@ -1,19 +1,45 @@
 xxhr : c++ http requests                         {#mainpage}
 ========================
-Why on earth it has to be so difficult to make http queries ?
-There isn't anything simpler than that, that's only some characters sent over a connection.
-We already had so many good header-only libraries in C++, now there is one for http client.
-
-  * Just headers files
-  * No binary dependencies
-  * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
-  * [Extremely cross-platform](doc/supported_platforms.md)
-
 A simple, yet modern, http client library, all dependencies included !
 
-## An intuitive API
-\include examples/introductory.cpp
+## API: asynchronously intuitive
+\include examples/introductory.hpp
 
-## Getting Started
+## GETting Started
 
-**Just include us** `#include <xxhr/xxhr.hpp>` : [Details on how to install](INSTALL.md).
+* `#include <xxhr/xxhr.hpp>` with [`.nxxm/deps`](https://nxxm.github.io) : 
+
+```
+{
+  "daminetreg/xxhr" : { "@" : "v1.0.0" }
+}
+```
+
+* [GET Started](@ref getting-started-cpp).
+
+## Platforms
+![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/master/pipeline.svg)
+
+- WebAssembly
+- macOS
+- Linux
+- Windows
+
+## Motivation
+http[s] queries made async & easy for C++ developer.
+
+The API is exclusively async
+  - to target all modern platforms and runtimes ( *e.g.* Mobile OS, Web Browser, Windows 10... ).
+  - to build responsive UIs. 
+
+Pure & modern, this header-only C++ library is available for WebAssembly and on all C++ compatible platforms.
+
+## Key Principles
+
+  * Just headers files
+  * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
+  * Async API.
+  * [Extremely cross-platform](doc/supported_platforms.md) : Native or WebAssembly.
+  * Performant, easy to setup \& learn !
+
+

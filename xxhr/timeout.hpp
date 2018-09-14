@@ -10,27 +10,21 @@
 #include <type_traits>
 
 namespace xxhr {
+  using namespace std::literals::chrono_literals; // Improves readability of user code by allowing to write suffixes.
 
+/**
+ * \brief A timeout specification to cut short slow HTTP queries.
+ *
+ * \snippet examples/getting_started.cpp GET-request-timeout
+ *
+ */
 class Timeout {
   public:
     Timeout(const std::chrono::milliseconds& duration) : ms{duration} {}
     Timeout(const std::int32_t& milliseconds) : Timeout{std::chrono::milliseconds(milliseconds)} {}
-
-    long Milliseconds() const {
-      static_assert(std::is_same<std::chrono::milliseconds, decltype(ms)>::value,
-                    "Following casting expects milliseconds.");
-
-      if (ms.count() > std::numeric_limits<long>::max()) {
-        throw std::overflow_error("cpr::Timeout: timeout value overflow: " +
-                                    std::to_string(ms.count()) + " ms.");
-      }
-      if (ms.count() < std::numeric_limits<long>::min()) {
-        throw std::underflow_error("cpr::Timeout: timeout value underflow: " +
-                                     std::to_string(ms.count()) + " ms.");
-      }
-
-      return static_cast<long>(ms.count());
-    }
+    template< class Rep, class Period > 
+    Timeout(const std::chrono::duration<Rep, Period> duration) 
+      : Timeout(std::chrono::duration_cast<std::chrono::milliseconds>(duration)) {}
 
     std::chrono::milliseconds ms;
 };
