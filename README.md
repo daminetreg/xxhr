@@ -21,9 +21,9 @@ xxhr is a rewrite of the [cpr](https://github.com/whoshuu/cpr) project from Huu 
   - Easy to consume: no binaries dependencies, only headers (no curl).
   - Asynchronous API by essence
 
-[Boost Sofware License](./LICENSE.md), please just reproduce copyrights : 
+[MIT License](./LICENSE.md), please just reproduce copyrights : 
 
 ```
-Copyright (c) 2017 Damien Buhl alias daminetreg
+Copyright (c) 2017 - present Damien Buhl alias daminetreg
 Copyright (c) 2015 - 2017 Huu Nguyen
 ```
