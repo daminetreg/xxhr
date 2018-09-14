@@ -36,8 +36,8 @@ Pure & modern, this header-only C++ library is available for WebAssembly and on 
 
 ## Key Principles
 
-  * Just headers files
-  * Dependencies shipped: [we auto-satisfy them](https://github.com/header-only/inglued).
+  * Just headers files.
+  * Dependencies shipped: [`nxxm .`](https://nxxm.github.io/).
   * Async API.
   * [Extremely cross-platform](doc/supported_platforms.md) : Native or WebAssembly.
   * Performant, easy to setup \& learn !
