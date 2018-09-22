@@ -1,3 +1,6 @@
+// Copyright 2017-present nxxm.github.io
+// Copyright 2017-present Damien Buhl (alias daminetreg)
+// Copyright 2017-present Ibukun Oladipo tormuto (urlEncode, urlDecode on stack-overflow)
 #ifndef XXHR_UTIL_H
 #define XXHR_UTIL_H
 
@@ -139,6 +142,27 @@ namespace util {
     }
 
     return escaped.str();
+  }
+
+  inline std::string urlDecode(const std::string& str){
+    std::string ret;
+    char ch;
+    int i, ii, len = str.length();
+
+    for (i=0; i < len; i++){
+        if(str[i] != '%'){
+            if(str[i] == '+')
+                ret += ' ';
+            else
+                ret += str[i];
+        }else{
+            sscanf(str.substr(i + 1, 2).c_str(), "%x", &ii);
+            ch = static_cast<char>(ii);
+            ret += ch;
+            i = i + 2;
+        }
+    }
+    return ret;
   }
 
   inline std::string decode64(const std::string &val) {
