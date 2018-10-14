@@ -12,9 +12,9 @@ Intuitive c++ http client library for WASM and all other platforms.
 }
 ```
 
-* [GETing Started Tutorial](https://daminetreg.github.io/xxhr/html/getting-started-cpp.html)
-* [Reference Documentation](https://daminetreg.github.io/xxhr/html/namespacexxhr.html)
-* [Examples](https://daminetreg.github.io/xxhr/html/pages.html)
+* [GETing Started Tutorial](https://nxxm.github.io/xxhr/html/getting-started-cpp.html)
+* [Reference Documentation](https://nxxm.github.io/xxhr/html/namespacexxhr.html)
+* [Examples](https://nxxm.github.io/xxhr/html/pages.html)
 
 ## License
 xxhr is a rewrite of the [cpr](https://github.com/whoshuu/cpr) project from Huu Nguyen ( [https://github.com/whoshuu](@whoshuu) ) with a different philosophy :
