@@ -8,7 +8,7 @@ Intuitive c++ http client library for WASM and all other platforms.
 
 ```
 {
-  "daminetreg/xxhr" : { "@" : "v1.0.0" }
+  "nxxm/xxhr" : { "@" : "v1.0.0" }
 }
 ```
 
