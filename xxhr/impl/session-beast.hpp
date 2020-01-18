@@ -99,6 +99,7 @@ namespace xxhr {
 
     boost::asio::io_context ioc;
     boost::asio::steady_timer timeouter{ioc};
+    boost::asio::steady_timer timeouter_for_graceful_shutdown{ioc};
     ssl::context ctx{ssl::context::sslv23_client};
     tcp::resolver resolver_{ioc};
     plain_or_tls stream_; 
@@ -268,12 +269,23 @@ namespace xxhr {
 
         // Gracefully close the stream
         if (is_tls_stream()) {
+
+          // Give a bit of time for graceful shutdown but otherwise just forcefully close
+          timeouter_for_graceful_shutdown.expires_after(std::chrono::milliseconds(500));
+          timeouter_for_graceful_shutdown.async_wait(
+            std::bind(
+              &Session::Impl::on_too_long_async_shutdown,
+              shared_from_this(),
+              std::placeholders::_1)
+          );
+
           auto& stream = tls_stream();
           stream.async_shutdown(
             std::bind(
               &Session::Impl::on_shutdown,
               shared_from_this(),
               std::placeholders::_1));
+
         } else {
           on_shutdown(ec);
         }
@@ -299,7 +311,26 @@ namespace xxhr {
        }
     }
 
+    void on_too_long_async_shutdown(boost::system::error_code ec) {
+      if (ec != boost::asio::error::operation_aborted) {
+    
+        ioc.stop();
+
+        tcp::socket* socket;
+        if (is_tls_stream()) {
+          socket = &tls_stream().next_layer();
+        } else {
+          socket = &plain_stream();
+        }
+
+        boost::system::error_code ec_dontthrow;
+        socket->cancel(ec_dontthrow);
+        socket->close(ec_dontthrow);
+      }
+    }
+
     void on_shutdown(boost::system::error_code ec) {
+      timeouter_for_graceful_shutdown.cancel();
       //if(ec == boost::asio::error::eof) {
           // Rationale:
           // http://stackoverflow.com/questions/25587403/boost-asio-ssl-async-shutdown-always-finishes-with-an-error
