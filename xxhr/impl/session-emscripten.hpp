@@ -34,38 +34,38 @@ namespace xxhr {
 
     public:
 
-    void SetUrl(const Url& url);
-    void SetParameters(const Parameters& parameters);
-    void SetParameters(Parameters&& parameters);
-    void SetHeader(const Header& header);
-    void SetTimeout(const Timeout& timeout);
-    void SetAuth(const Authentication& auth);
-    void SetDigest(const Digest& auth);
+    inline void SetUrl(const Url& url);
+    inline void SetParameters(const Parameters& parameters);
+    inline void SetParameters(Parameters&& parameters);
+    inline void SetHeader(const Header& header);
+    inline void SetTimeout(const Timeout& timeout);
+    inline void SetAuth(const Authentication& auth);
+    inline void SetDigest(const Digest& auth);
 
-    void SetMultipart(Multipart&& multipart);
-    void SetMultipart(const Multipart& multipart);
-    void SetRedirect(const bool& redirect);
-    void SetMaxRedirects(const MaxRedirects& max_redirects);
-    void SetCookies(const Cookies& cookies, bool delete_them = false);
-    void CookiesCleanup();
+    inline void SetMultipart(Multipart&& multipart);
+    inline void SetMultipart(const Multipart& multipart);
+    inline void SetRedirect(const bool& redirect);
+    inline void SetMaxRedirects(const MaxRedirects& max_redirects);
+    inline void SetCookies(const Cookies& cookies, bool delete_them = false);
+    inline void CookiesCleanup();
 
     //! Set the provided body
-    void SetBody(const Body& body);
+    inline void SetBody(const Body& body);
 
     template<class Handler>
-    void SetHandler(const on_response_<Handler>&& functor) {
+    inline void SetHandler(const on_response_<Handler>&& functor) {
       on_response = functor;
     }
 
-    void QUERY(const std::string& method);
+    inline void QUERY(const std::string& method);
 
-    void DELETE_();
-    void GET();
-    void HEAD();
-    void OPTIONS();
-    void PATCH();
-    void POST();
-    void PUT();
+    inline void DELETE_();
+    inline void GET();
+    inline void HEAD();
+    inline void OPTIONS();
+    inline void PATCH();
+    inline void POST();
+    inline void PUT();
 
     enum ReadyState {
       UNSENT = 0, // 	Client has been created. open() not called yet.
@@ -75,7 +75,7 @@ namespace xxhr {
       DONE
     };
 
-    void on_readystate(val event) {
+    inline void on_readystate(val event) {
       //std::cout << "xxhr::on_readystate: " <<  xhr["statusText"].as<std::string>() << " status : " << xhr["status"].as<size_t>() << std::endl;
 
       if (xhr["readyState"].as<size_t>() == DONE) {
@@ -91,7 +91,7 @@ namespace xxhr {
             Response{
               xhr["status"].as<size_t>(),
               (xhr["status"].as<size_t>() == 0) ?
-                  Error{ErrorCode::CONNECTION_FAILURE} 
+                  Error{ErrorCode::CONNECTION_FAILURE}
                 : Error{},
               xhr["responseText"].as<std::string>(),
               (!xhr.call<val>("getAllResponseHeaders").isNull()) ?
@@ -160,13 +160,13 @@ namespace xxhr {
 
   void Session::Impl::SetAuth(const Authentication& auth) {
     auth_ = auth;
-    //Some old browser might need this, instead of open with pwd : xhr.call<val>("setRequestHeader", 
+    //Some old browser might need this, instead of open with pwd : xhr.call<val>("setRequestHeader",
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
   void Session::Impl::SetDigest(const Digest& auth) {
     auth_ = auth;
-    //Some old browser might need this, instead of open with pwd : xhr.call<val>("setRequestHeader", 
+    //Some old browser might need this, instead of open with pwd : xhr.call<val>("setRequestHeader",
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
   }
 
@@ -174,7 +174,7 @@ namespace xxhr {
     val formdata = val::global("FormData").new_();
 
     for (auto& part : multipart.parts) {
-      // https://developer.mozilla.org/fr/docs/Web/API/FormData 
+      // https://developer.mozilla.org/fr/docs/Web/API/FormData
       if (part.is_file) {
         throw std::runtime_error("File multipart was not yet implemented, would require 1h of work though");
         //XXX: Implement file, File cannot be instantiated normally, it should be forwarded from user input.
@@ -192,7 +192,7 @@ namespace xxhr {
         buf["size"] = val(part.value.size());
 
         formdata.call<val>("append", part.name, buf );
-      } 
+      }
 
       // TODO : Implement normal form text value for web platform
     }
@@ -202,7 +202,7 @@ namespace xxhr {
 
 
   void Session::Impl::SetRedirect(const bool& ) {
-    // TODO : Implement redirect with a switching backend, following support : 
+    // TODO : Implement redirect with a switching backend, following support :
     //  - Fetch API can handle redirection limitations
     //  - Fetch API is not yet supported on all browser
     //  - If not then throw or indicate with some error message and go back to xhr
@@ -210,7 +210,7 @@ namespace xxhr {
   }
 
   void Session::Impl::SetMaxRedirects(const MaxRedirects& ) {
-    // TODO : Implement redirect with a switching backend, following support : 
+    // TODO : Implement redirect with a switching backend, following support :
     //  - Fetch API can handle redirection limitations
     //  - Fetch API is not yet supported on all browser
     //  - If not then throw or indicate with some error message and go back to xhr
@@ -219,28 +219,28 @@ namespace xxhr {
 
   void Session::Impl::SetCookies(const Cookies& cookies, bool delete_them) {
     // XXX: Should we before we set any specified cookies, we have to remove ALL others ?
-    
+
     cookies_ = cookies;
     xhr["withCredentials"] = val(true);
 
     for (auto cookie : cookies.all()) {
-      auto cookie_string = 
+      auto cookie_string =
         xxhr::util::urlEncode(cookie.first)
-        + "=" + 
+        + "=" +
         xxhr::util::urlEncode(cookie.second);
 
-      if (delete_them) { 
-        cookie_string += "; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; 
+      if (delete_them) {
+        cookie_string += "; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         // If someone finds this a good programming idiom he should go to hell
         // with all their browser developers friends. Instead of giving you
         // cookie.delete, we only have got the possibility to put a date in the
         // past... -_-'
-      } 
-      
-      // This [de]register the cookies, but if you just read cookie you 
+      }
+
+      // This [de]register the cookies, but if you just read cookie you
       // get the full list. -_-'
       auto document = val::global("document");
-      document["cookie"] = val(cookie_string); 
+      document["cookie"] = val(cookie_string);
     }
 
   }
@@ -248,13 +248,13 @@ namespace xxhr {
   //! After sending remove request specific cookies from global document
   void Session::Impl::CookiesCleanup() { SetCookies(cookies_, true); }
 
-  void Session::Impl::SetBody(const Body& body) { 
+  void Session::Impl::SetBody(const Body& body) {
 
     if (body.is_form_encoded) {
       xhr.call<val>("setRequestHeader", str("Content-type"), str("application/x-www-form-urlencoded"));
     }
 
-    body_ = body.content; 
+    body_ = body.content;
   }
 
   void Session::Impl::QUERY(const std::string& method) {
@@ -265,7 +265,7 @@ namespace xxhr {
     } else {
       xhr.call<val>("open", method, url_, true);
     }
-    
+
     for (auto item = headers.cbegin(); item != headers.cend(); ++item) {
       xhr.call<val>("setRequestHeader", item->first, item->second);
     }

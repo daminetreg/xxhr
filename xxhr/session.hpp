@@ -20,50 +20,50 @@ namespace xxhr {
 
 class Session {
   public:
-  Session();
-  ~Session();
+  inline Session();
+  inline ~Session();
 
-  void SetUrl(const Url& url);
-  void SetParameters(const Parameters& parameters);
-  void SetParameters(Parameters&& parameters);
-  void SetHeader(const Header& header);
-  void SetTimeout(const Timeout& timeout);
-  void SetAuth(const Authentication& auth);
-  void SetDigest(const Digest& auth);
-  void SetMultipart(Multipart&& multipart);
-  void SetMultipart(const Multipart& multipart);
-  void SetRedirect(const bool& redirect);
-  void SetMaxRedirects(const MaxRedirects& max_redirects);
-  void SetCookies(const Cookies& cookies);
-  void SetBody(Body&& body);
-  void SetBody(const Body& body);
+  inline void SetUrl(const Url& url);
+  inline void SetParameters(const Parameters& parameters);
+  inline void SetParameters(Parameters&& parameters);
+  inline void SetHeader(const Header& header);
+  inline void SetTimeout(const Timeout& timeout);
+  inline void SetAuth(const Authentication& auth);
+  inline void SetDigest(const Digest& auth);
+  inline void SetMultipart(Multipart&& multipart);
+  inline void SetMultipart(const Multipart& multipart);
+  inline void SetRedirect(const bool& redirect);
+  inline void SetMaxRedirects(const MaxRedirects& max_redirects);
+  inline void SetCookies(const Cookies& cookies);
+  inline void SetBody(Body&& body);
+  inline void SetBody(const Body& body);
 
   // Used in templated functions
-  void SetOption(const Url& url);
-  void SetOption(const Parameters& parameters);
-  void SetOption(Parameters&& parameters);
-  void SetOption(const Header& header);
-  void SetOption(const Timeout& timeout);
-  void SetOption(const Authentication& auth);
-  void SetOption(const Digest& auth);
-  void SetOption(Multipart&& multipart);
-  void SetOption(const Multipart& multipart);
-  void SetOption(const bool& redirect);
-  void SetOption(const MaxRedirects& max_redirects);
-  void SetOption(const Cookies& cookies);
-  void SetOption(Body&& body);
-  void SetOption(const Body& body);
+  inline void SetOption(const Url& url);
+  inline void SetOption(const Parameters& parameters);
+  inline void SetOption(Parameters&& parameters);
+  inline void SetOption(const Header& header);
+  inline void SetOption(const Timeout& timeout);
+  inline void SetOption(const Authentication& auth);
+  inline void SetOption(const Digest& auth);
+  inline void SetOption(Multipart&& multipart);
+  inline void SetOption(const Multipart& multipart);
+  inline void SetOption(const bool& redirect);
+  inline void SetOption(const MaxRedirects& max_redirects);
+  inline void SetOption(const Cookies& cookies);
+  inline void SetOption(Body&& body);
+  inline void SetOption(const Body& body);
 
   template<class Handler>
-  void SetOption(const on_response_<Handler>&& on_response);
+  inline void SetOption(const on_response_<Handler>&& on_response);
 
-  void DELETE_();
-  void GET();
-  void HEAD();
-  void OPTIONS();
-  void PATCH();
-  void POST();
-  void PUT();
+  inline void DELETE_();
+  inline void GET();
+  inline void HEAD();
+  inline void OPTIONS();
+  inline void PATCH();
+  inline void POST();
+  inline void PUT();
 
   class Impl;
   private:
