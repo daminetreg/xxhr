@@ -5,4 +5,6 @@
   , "platform:gcc-7-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:clang-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:vs-15-2017-win64-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
+  , "platform:vs-16-2019-win64-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
+
 }
