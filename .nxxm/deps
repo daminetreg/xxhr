@@ -8,5 +8,5 @@
   , "platform:vs-16-2019-win64-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
   , "platform:linux" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:macos" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:windows" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
+  , "platform:windows" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
 }
