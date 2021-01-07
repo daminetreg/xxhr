@@ -6,11 +6,11 @@
   , "platform:clang-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:vs-15-2017-win64-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
   , "platform:vs-16-2019-win64-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
-  , "platform:linux" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
-  , "platform:linux-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
-  , "platform:macos" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:macos-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:windows" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
-  , "platform:windows-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
+  , "platform:linux" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto", "target::dl" ]
+  , "platform:linux-cxx17" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto", "target::dl" ]
+  , "platform:macos" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto" ]
+  , "platform:macos-cxx17" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto" ]
+  , "platform:windows" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto", "target::crypt32" ]
+  , "platform:windows-cxx17" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto", "target::crypt32" ]
 
 }
