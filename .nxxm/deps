@@ -10,7 +10,7 @@
   , "platform:linux-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:macos" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:macos-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:windows" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
-  , "platform:windows-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
+  , "platform:windows" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto", "target::crypt32" ]
+  , "platform:windows-cxx17" : [ "Boost::system", "BoringSSL::+SSL", "BoringSSL::+Crypto", "target::crypt32" ]
 
 }
