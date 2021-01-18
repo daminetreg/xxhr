@@ -1,5 +1,5 @@
 {
-   "daminetreg/js-bind" : { "@" : "v0.0.2" }
+   "nxxm/js-bind" : { "@" : "master" }
   , "aantron/better-enums" : { "@" : "0.11.1" }
 
   , "platform:gcc-7-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
