@@ -1,0 +1,69 @@
+name: build 
+# This workflow is triggered on pushes to the repository.
+on: [push]
+
+jobs:
+  build-wasm: 
+    name: build-wasm
+    runs-on: ubuntu-latest
+    container: nxxm/nxxm-ubuntu
+    env:
+      NXXM_AUTH: ${ secrets.NXXM_AUTH }
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: nxxm builds project 
+        run: |
+          export HOME=/root
+          mkdir -p ~/.nxxm
+          if [ -n "$NXXM_AUTH" ]; then
+            echo "$NXXM_AUTH" > ~/.nxxm/.auth
+          fi
+          nxxm . --dont-upgrade --verbose --test all 
+
+  build-linux: 
+    name: build-wasm
+    runs-on: ubuntu-latest
+    env:
+      NXXM_AUTH: ${ secrets.NXXM_AUTH }
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: nxxm builds project 
+        run: |
+          mkdir -p ~/.nxxm
+          if [ -n "$NXXM_AUTH" ]; then
+            echo "$NXXM_AUTH" > ~/.nxxm/.auth
+          fi
+          nxxm . --dont-upgrade --verbose -t gcc-7-cxx17 --test all 
+
+  build-win: 
+    name: build-win
+    runs-on: windows-latest
+    env:
+      NXXM_AUTH: ${ secrets.NXXM_AUTH }
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: nxxm builds project 
+        run: |
+          $env:NXXM_AUTH | Out-File -Encoding ASCII D:\a\.nxxm\.auth
+          $env:PreferredToolArchitecture = "x64"
+          nxxm.exe . --dont-upgrade --verbose -t vs-16-2019-win64-cxx17 -j4
+
+  build-macOS: 
+    name: build-macOS
+    runs-on: macos-latest
+    env:
+      NXXM_AUTH: ${ secrets.NXXM_AUTH }
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: nxxm builds project 
+        run: |
+          export HOME=/root
+          mkdir -p ~/.nxxm
+          if [ -n "$NXXM_AUTH" ]; then
+            echo "$NXXM_AUTH" > ~/.nxxm/.auth
+          fi
+          nxxm . --dont-upgrade --verbose -t clang-cxx17 --test all 
