@@ -7,33 +7,20 @@ jobs:
     name: build-wasm
     runs-on: ubuntu-latest
     container: nxxm/nxxm-ubuntu
-    env:
-      NXXM_AUTH: ${ secrets.NXXM_AUTH }
     steps:
       - name: checkout
         uses: actions/checkout@v2
       - name: nxxm builds project 
         run: |
-          export HOME=/root
-          mkdir -p ~/.nxxm
-          if [ -n "$NXXM_AUTH" ]; then
-            echo "$NXXM_AUTH" > ~/.nxxm/.auth
-          fi
           nxxm . --dont-upgrade --verbose --test all 
 
   build-linux: 
     name: build-linux
     runs-on: ubuntu-latest
     container: nxxm/nxxm-ubuntu
-    env:
-      NXXM_AUTH: ${ secrets.NXXM_AUTH }
     steps:
       - name: checkout
         uses: actions/checkout@v2
       - name: nxxm builds project 
         run: |
-          mkdir -p ~/.nxxm
-          if [ -n "$NXXM_AUTH" ]; then
-            echo "$NXXM_AUTH" > ~/.nxxm/.auth
-          fi
           nxxm . --dont-upgrade --verbose -t gcc-7-cxx17 --test all 
