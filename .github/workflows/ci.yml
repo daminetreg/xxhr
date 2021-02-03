@@ -22,7 +22,7 @@ jobs:
           nxxm . --dont-upgrade --verbose --test all 
 
   build-linux: 
-    name: build-wasm
+    name: build-linux
     runs-on: ubuntu-latest
     container: nxxm/nxxm-ubuntu
     env:
