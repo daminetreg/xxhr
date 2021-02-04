@@ -1,0 +1,16 @@
+name: build 
+# This workflow is triggered on pushes to the repository.
+on: [push]
+
+jobs:
+
+  build-linux: 
+    name: build-linux
+    runs-on: ubuntu-latest
+    container: nxxm/nxxm-ubuntu
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: nxxm builds project 
+        run: |
+          nxxm . --dont-upgrade --verbose -t gcc-7-cxx17 --test all 

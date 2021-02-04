@@ -426,10 +426,12 @@ namespace xxhr {
         ifs.seekg(0, ifs.end);
         auto file_size = ifs.tellg();
         ifs.seekg(0, ifs.beg);
-
-        std::string file_content(file_size, std::string::value_type{});
-        ifs.read(const_cast<char*>(file_content.data()), file_size);
-        body.write(file_content.data(), file_content.size());
+  
+        if (file_size >= 0) {
+          std::string file_content(file_size, std::string::value_type{});
+          ifs.read(const_cast<char*>(file_content.data()), file_size);
+          body.write(file_content.data(), file_content.size());
+        }
       } else if (part.is_buffer) {
 
         body.write(reinterpret_cast<const char*>(part.data), part.datalen);
