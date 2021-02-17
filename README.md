@@ -1,5 +1,5 @@
 ![xxhr logo](./doc/logo.png)
-[![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/master/pipeline.svg)](https://git.lecbna.org/daminetreg/xxhr/commits/master)
+![build](https://github.com/nxxm/xxhr/workflows/build/badge.svg)
 
 # xxhr : c++ http requests
 Intuitive c++ http client library for WASM and all other platforms.
