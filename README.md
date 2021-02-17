@@ -1,5 +1,5 @@
 ![xxhr logo](./doc/logo.png)
-![build](https://github.com/nxxm/xxhr/workflows/build/badge.svg)
+[![build](https://github.com/nxxm/xxhr/workflows/build/badge.svg)](https://github.com/nxxm/xxhr/actions?query=workflow%3Abuild+branch%3Amaster)
 
 # xxhr : c++ http requests
 Intuitive c++ http client library for WASM and all other platforms.
