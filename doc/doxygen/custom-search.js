@@ -1,3 +1,27 @@
+/*
+ @licstart  The following is the entire license notice for the JavaScript code in this file.
+
+ The MIT License (MIT)
+
+ Copyright (C) 1997-2020 by Dimitri van Heesch
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ and associated documentation files (the "Software"), to deal in the Software without restriction,
+ including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all copies or
+ substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ @licend  The above is the entire license notice for the JavaScript code in this file
+ */
 function convertToId(search)
 {
   var result = '';
@@ -54,7 +78,7 @@ function getYPos(item)
    Parameters:
    name - The name of the global variable that will be
           storing this instance.  Is needed to be able to set timeouts.
-   resultPath - path tsemantic/dist/o use for external files
+   resultPath - path to use for external files
 */
 function SearchBox(name, resultsPath, inFrame, label)
 {
@@ -72,7 +96,7 @@ function SearchBox(name, resultsPath, inFrame, label)
   this.searchIndex           = 0;
   this.searchActive          = false;
   this.insideFrame           = inFrame;
-  this.searchLabel           = ""; // label is ignored in favor of html5 placeholder.
+  this.searchLabel           = label;
 
   // ----------- DOM Elements
 
@@ -89,7 +113,7 @@ function SearchBox(name, resultsPath, inFrame, label)
   {  return document.getElementById("MSearchResults");  }
 
   this.DOMPopupSearchResultsWindow = function()
-  {  return document.getElementById("CustomSearchResults");  }
+  {  return document.getElementById("MSearchResultsWindow");  }
 
   this.DOMSearchClose = function()
   {  return document.getElementById("MSearchClose"); }
@@ -120,8 +144,8 @@ function SearchBox(name, resultsPath, inFrame, label)
       // show search selection popup
       searchSelectWindow.style.display='block';
       left -= searchSelectWindow.offsetWidth;
-      //searchSelectWindow.style.left =  left + 'px';
-      //searchSelectWindow.style.top  =  top  + 'px';
+      searchSelectWindow.style.left =  left + 'px';
+      searchSelectWindow.style.top  =  top  + 'px';
     }
     else
     {
@@ -131,8 +155,8 @@ function SearchBox(name, resultsPath, inFrame, label)
 
       // show search selection popup
       searchSelectWindow.style.display='block';
-      //searchSelectWindow.style.left =  left + 'px';
-      //searchSelectWindow.style.top  =  top  + 'px';
+      searchSelectWindow.style.left =  left + 'px';
+      searchSelectWindow.style.top  =  top  + 'px';
     }
 
     // stop selection hide timer
@@ -177,10 +201,9 @@ function SearchBox(name, resultsPath, inFrame, label)
         }
         return;
       }
-      else if (window.frames.MSearchResults.searchResults)
+      else
       {
-        var elem = window.frames.MSearchResults.searchResults.NavNext(0);
-        if (elem) elem.focus();
+        window.frames.MSearchResults.postMessage("take_focus", "*");
       }
     }
     else if (e.keyCode==27) // Escape out of the search field
@@ -341,7 +364,7 @@ function SearchBox(name, resultsPath, inFrame, label)
     if (domPopupSearchResultsWindow.style.display!='block')
     {
        var domSearchBox = this.DOMSearchBox();
-       //this.DOMSearchClose().style.display = 'inline';
+       this.DOMSearchClose().style.display = 'inline-block';
        if (this.insideFrame)
        {
          var domPopupSearchResults = this.DOMPopupSearchResults();
@@ -358,8 +381,8 @@ function SearchBox(name, resultsPath, inFrame, label)
          var top  = getYPos(domSearchBox) + 20;  // domSearchBox.offsetHeight + 1;
          domPopupSearchResultsWindow.style.display = 'block';
          left -= domPopupSearchResults.offsetWidth;
-         //domPopupSearchResultsWindow.style.top     = top  + 'px';
-         //domPopupSearchResultsWindow.style.left    = left + 'px';
+         domPopupSearchResultsWindow.style.top     = top  + 'px';
+         domPopupSearchResultsWindow.style.left    = left + 'px';
        }
     }
 
@@ -386,13 +409,6 @@ function SearchBox(name, resultsPath, inFrame, label)
         searchField.value = '';
         this.searchActive = true;
       }
-
-      $("#MSearchResults").mouseleave($.proxy(function() {
-        console.log("hellO");
-        this.DOMPopupSearchResultsWindow().style.display = 'none'
-        this.Activate(false);
-
-      },this));
     }
     else if (!isActive) // directly remove the panel
     {
@@ -795,4 +811,4 @@ function init_search()
   }
   searchBox.OnSelectItem(0);
 }
-
+/* @license-end */
