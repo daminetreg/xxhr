@@ -1,3 +1,7 @@
+
+#  Official project now in https://github.com/nxxm/xxhr
+
+
 ![xxhr logo](./doc/logo.png)
 [![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/master/pipeline.svg)](https://git.lecbna.org/daminetreg/xxhr/commits/master)
 
