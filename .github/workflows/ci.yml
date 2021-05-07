@@ -3,11 +3,22 @@ name: build
 on: [push]
 
 jobs:
+  build-wasm: 
+    name: build-wasm
+    runs-on: ubuntu-latest
+    container: nxxm/nxxm-ubuntu-develop
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: nxxm builds project 
+        run: |
+          nxxm . --dont-upgrade --verbose --test all 
 
   build-linux: 
     name: build-linux
     runs-on: ubuntu-latest
-    container: nxxm/nxxm-ubuntu
+    container: nxxm/nxxm-ubuntu-develop
+
     steps:
       - name: checkout
         uses: actions/checkout@v2
