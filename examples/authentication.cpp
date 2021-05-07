@@ -33,6 +33,18 @@ int main(int argc, char** argv) {
     });
 //! [Authentication-snippet-digest]
 
+//! [Authentication-snippet-bearer]
+  GET("http://httpbin.org/bearer"s,
+
+    Bearer{"I dont have a token but I can put it on my karma"},
+
+    on_response = [](auto&& resp) {
+      std::cout << resp.text;
+    });
+//! [Authentication-snippet-bearer]
+
+
+
   return 0;
 }
 
@@ -55,5 +67,11 @@ int main(int argc, char** argv) {
   To initiate a Digest authentication use in-place of xxhr::Authentication the xxhr::Digest parameter: 
 
   \snippet examples/authentication.cpp Authentication-snippet-digest
+
+  ## Bearer Authentication
+
+  To initiate a Bearer authentication use xxhr::Bearer parameter: 
+
+  \snippet examples/authentication.cpp Authentication-snippet-bearer
 
 */

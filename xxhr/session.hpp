@@ -30,6 +30,7 @@ class Session {
   inline void SetTimeout(const Timeout& timeout);
   inline void SetAuth(const Authentication& auth);
   inline void SetDigest(const Digest& auth);
+  inline void SetBearer(const Bearer& auth);
   inline void SetMultipart(Multipart&& multipart);
   inline void SetMultipart(const Multipart& multipart);
   inline void SetRedirect(const bool& redirect);
@@ -46,6 +47,7 @@ class Session {
   inline void SetOption(const Timeout& timeout);
   inline void SetOption(const Authentication& auth);
   inline void SetOption(const Digest& auth);
+  inline void SetOption(const Bearer& auth);
   inline void SetOption(Multipart&& multipart);
   inline void SetOption(const Multipart& multipart);
   inline void SetOption(const bool& redirect);

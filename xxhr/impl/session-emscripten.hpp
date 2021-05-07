@@ -20,6 +20,7 @@
 #include <xxhr/cookies.hpp>
 #include <xxhr/xxhrtypes.hpp>
 #include <xxhr/digest.hpp>
+#include <xxhr/bearer.hpp>
 #include <xxhr/max_redirects.hpp>
 #include <xxhr/multipart.hpp>
 #include <xxhr/parameters.hpp>
@@ -41,6 +42,7 @@ namespace xxhr {
     inline void SetTimeout(const Timeout& timeout);
     inline void SetAuth(const Authentication& auth);
     inline void SetDigest(const Digest& auth);
+    inline void SetBearer(const Bearer& auth);
 
     inline void SetMultipart(Multipart&& multipart);
     inline void SetMultipart(const Multipart& multipart);
@@ -168,6 +170,11 @@ namespace xxhr {
     auth_ = auth;
     //Some old browser might need this, instead of open with pwd : xhr.call<val>("setRequestHeader",
     //  "Authorization", std::string("Basic ") + util::encode64(auth.GetAuthString());
+  }
+
+  void Session::Impl::SetBearer(const Bearer& auth) {
+    std::stringstream ss; ss << "Bearer " << auth.GetAuthString();
+    SetHeader(Header{{"Authorization", ss.str()}});
   }
 
   void Session::Impl::SetMultipart(Multipart&& multipart) {
@@ -326,6 +333,7 @@ namespace xxhr {
   void Session::SetTimeout(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetAuth(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetDigest(const Digest& auth) { pimpl_->SetDigest(auth); }
+  void Session::SetBearer(const Bearer& auth) { pimpl_->SetBearer(auth); }
   void Session::SetMultipart(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetMultipart(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetRedirect(const bool& redirect) { pimpl_->SetRedirect(redirect); }
@@ -340,6 +348,7 @@ namespace xxhr {
   void Session::SetOption(const Timeout& timeout) { pimpl_->SetTimeout(timeout); }
   void Session::SetOption(const Authentication& auth) { pimpl_->SetAuth(auth); }
   void Session::SetOption(const Digest& auth) { pimpl_->SetDigest(auth); }
+  void Session::SetOption(const Bearer& auth) { pimpl_->SetBearer(auth); }
   void Session::SetOption(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
   void Session::SetOption(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
   void Session::SetOption(const bool& redirect) { pimpl_->SetRedirect(redirect); }

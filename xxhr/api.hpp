@@ -8,6 +8,7 @@
 #include "xxhrtypes.hpp"
 #include "defines.hpp"
 #include "digest.hpp"
+#include "bearer.hpp"
 #include "multipart.hpp"
 #include "response.hpp"
 #include "session.hpp"
