@@ -173,7 +173,8 @@ namespace xxhr {
   }
 
   void Session::Impl::SetBearer(const Bearer& auth) {
-    //TODO: Implement bearer auth in js
+    std::stringstream ss; ss << "Bearer " << auth.GetAuthString();
+    SetHeader(Header{{"Authorization", ss.str()}});
   }
 
   void Session::Impl::SetMultipart(Multipart&& multipart) {
