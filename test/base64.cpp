@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE base64
 #include <boost/test/included/unit_test.hpp>
+#include "wasm_boost_test.hpp"
 
 #include <xxhr/util.hpp>
 
