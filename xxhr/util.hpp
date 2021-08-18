@@ -168,10 +168,16 @@ namespace util {
   inline std::string decode64(const std::string &val) {
       using namespace boost::archive::iterators;
       using It = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
-      return boost::algorithm::trim_right_copy_if(std::string(It(std::begin(val)), It(std::end(val))), [](char c) {
-          return c == '\0';
-      });
+      // Remove padding and not all encoded \0  
+      // See https://svn.boost.org/trac10/ticket/5629#comment:9
+      auto decoded_with_padding_chars_as_nulls = std::string(It(std::begin(val)), It(std::end(val)));
+      auto padding_count = std::count(val.end()-((std::min)(2, val.size())), val.end());
+      auto decoded = decoded_with_padding_chars_as_nulls.resize(decoded_with_padding_chars_as_nulls.size()-decoded_with_padding_chars_as_nulls);
+      decoded_with_padding_chars_as_nulls.erase(decoded.end() - padding_count, '='), decoded.end());
+      auto decoded = std::string(decoded_with_padding_chars_as_nulls
+      return ;
   }
+
 
   inline std::string encode64(const std::string &val) {
       using namespace boost::archive::iterators;
