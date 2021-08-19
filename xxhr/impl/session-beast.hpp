@@ -382,7 +382,12 @@ namespace xxhr {
     for (auto&& entry : header) {
       auto& h = entry.first;
       auto& v = entry.second;
-      req_.set(boost::beast::http::string_to_field(h), v);
+      auto field = boost::beast::http::string_to_field(h);
+      if (field == boost::beast::http::field::unknown) {
+        req_.insert(h, v);
+      } else {
+        req_.set(field, v);
+      }
     }
   }
 
