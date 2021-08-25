@@ -22,7 +22,7 @@ std::map<std::string, std::string> test_data {
 BOOST_AUTO_TEST_CASE(decode) {
   BOOST_REQUIRE(test_data.size() > 0);
   for (const auto& data : test_data) {
-    std::cout << data.first << " should be " << data.second << std::endl;
+    BOOST_TEST_MESSAGE( data.first << " check if equals " << data.second);
     BOOST_REQUIRE_EQUAL(xxhr::util::decode64(data.first), data.second);
   }
 } 
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(decode) {
 BOOST_AUTO_TEST_CASE(encode) {
   BOOST_REQUIRE(test_data.size() > 0);
   for (const auto& data : test_data) {
-    std::cout << data.first << " should be " << data.second << std::endl;
+    BOOST_TEST_MESSAGE( data.first << " check if equals " << data.second);
     BOOST_REQUIRE_EQUAL(xxhr::util::encode64(data.second), data.first);
   }
 } 

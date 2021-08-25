@@ -170,10 +170,8 @@ namespace util {
       using It = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
       // See https://svn.boost.org/trac10/ticket/5629#comment:9
       // Boost binary_from_base64 transforms '=' into '\0', they need to be removed to support binary data
-      auto decoded_with_zeroed_padding = std::string(It(std::begin(val)), It(std::end(val)));
       auto padding_count = std::count(val.end() - std::min(std::size_t{2}, val.size()), val.end() , '=');
-      auto decoded = decoded_with_zeroed_padding.substr(0,decoded_with_zeroed_padding.size()-padding_count);
-      return decoded;
+      return std::string(It(std::begin(val)), It(std::end(val) - padding_count));
   }
 
 
