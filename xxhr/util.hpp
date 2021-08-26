@@ -168,10 +168,12 @@ namespace util {
   inline std::string decode64(const std::string &val) {
       using namespace boost::archive::iterators;
       using It = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
-      return boost::algorithm::trim_right_copy_if(std::string(It(std::begin(val)), It(std::end(val))), [](char c) {
-          return c == '\0';
-      });
+      // See https://svn.boost.org/trac10/ticket/5629#comment:9
+      // Boost binary_from_base64 transforms '=' into '\0', they need to be removed to support binary data
+      auto padding_count = std::count(val.end() - std::min(std::size_t{2}, val.size()), val.end() , '=');
+      return std::string(It(std::begin(val)), It(std::end(val) - padding_count));
   }
+
 
   inline std::string encode64(const std::string &val) {
       using namespace boost::archive::iterators;
