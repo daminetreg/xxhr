@@ -9,6 +9,7 @@
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <mutex>
 
 #include <curl/curl.h>
 
