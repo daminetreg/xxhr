@@ -87,7 +87,7 @@ namespace xxhr {
 
   class Session::Impl  : public std::enable_shared_from_this<Session::Impl> {
     public:
-      Impl();
+      inline Impl();
 
       inline void SetUrl(const Url& url);
       inline void SetParameters(const Parameters& parameters);
