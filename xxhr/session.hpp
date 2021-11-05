@@ -4,17 +4,19 @@
 #include <cstdint>
 #include <memory>
 
-#include "auth.hpp"
-#include "body.hpp"
-#include "cookies.hpp"
-#include "xxhrtypes.hpp"
-#include "digest.hpp"
-#include "max_redirects.hpp"
-#include "multipart.hpp"
-#include "parameters.hpp"
-#include "response.hpp"
-#include "timeout.hpp"
-#include "handler.hpp"
+#include <xxhr/auth.hpp>
+#include <xxhr/body.hpp>
+#include <xxhr/cookies.hpp>
+#include <xxhr/xxhrtypes.hpp>
+#include <xxhr/digest.hpp>
+#include <xxhr/max_redirects.hpp>
+#include <xxhr/multipart.hpp>
+#include <xxhr/parameters.hpp>
+#include <xxhr/response.hpp>
+#include <xxhr/timeout.hpp>
+#include <xxhr/handler.hpp>
+#include <xxhr/proxies.hpp>
+#include <xxhr/proxyauth.hpp>
 
 namespace xxhr {
 
@@ -31,8 +33,13 @@ class Session {
   inline void SetAuth(const Authentication& auth);
   inline void SetDigest(const Digest& auth);
   inline void SetBearer(const Bearer& auth);
+  inline void SetProxies(Proxies&& proxies);
+  inline void SetProxies(const Proxies& proxies);
+  inline void SetProxyAuth(ProxyAuthentication&& proxy_auth);
+  inline void SetProxyAuth(const ProxyAuthentication& proxy_auth);
   inline void SetMultipart(Multipart&& multipart);
   inline void SetMultipart(const Multipart& multipart);
+  inline void SetNTLM(const NTLM& auth);
   inline void SetRedirect(const bool& redirect);
   inline void SetMaxRedirects(const MaxRedirects& max_redirects);
   inline void SetCookies(const Cookies& cookies);
@@ -48,8 +55,15 @@ class Session {
   inline void SetOption(const Authentication& auth);
   inline void SetOption(const Digest& auth);
   inline void SetOption(const Bearer& auth);
+
+  inline void SetOption(const Proxies& proxies);
+  inline void SetOption(Proxies&& proxies);
+  inline void SetOption(ProxyAuthentication&& proxy_auth);
+  inline void SetOption(const ProxyAuthentication& proxy_auth);
+
   inline void SetOption(Multipart&& multipart);
   inline void SetOption(const Multipart& multipart);
+  inline void SetOption(const NTLM& auth);
   inline void SetOption(const bool& redirect);
   inline void SetOption(const MaxRedirects& max_redirects);
   inline void SetOption(const Cookies& cookies);

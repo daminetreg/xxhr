@@ -35,6 +35,17 @@ class Authentication {
     std::string auth_string_;
 };
 
+
+/**
+ * \brief Some Proxy requires a special kind of authentication via NTLM, this allows specifying it.
+ */
+class NTLM : public Authentication {
+  public:
+    NTLM(const std::string& username, const std::string& password)
+            : Authentication{username, password} {}
+};
+
+
 } // namespace xxhr
 
 #endif

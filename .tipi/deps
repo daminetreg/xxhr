@@ -2,6 +2,7 @@
    "nxxm/js-bind:wasm-cxx17" : { "@" : "v0.0.3" }
   , "aantron/better-enums" : { "@" : "0.11.1" }
 
+  , "platform" : [ "CURL::+libcurl" ]
   , "platform:gcc-7-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:clang-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:vs-15-2017-win64-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
@@ -10,7 +11,7 @@
   , "platform:linux" : [ "Boost::system","OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:linux-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:macos" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:macos-cxx17" : [ "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
+  , "platform:macos-cxx17" : [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:windows" : [ "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
   , "platform:windows-cxx17" : [ "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
 
