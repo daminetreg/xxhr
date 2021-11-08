@@ -236,7 +236,7 @@ namespace xxhr {
 
 Session::Impl::Impl() : curl_(std::make_shared<CurlHolder>()) {
   // Set up some sensible defaults
-  curl_easy_setopt(curl_->handle, CURLOPT_VERBOSE, OFF);
+  curl_easy_setopt(curl_->handle, CURLOPT_VERBOSE, ON);
 
   curl_version_info_data* version_info = curl_version_info(CURLVERSION_NOW);
   std::string version = "curl/" + std::string{version_info->version};
