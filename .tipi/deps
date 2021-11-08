@@ -4,14 +4,14 @@
 
   , "platform:gcc-7-cxx17" :              [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:clang-cxx17" :              [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:vs-15-2017-win64-cxx17" :   [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
-  , "platform:vs-16-2019-win64-cxx17" :   [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
+  , "platform:vs-15-2017-win64-cxx17" :   [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
+  , "platform:vs-16-2019-win64-cxx17" :   [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
   
   , "platform:linux" :                    [ "CURL::+libcurl", "Boost::system","OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:linux-cxx17" :              [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:macos" :                    [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:macos-cxx17" :              [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:windows" :                  [ "CURL::+libcurl", "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
-  , "platform:windows-cxx17" :            [ "CURL::+libcurl", "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
+  , "platform:windows" :                  [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
+  , "platform:windows-cxx17" :            [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
 
 }
