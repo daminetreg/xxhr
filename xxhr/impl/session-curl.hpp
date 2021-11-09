@@ -625,7 +625,7 @@ void Session::Impl::prepareCommon() {
 #if LIBCURL_VERSION_MINOR >= 21
     /* enable all supported built-in compressions */
     // Info from L.L four the moment we don't support gzip  
-    curl_easy_setopt(curl_->handle, CURLOPT_ACCEPT_ENCODING, "deflate,identity,br,zstd");
+    curl_easy_setopt(curl_->handle, CURLOPT_ACCEPT_ENCODING, nullptr);
 #endif
 #endif
 
