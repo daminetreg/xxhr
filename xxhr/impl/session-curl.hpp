@@ -249,7 +249,7 @@ Session::Impl::Impl() : curl_(std::make_shared<CurlHolder>()) {
   curl_easy_setopt(curl_->handle, CURLOPT_NOPROGRESS, 1L);
   curl_easy_setopt(curl_->handle, CURLOPT_ERRORBUFFER, curl_->error.data());
   curl_easy_setopt(curl_->handle, CURLOPT_COOKIEFILE, "");
-  curl_easy_setopt(curl_->handle, CURLOPT_NOSIGNAL, 1L);
+  //curl_easy_setopt(curl_->handle, CURLOPT_NOSIGNAL, 1L);
 
   // Folow all redirects inconditionally 
   curl_easy_setopt(curl_->handle, CURLOPT_FOLLOWLOCATION, 1L);
