@@ -25,3 +25,16 @@ jobs:
       - name: nxxm builds project 
         run: |
           tipi . --dont-upgrade --verbose -t gcc-7-cxx17 --test all 
+
+
+  build-linux-clang: 
+    name: build-linux-clang
+    runs-on: ubuntu-latest
+    container: tipibuild/tipi-ubuntu
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: nxxm builds project 
+        run: |
+          tipi . --dont-upgrade --verbose -t linux-cxx17 --test all 
