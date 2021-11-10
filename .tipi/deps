@@ -2,7 +2,7 @@
    "nxxm/js-bind:wasm-cxx17" : { "@" : "v0.0.3" }
   , "aantron/better-enums" : { "@" : "0.11.1" }
 
-  , "platform:gcc-7-cxx17" :              [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
+  , "platform:gcc-7-cxx17" :              [ "ZLIB::+zlib","CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
   , "platform:clang-cxx17" :              [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
   , "platform:vs-15-2017-win64-cxx17" :   [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
   , "platform:vs-16-2019-win64-cxx17" :   [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
