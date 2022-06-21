@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <mutex>
+#include <array>
 
 #include <curl/curl.h>
 
