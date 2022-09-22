@@ -17,6 +17,7 @@
 #include <xxhr/handler.hpp>
 #include <xxhr/proxies.hpp>
 #include <xxhr/proxyauth.hpp>
+#include <xxhr/download.hpp>
 
 namespace xxhr {
 
@@ -45,6 +46,8 @@ class Session {
   inline void SetCookies(const Cookies& cookies);
   inline void SetBody(Body&& body);
   inline void SetBody(const Body& body);
+  inline void SetDownloadTarget(DownloadTo&& download_to);
+  inline void SetDownloadTarget(const DownloadTo& download_to);
 
   // Used in templated functions
   inline void SetOption(const Url& url);
@@ -69,6 +72,8 @@ class Session {
   inline void SetOption(const Cookies& cookies);
   inline void SetOption(Body&& body);
   inline void SetOption(const Body& body);
+  inline void SetOption(DownloadTo&& download_to);
+  inline void SetOption(const DownloadTo& download_to);
 
   template<class Handler>
   inline void SetOption(const on_response_<Handler>&& on_response);

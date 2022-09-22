@@ -85,7 +85,6 @@ namespace xxhr {
       CurlHolder& operator=(const CurlHolder& other) = default;
   }; 
 
-
   class Session::Impl  : public std::enable_shared_from_this<Session::Impl> {
     public:
       inline Impl();
@@ -111,6 +110,7 @@ namespace xxhr {
       inline void SetCookies(const Cookies& cookies);
 
       inline void SetBody(const Body& body);
+      inline void SetDownloadTarget(const DownloadTo& download_to);
 
       template<class Handler>
       inline void SetHandler(const on_response_<Handler>&& functor) {
@@ -148,6 +148,11 @@ namespace xxhr {
       Proxies proxies_;
       ProxyAuthentication proxyAuth_;
       Header header_;
+      
+      bool has_download_target_{false};
+      DownloadTo download_target_;
+      util::named_ofstream download_stream_;
+
       /**
        * Will be set by the read callback.
        * Ensures that the "Transfer-Encoding" is set to "chunked", if not overriden in header_.
@@ -454,23 +459,43 @@ void Session::Impl::DELETE_() {
     on_response(makeRequest());
 }
 
-/*Response Session::Impl::Download(const WriteCallback& write) {
-    curl_easy_setopt(curl_->handle, CURLOPT_NOBODY, 0L);
-    curl_easy_setopt(curl_->handle, CURLOPT_HTTPGET, 1);
+void Session::Impl::SetDownloadTarget(const DownloadTo& download_to) {
 
-    SetWriteCallback(write);
 
-    return makeDownloadRequest();
+    has_download_target_ = true;
+    download_target_ = download_to;
+
+    // create the output file(stream)
+    download_stream_ = util::named_ofstream{download_to.destination_path};
+
+    // actual file downloading / write to disk stuff
+    curl_easy_setopt(curl_->handle, CURLOPT_WRITEFUNCTION, util::writeFileFunction);
+    curl_easy_setopt(curl_->handle, CURLOPT_WRITEDATA, &download_stream_);
+
+    // progress monitor
+    if(download_target_.on_progress) {
+      curl_easy_setopt(curl_->handle, CURLOPT_NOPROGRESS, 0);
+      curl_easy_setopt(curl_->handle, CURLOPT_PROGRESSDATA, &download_target_);
+      curl_easy_setopt(curl_->handle, CURLOPT_PROGRESSFUNCTION, +[](void* payload, double dltotal, double dlnow, double ultotal, double ulnow) {
+
+        DownloadTo *dlto = static_cast<DownloadTo *>(payload);  // <- a ptr to download_target_ basically / no capturing in C callback :/
+        dlto->on_progress(static_cast<size_t>(dltotal), static_cast<size_t>(dlnow));
+        return 0; // "all good"
+      });
+    }    
+
+    //
+    on_response = [&](Response &&response) {
+
+      std::cout << "Done." << std::endl;
+      
+      size_t ofstream_position = download_stream_.tellp();
+
+      download_stream_.flush();
+      download_stream_.close();
+      download_to.download_finished(response, download_to.destination_path, ofstream_position);
+    };
 }
-
-Response Session::Impl::Download(std::ofstream& file) {
-    curl_easy_setopt(curl_->handle, CURLOPT_NOBODY, 0L);
-    curl_easy_setopt(curl_->handle, CURLOPT_HTTPGET, 1);
-    curl_easy_setopt(curl_->handle, CURLOPT_WRITEFUNCTION, cpr::util::writeFileFunction);
-    curl_easy_setopt(curl_->handle, CURLOPT_WRITEDATA, &file);
-
-    return makeDownloadRequest();
-}*/
 
 void Session::Impl::PrepareGet() {
     // In case there is a body or payload for this request, we create a custom GET-Request since a
@@ -557,52 +582,6 @@ std::shared_ptr<CurlHolder> Session::Impl::GetCurlHolder() {
     return curl_;
 }
 
-/*Response Session::Impl::makeDownloadRequest() {
-    assert(curl_->handle);
-    const std::string parametersContent = parameters_.GetContent(*curl_);
-    if (!parametersContent.empty()) {
-        Url new_url{url_ + "?" + parametersContent};
-        curl_easy_setopt(curl_->handle, CURLOPT_URL, new_url.c_str());
-    } else {
-        curl_easy_setopt(curl_->handle, CURLOPT_URL, url_.c_str());
-    }
-
-    std::string protocol = url_.str().substr(0, url_.str().find(':'));
-    if (proxies_.has(protocol)) {
-        curl_easy_setopt(curl_->handle, CURLOPT_PROXY, proxies_[protocol].c_str());
-        if (proxyAuth_.has(protocol)) {
-            curl_easy_setopt(curl_->handle, CURLOPT_PROXYAUTH, CURLAUTH_ANY);
-            curl_easy_setopt(curl_->handle, CURLOPT_PROXYUSERPWD, proxyAuth_[protocol]);
-        }
-    }
-
-    curl_->error[0] = '\0';
-
-    std::string header_string;
-    if (headercb_.callback) {
-        curl_easy_setopt(curl_->handle, CURLOPT_HEADERFUNCTION, cpr::util::headerUserFunction);
-        curl_easy_setopt(curl_->handle, CURLOPT_HEADERDATA, &headercb_);
-    } else {
-        curl_easy_setopt(curl_->handle, CURLOPT_HEADERFUNCTION, cpr::util::writeFunction);
-        curl_easy_setopt(curl_->handle, CURLOPT_HEADERDATA, &header_string);
-    }
-
-    CURLcode curl_error = curl_easy_perform(curl_->handle);
-
-    if (!headercb_.callback) {
-        curl_easy_setopt(curl_->handle, CURLOPT_HEADERFUNCTION, nullptr);
-        curl_easy_setopt(curl_->handle, CURLOPT_HEADERDATA, 0);
-    }
-
-    curl_slist* raw_cookies{nullptr};
-    curl_easy_getinfo(curl_->handle, CURLINFO_COOKIELIST, &raw_cookies);
-    Cookies cookies = parseCookies(raw_cookies);
-    curl_slist_free_all(raw_cookies);
-    std::string errorMsg = curl_->error.data();
-
-    return Response(curl_, "", std::move(header_string), std::move(cookies), Error(getErrorCodeForCurlError(curl_error), std::move(errorMsg)));
-}*/
-
 void Session::Impl::prepareCommon() {
     assert(curl_->handle);
 
@@ -643,11 +622,13 @@ void Session::Impl::prepareCommon() {
 
     curl_->error[0] = '\0';
 
-    response_string_.clear();
-    header_string_.clear();
-    curl_easy_setopt(curl_->handle, CURLOPT_WRITEFUNCTION, util::writeFunction);
-    curl_easy_setopt(curl_->handle, CURLOPT_WRITEDATA, &response_string_);
+    if(!has_download_target_) {
+      response_string_.clear();
+      curl_easy_setopt(curl_->handle, CURLOPT_WRITEFUNCTION, util::writeFunction);
+      curl_easy_setopt(curl_->handle, CURLOPT_WRITEDATA, &response_string_);
+    }
 
+    header_string_.clear();
     curl_easy_setopt(curl_->handle, CURLOPT_HEADERFUNCTION, util::writeFunction);
     curl_easy_setopt(curl_->handle, CURLOPT_HEADERDATA, &header_string_);
 
@@ -701,6 +682,10 @@ void Session::SetRedirect(const bool& redirect) { pimpl_->SetRedirect(redirect);
 void Session::SetCookies(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
 void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
 void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
+void Session::SetDownloadTarget(const DownloadTo& download_to) { pimpl_->SetDownloadTarget(download_to); }
+void Session::SetDownloadTarget(DownloadTo&& download_to) { pimpl_->SetDownloadTarget(std::move(download_to)); }
+
+
 void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
 void Session::SetOption(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
 void Session::SetOption(Parameters&& parameters) { pimpl_->SetParameters(std::move(parameters)); }
@@ -722,6 +707,9 @@ void Session::SetOption(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedir
 void Session::SetOption(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
 void Session::SetOption(const Body& body) { pimpl_->SetBody(body); }
 void Session::SetOption(Body&& body) { pimpl_->SetBody(std::move(body)); }
+
+void Session::SetOption(const DownloadTo& download_to) { pimpl_->SetDownloadTarget(download_to); }
+void Session::SetOption(DownloadTo&& download_to) { pimpl_->SetDownloadTarget(std::move(download_to)); }
 
 template<class Handler>
 void Session::SetOption(const on_response_<Handler>&& on_response) {pimpl_->SetHandler(std::move(on_response)); }
