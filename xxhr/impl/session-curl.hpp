@@ -485,10 +485,7 @@ void Session::Impl::SetDownloadTarget(const DownloadTo& download_to) {
     }    
 
     //
-    on_response = [&](Response &&response) {
-
-      std::cout << "Done." << std::endl;
-      
+    on_response = [&](Response &&response) {      
       size_t ofstream_position = download_stream_.tellp();
 
       download_stream_.flush();
