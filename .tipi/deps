@@ -2,16 +2,51 @@
    "nxxm/js-bind:wasm-cxx17" : { "@" : "v0.0.3" }
   , "aantron/better-enums" : { "@" : "0.11.1" }
 
-  , "platform:gcc-7-cxx17" :              [ "ZLIB::+zlib","CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
-  , "platform:clang-cxx17" :              [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:vs-15-2017-win64-cxx17" :   [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
-  , "platform:vs-16-2019-win64-cxx17" :   [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::crypt32" ]
+
+  , "tipi-deps/boost" : {
+      "@" : "v1.80.0-without-submodules"
+    , "u" : true
+    , "packages" : ["boost_system"]
+    , "targets" : ["Boost::system"]
+  }
+
+  , "nxxm/curl" : { "@" : "feature/move-to-native-tipi-deps"
+      , "packages" : ["CURL"]
+      , "targets" : [ "CURL::libcurl" ]
+      , "requires" : {
+        "nxxm/boringssl:windows" : { "@" : ":b769d2c155fe424f9610799c3972446ff5be9b17",
+            "u": true
+          , "packages" : ["BoringSSL"]
+          , "targets" : ["BoringSSL::ssl", "BoringSSL::crypto"]
+        }
+        ,"tipi-deps/middleware_openssl" : { "@" : "v1.1.1n-tipi"
+          , "u" : true
+          , "packages" : ["OpenSSL"]
+          , "targets" : ["OpenSSL::SSL", "OpenSSL::Crypto"]
+          , "find_mode" : " "
+        }
+        ,"hunter-packages/zlib" : { 
+          "@" : "v1.2.11-p1"
+          , "u" : true
+          , "packages" : ["ZLIB"]
+          , "targets" : ["ZLIB::zlib"]
+        }
+        , "hunter-packages/c-ares" : { 
+          "@" : "v1.14.0-p0"
+          , "u" :true
+          , "packages" : ["c-ares"]
+          , "targets" : ["c-ares::cares"]
+        } 
+      }
+    }
+
+  , "platform:gcc-7-cxx17" :              [ "target::dl" ]
+  , "platform:vs-15-2017-win64-cxx17" :   [ "target::crypt32" ]
+  , "platform:vs-16-2019-win64-cxx17" :   [ "target::crypt32" ]
   
-  , "platform:linux" :                    [ "CURL::+libcurl", "Boost::system","OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
-  , "platform:linux-cxx17" :              [ "ZLIB::+zlib","CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto", "target::dl" ]
-  , "platform:macos" :                    [ "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:macos-cxx17" :              [ "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "OpenSSL::+SSL", "OpenSSL::+Crypto" ]
-  , "platform:windows" :                  [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
-  , "platform:windows-cxx17" :            [ "intsizeof::+intsizeof", "ZLIB::+zlib", "CURL::+libcurl", "Boost::system", "BoringSSL::+ssl", "BoringSSL::+crypto", "BoringSSL::+decrepit", "target::crypt32", "target::ws2_32" ]
+  , "platform:linux" :                    [ "target::dl" ]
+  , "platform:linux-cxx17" :              [  "target::dl" ]
+  , "platform:windows" :                  [ "target::crypt32", "target::ws2_32" ]
+  , "platform:windows-cxx17" :            [ "target::crypt32", "target::ws2_32" ]
 
 }
