@@ -11,6 +11,7 @@
   }
 
   , "nxxm/curl" : { "@" : "feature/move-to-native-tipi-deps"
+      , "u" : true
       , "packages" : ["CURL"]
       , "targets" : [ "CURL::libcurl" ]
       , "requires" : {
