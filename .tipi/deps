@@ -4,8 +4,10 @@
 
 
   , "tipi-deps/boost" : {
-      "@" : "v1.80.0-without-submodules"
+      "id" : {"host_name":"github.com","org_name":"lambourl","repo_name":"boost"}
+    , "@" : "v1.80.0-without-submodules"
     , "u" : true
+    , "opts" : "set(BOOST_INCLUDE_LIBRARIES system)"
     , "packages" : ["boost_system"]
     , "targets" : ["Boost::system"]
   }
