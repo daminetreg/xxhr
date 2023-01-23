@@ -22,7 +22,7 @@
           , "packages" : ["BoringSSL"]
           , "targets" : ["BoringSSL::ssl", "BoringSSL::crypto"]
         }
-        ,"tipi-deps/middleware_openssl" : { "@" : "v1.1.1n-tipi"
+        ,"tipi-deps/middleware_openssl" : { "@" : ":d301de0dfbf0612660f4e0af52420d29f25f3aa6"
           , "u" : true
           , "packages" : ["OpenSSL"]
           , "targets" : ["OpenSSL::SSL", "OpenSSL::Crypto"]
