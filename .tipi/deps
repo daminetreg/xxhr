@@ -10,21 +10,17 @@
       "u": true
     }
 
-  , "nxxm/curl" : { "@" : "feature/move-to-native-tipi-deps"
+  , "nxxm/curl" : { "@" : ":eee4ae62ee24aec9c7f8948fd8670a5e80c2cf83"
+      , "opts" : "set(BUILD_CURL_TESTS OFF) \nset(BUILD_CURL_EXE ON) \nset(CMAKE_USE_OPENSSL ON) \nset(CMAKE_USE_LIBSSH2 OFF) \nset(BUILD_TESTING OFF)"
       , "u" : true
       , "packages" : ["CURL"]
       , "targets" : [ "CURL::libcurl" ]
       , "requires" : {
-        "nxxm/boringssl:windows" : { "@" : ":b769d2c155fe424f9610799c3972446ff5be9b17",
+        "nxxm/boringssl" : { "@" : ":64b173d5c7acb7e8e270997418685d9a00f0537b",
             "u": true
-          , "packages" : ["BoringSSL"]
-          , "targets" : ["BoringSSL::ssl", "BoringSSL::crypto"]
-        }
-        ,"tipi-deps/middleware_openssl" : { "@" : ":d301de0dfbf0612660f4e0af52420d29f25f3aa6"
-          , "u" : true
-          , "packages" : ["OpenSSL"]
-          , "targets" : ["OpenSSL::SSL", "OpenSSL::Crypto"]
-          , "find_mode" : " "
+            , "packages" : ["OpenSSL"]
+            , "targets" : ["OpenSSL::SSL", "OpenSSL::Crypto"]
+            , "find_mode" : " "
         }
         ,"hunter-packages/zlib" : { 
           "@" : "v1.2.11-p1"
