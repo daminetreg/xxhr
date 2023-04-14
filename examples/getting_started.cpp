@@ -49,6 +49,29 @@ int main() {
 //! [GET-request-timeout]
 
 
+//! [GET-request-download-to]
+  auto downloadFinished = [](const xxhr::Response &resp, const std::string &output_path, const size_t file_size) {
+
+    if(resp.status_code != 200) {
+      std::cout << "Oh noes - got HTTP " << resp.status_code << " / error: " << resp.error << "!\n";
+    }
+    else {
+      std::cout << "Downloaded " << file_size << "bytes to " << output_path << "!\n"; 
+    }
+    
+  };
+
+  auto progressMeter = [](size_t dltotal, size_t dlnow) {
+    std::cout << "[PROGRESS] " << dlnow << " of " << dltotal << "\n";
+  };
+
+  GET( "https://nxxm.indigenious.io/distro/all/clang/v13.0.0/clang-13-windows-64bit.zip"s, 
+    //Header{ { "Accept", "image/jpeg" }},  
+    DownloadTo("test.out.zip", downloadFinished, progressMeter)
+  );
+//! [GET-request-download-to]
+
+
   return 0;
 }
 

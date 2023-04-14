@@ -13,6 +13,8 @@
 #include "response.hpp"
 #include "session.hpp"
 #include "handler.hpp"
+#include "proxies.hpp"
+#include "proxyauth.hpp"
 
 /**
  * \brief main library namespace

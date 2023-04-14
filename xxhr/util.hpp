@@ -10,6 +10,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
@@ -22,9 +24,23 @@
 
 namespace xxhr {
 namespace util {
+
+  class named_ofstream : public std::ofstream {
+  public:
+    named_ofstream() = default;
+    named_ofstream(std::string filename) 
+      : _filename{filename}
+      , std::ofstream(filename, std::ios::out | std::ios::trunc | std::ios::binary) {}
+    
+    /// \brief get the filename of this stream
+    const std::string& get_filename() { return _filename; }
+  private:
+    std::string _filename;
+  };
  
   inline Header parseHeader(const std::string& headers);
   inline size_t writeFunction(void* ptr, size_t size, size_t nmemb, std::string* data);
+  inline size_t writeFileFunction(char *ptr, size_t size, size_t nmemb, void* ofstream_ptr);
   inline std::vector<std::string> split(const std::string& to_split, char delimiter);
 
   /**
@@ -124,6 +140,30 @@ namespace util {
     data->append((char*) ptr, size * nmemb);
     return size * nmemb;
   }
+
+  inline size_t writeFileFunction(char *ptr, size_t size, size_t nmemb, void* ofstream_ptr)
+  {
+    named_ofstream *ofstream = static_cast<named_ofstream *>(ofstream_ptr);
+
+    // calc the total size
+    size_t nbytes = size * nmemb;
+
+    if (!ofstream->is_open()) {
+      auto ec = std::make_error_condition(std::errc::io_error);
+      throw std::runtime_error("Writing File "s + ofstream->get_filename() + " error "s + ec.message());
+    };
+
+
+    ofstream->write(ptr, nbytes);
+    
+    if (ofstream->bad()) {
+      auto ec = std::make_error_condition(std::errc::io_error);
+      throw std::runtime_error("Writing File "s + ofstream->get_filename() + " error "s + ec.message());
+    }
+
+    return nbytes;
+  }
+
 
   inline std::string urlEncode(const std::string& value) {
     std::ostringstream escaped;

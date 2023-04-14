@@ -1,0 +1,49 @@
+{
+   "nxxm/js-bind:wasm-cxx17" : { "@" : "v0.0.3" }
+  , "aantron/better-enums" : { "@" : "0.11.1" }
+
+
+  , "boostorg/boost" : { "@" : "boost-1.80.0",
+      "opts": "set(BOOST_INCLUDE_LIBRARIES system filesystem uuid)",
+      "packages": [ "boost_system", "boost_filesystem", "boost_uuid" ],
+      "targets": [ "Boost::system", "Boost::filesystem", "Boost::uuid" ],
+      "u": true
+    }
+
+  , "nxxm/curl" : { "@" : ":eee4ae62ee24aec9c7f8948fd8670a5e80c2cf83"
+      , "opts" : "set(BUILD_CURL_TESTS OFF) \nset(BUILD_CURL_EXE ON) \nset(CMAKE_USE_OPENSSL ON) \nset(CMAKE_USE_LIBSSH2 OFF) \nset(BUILD_TESTING OFF)"
+      , "u" : true
+      , "packages" : ["CURL"]
+      , "targets" : [ "CURL::libcurl" ]
+      , "requires" : {
+        "nxxm/boringssl" : { "@" : ":64b173d5c7acb7e8e270997418685d9a00f0537b",
+            "u": true
+            , "packages" : ["OpenSSL"]
+            , "targets" : ["OpenSSL::SSL", "OpenSSL::Crypto"]
+            , "find_mode" : " "
+        }
+        ,"hunter-packages/zlib" : { 
+          "@" : "v1.2.11-p1"
+          , "u" : true
+          , "packages" : ["ZLIB"]
+          , "targets" : ["ZLIB::zlib"]
+        }
+        , "hunter-packages/c-ares" : { 
+          "@" : "v1.14.0-p0"
+          , "u" :true
+          , "packages" : ["c-ares"]
+          , "targets" : ["c-ares::cares"]
+        } 
+      }
+    }
+
+  , "platform:gcc-7-cxx17" :              [ "target::dl" ]
+  , "platform:vs-15-2017-win64-cxx17" :   [ "target::crypt32" ]
+  , "platform:vs-16-2019-win64-cxx17" :   [ "target::crypt32" ]
+  
+  , "platform:linux" :                    [ "target::dl" ]
+  , "platform:linux-cxx17" :              [  "target::dl" ]
+  , "platform:windows" :                  [ "target::crypt32", "target::ws2_32" ]
+  , "platform:windows-cxx17" :            [ "target::crypt32", "target::ws2_32" ]
+
+}

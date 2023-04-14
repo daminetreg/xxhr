@@ -5,8 +5,6 @@
 #include <fstream>
 #include <regex>
 #include <cstdlib>
-#include <functional>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <variant>
@@ -47,8 +45,7 @@ namespace xxhr {
 
   class Session::Impl : public std::enable_shared_from_this<Session::Impl> {
     public:
-    Impl() {
-          }
+    Impl() {}
 
     inline void SetUrl(const Url& url);
     inline void SetParameters(const Parameters& parameters);
@@ -63,8 +60,7 @@ namespace xxhr {
     inline void SetMultipart(const Multipart& multipart);
     inline void SetRedirect(const bool& redirect);
     inline void SetMaxRedirects(const MaxRedirects& max_redirects);
-    inline void SetCookies(const Cookies& cookies, bool delete_them = false);
-    inline void CookiesCleanup();
+    inline void SetCookies(const Cookies& cookies);
 
     //! Set the provided body of request
     inline void SetBody(const Body& body);
@@ -73,8 +69,6 @@ namespace xxhr {
     inline void SetHandler(const on_response_<Handler>&& functor) {
       on_response = functor;
     }
-
-    inline void QUERY(http::verb method);
 
     inline void DELETE_();
     inline void GET();
@@ -85,79 +79,79 @@ namespace xxhr {
     inline void PUT();
 
   private:
-    inline void full_request(http::verb method);
-    inline void do_one_request(http::verb method);
+  inline void full_request(http::verb method);
+  inline void do_one_request(http::verb method);
 
-    util::url_parts url_parts_;
-    std::string url_;
-    Parameters parameters_;
-    http::request<http::string_body> req_;
-    std::chrono::milliseconds timeout_ = std::chrono::milliseconds{0};
-    bool redirect_ = true;
-    bool follow_next_redirect = false;
-    std::int32_t number_of_redirects = std::numeric_limits<std::int32_t>::max();
+  util::url_parts url_parts_;
+  std::string url_;
+  Parameters parameters_;
+  http::request<http::string_body> req_;
+  std::chrono::milliseconds timeout_ = std::chrono::milliseconds{0};
+  bool redirect_ = true;
+  bool follow_next_redirect = false;
+  std::int32_t number_of_redirects = std::numeric_limits<std::int32_t>::max();
 
-    std::function<void(Response&&)> on_response;
+  std::function<void(Response&&)> on_response;
 
-    boost::asio::io_context ioc;
-    boost::asio::steady_timer timeouter{ioc};
-    boost::asio::steady_timer timeouter_for_graceful_shutdown{ioc};
-    ssl::context ctx{ssl::context::sslv23_client};
-    tcp::resolver resolver_{ioc};
-    plain_or_tls stream_;
-    boost::beast::flat_buffer buffer_; // (Must persist between reads)
+  boost::asio::io_context ioc;
+  boost::asio::steady_timer timeouter{ioc};
+  boost::asio::steady_timer timeouter_for_graceful_shutdown{ioc};
+  ssl::context ctx{ssl::context::sslv23_client};
+  tcp::resolver resolver_{ioc};
+  plain_or_tls stream_;
+  boost::beast::flat_buffer buffer_; // (Must persist between reads)
 
-    std::shared_ptr<http::response_parser<http::string_body>> res_parser_ = std::make_shared<http::response_parser<http::string_body>>();
+  std::shared_ptr<http::response_parser<http::string_body>> res_parser_ = std::make_shared<http::response_parser<http::string_body>>();
 
-    bool is_tls_stream() {
-      return std::holds_alternative<ssl::stream<tcp::socket>>(stream_);
-    }
+  bool is_tls_stream() {
+    return std::holds_alternative<ssl::stream<tcp::socket>>(stream_);
+  }
 
-    ssl::stream<tcp::socket>& tls_stream() {
-      return std::get<ssl::stream<tcp::socket>>(stream_);
-    }
+  ssl::stream<tcp::socket>& tls_stream() {
+    return std::get<ssl::stream<tcp::socket>>(stream_);
+  }
 
-    tcp::socket& plain_stream() {
-      return std::get<tcp::socket>(stream_);
-    }
+  tcp::socket& plain_stream() {
+    return std::get<tcp::socket>(stream_);
+  }
 
-    void fail(boost::system::error_code ec, xxhr::ErrorCode xxhr_ec) {
-      //TODO: if (trace)
-      std::cerr << ec << ": " << ec.message() << " distilled into : " << uint32_t(xxhr_ec) << "\n";
+  void fail(boost::system::error_code ec, xxhr::ErrorCode xxhr_ec) {
+    //TODO: if (trace)
+    std::cerr << ec << ": " << ec.message() << " distilled into : " << uint32_t(xxhr_ec) << "\n";
 
-      on_response(xxhr::Response(
-        0, // 0 for errors which are on the layer belows http, like XmlHttpRequest.
-        Error{xxhr_ec},
-        std::string{},
-        Header{},
-        url_,
-        Cookies{}
-      ));
-    }
+    on_response(xxhr::Response(
+      0, // 0 for errors which are on the layer belows http, like XmlHttpRequest.
+      Error{xxhr_ec},
+      std::string{},
+      Header{},
+      url_,
+      Cookies{}
+    ));
+  }
 
-    // Start the asynchronous operation
-    void register_request() {
+  // Start the asynchronous operation
+  void register_request() {
 
-      if (is_tls_stream()) {
+    if (is_tls_stream()) {
 
-        auto& stream = tls_stream();
+      auto& stream = tls_stream();
 
-        // Set SNI Hostname (many hosts need this to handshake successfully)
-        // XXX: openssl specificae, abstract this shit please
-        if(! SSL_set_tlsext_host_name(stream.native_handle(), url_parts_.host.data()))
-        {
-            boost::system::error_code ec{static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()};
-            std::cerr << ec.message() << "\n";
-            return;
-        }
+      // Set SNI Hostname (many hosts need this to handshake successfully)
+      // XXX: openssl specificae, abstract this shit please
+      if(! SSL_set_tlsext_host_name(stream.native_handle(), url_parts_.host.data()))
+      {
+          boost::system::error_code ec{static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()};
+          std::cerr << ec.message() << "\n";
+          return;
       }
+    }
 
-      // Look up the domain name
-      resolver_.async_resolve(
-          url_parts_.host.data(),
-          url_parts_.port.data(),
-          std::bind(
-              &Session::Impl::on_resolve,
+    // Look up the domain name
+    resolver_.async_resolve(
+        url_parts_.host.data(),
+        url_parts_.port.data(),
+        std::bind(
+            &Session::Impl::on_resolve,
               shared_from_this(),
               std::placeholders::_1,
               std::placeholders::_2));
@@ -462,7 +456,6 @@ namespace xxhr {
 
 
     req_.body() = body.str();
-    std::cout << body.str() << std::endl;
   }
 
   void Session::Impl::SetMultipart(const Multipart& multipart) {
@@ -476,7 +469,7 @@ namespace xxhr {
     number_of_redirects = max_redirects.number_of_redirects;
   }
 
-  void Session::Impl::SetCookies(const Cookies& cookies, bool delete_them) {
+  void Session::Impl::SetCookies(const Cookies& cookies) {
     for (auto cookie : cookies.all()) {
       auto cookie_string =
         xxhr::util::urlEncode(cookie.first)
