@@ -16,12 +16,14 @@
   <!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
   <script type="text/javascript" src="$relpath^dynsections.js"></script>
   $treeview
-  <!-- $search -->
+  $search
+  <!-- $search 
   <script type="text/javascript" src="search/searchdata.js"></script>
   <script type="text/javascript" src="custom-search.js"></script>
   <script type="text/javascript">
     $(document).ready(function() { init_search(); });
-  </script>
+  </script>-->
+ 
 
   $mathjax
   <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
@@ -93,14 +95,50 @@
       <a href="namespacexxhr.html" class="item">API Reference</a>
 
       <div class="right item">
-            <div class="ui search">
+
+
+
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg" onmouseover="return searchBox.OnSearchSelectShow()" onmouseout="return searchBox.OnSearchSelectHide()" alt="">
+          <input type="text" id="MSearchField" value="Search" accesskey="S" onfocus="searchBox.OnSearchFieldFocus(true)" onblur="searchBox.OnSearchFieldFocus(false)" onkeyup="searchBox.OnSearchFieldChange(event)">
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" src="search/close.svg" alt="" border="0"></a>
+          </span>
+        </div>
+            <!--
+              <div id="MSearchBox" class="ui search">
               <div class="ui icon input">
                 <input class="prompt" placeholder="API Reference..." type="text"
                  accesskey="S" 
                  id="MSearchField"
                  onfocus="searchBox.OnSearchFieldFocus(true)" 
                  onblur="searchBox.OnSearchFieldFocus(false)" 
-                 onkeyup="searchBox.OnSearchFieldChange(event)">
+                 onkeyup="searchBox.OnSearchFieldChange(event)"> 
+                <i class="search icon"></i>
+              </div>
+
+              <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" src="search/close.svg" alt="" border="0"></a>
+              <div id="CustomSearchResults" class="results">
+                <iframe src="javascript:void(0)" frameborder="0" 
+                  name="MSearchResults" id="MSearchResults"> 
+                </iframe>
+              </div>
+            </div>-->
+      
+
+
+            <!--
+
+
+              <div class="ui search">
+              <div class="ui icon input">
+                <input class="prompt" placeholder="API Reference..." type="text"
+                 accesskey="S" 
+                 id="MSearchField"
+                 onfocus="searchBox.OnSearchFieldFocus(true)" 
+                 onblur="searchBox.OnSearchFieldFocus(false)" 
+                 onkeyup="searchBox.OnSearchFieldChange(event)"> 
                 <i class="search icon"></i>
               </div>
               <div id="CustomSearchResults" class="results">
@@ -108,6 +146,6 @@
                   name="MSearchResults" id="MSearchResults"> 
                 </iframe>
               </div>
-            </div>
+            </div>-->
       </div>
   </div>

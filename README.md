@@ -3,7 +3,7 @@
 
 
 ![xxhr logo](./doc/logo.png)
-[![pipeline status](https://git.lecbna.org/daminetreg/xxhr/badges/master/pipeline.svg)](https://git.lecbna.org/daminetreg/xxhr/commits/master)
+[![build](https://github.com/nxxm/xxhr/workflows/build/badge.svg)](https://github.com/nxxm/xxhr/actions?query=workflow%3Abuild+branch%3Amaster)
 
 # xxhr : c++ http requests
 Intuitive c++ http client library for WASM and all other platforms.
@@ -12,13 +12,13 @@ Intuitive c++ http client library for WASM and all other platforms.
 
 ```
 {
-  "daminetreg/xxhr" : { "@" : "v1.0.0" }
+  "nxxm/xxhr" : { "@" : "v1.0.1" }
 }
 ```
 
-* [GETing Started Tutorial](https://daminetreg.github.io/xxhr/html/getting-started-cpp.html)
-* [Reference Documentation](https://daminetreg.github.io/xxhr/html/namespacexxhr.html)
-* [Examples](https://daminetreg.github.io/xxhr/html/pages.html)
+* [GETing Started Tutorial](https://nxxm.github.io/xxhr/html/getting-started-cpp.html)
+* [Reference Documentation](https://nxxm.github.io/xxhr/html/namespacexxhr.html)
+* [Examples](https://nxxm.github.io/xxhr/html/pages.html)
 
 ## License
 xxhr is a rewrite of the [cpr](https://github.com/whoshuu/cpr) project from Huu Nguyen ( [https://github.com/whoshuu](@whoshuu) ) with a different philosophy :

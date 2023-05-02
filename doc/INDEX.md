@@ -11,7 +11,7 @@ A simple, yet modern, http client library, all dependencies included !
 
 ```
 {
-  "daminetreg/xxhr" : { "@" : "v1.0.0" }
+  "nxxm/xxhr" : { "@" : "v1.0.1" }
 }
 ```
 

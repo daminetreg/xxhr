@@ -4,66 +4,87 @@
 #include <cstdint>
 #include <memory>
 
-#include "auth.hpp"
-#include "body.hpp"
-#include "cookies.hpp"
-#include "xxhrtypes.hpp"
-#include "digest.hpp"
-#include "max_redirects.hpp"
-#include "multipart.hpp"
-#include "parameters.hpp"
-#include "response.hpp"
-#include "timeout.hpp"
-#include "handler.hpp"
+#include <xxhr/auth.hpp>
+#include <xxhr/body.hpp>
+#include <xxhr/cookies.hpp>
+#include <xxhr/xxhrtypes.hpp>
+#include <xxhr/digest.hpp>
+#include <xxhr/max_redirects.hpp>
+#include <xxhr/multipart.hpp>
+#include <xxhr/parameters.hpp>
+#include <xxhr/response.hpp>
+#include <xxhr/timeout.hpp>
+#include <xxhr/handler.hpp>
+#include <xxhr/proxies.hpp>
+#include <xxhr/proxyauth.hpp>
+#include <xxhr/download.hpp>
 
 namespace xxhr {
 
 class Session {
   public:
-  Session();
-  ~Session();
+  inline Session();
+  inline ~Session();
 
-  void SetUrl(const Url& url);
-  void SetParameters(const Parameters& parameters);
-  void SetParameters(Parameters&& parameters);
-  void SetHeader(const Header& header);
-  void SetTimeout(const Timeout& timeout);
-  void SetAuth(const Authentication& auth);
-  void SetDigest(const Digest& auth);
-  void SetMultipart(Multipart&& multipart);
-  void SetMultipart(const Multipart& multipart);
-  void SetRedirect(const bool& redirect);
-  void SetMaxRedirects(const MaxRedirects& max_redirects);
-  void SetCookies(const Cookies& cookies);
-  void SetBody(Body&& body);
-  void SetBody(const Body& body);
+  inline void SetUrl(const Url& url);
+  inline void SetParameters(const Parameters& parameters);
+  inline void SetParameters(Parameters&& parameters);
+  inline void SetHeader(const Header& header);
+  inline void SetTimeout(const Timeout& timeout);
+  inline void SetAuth(const Authentication& auth);
+  inline void SetDigest(const Digest& auth);
+  inline void SetBearer(const Bearer& auth);
+  inline void SetProxies(Proxies&& proxies);
+  inline void SetProxies(const Proxies& proxies);
+  inline void SetProxyAuth(ProxyAuthentication&& proxy_auth);
+  inline void SetProxyAuth(const ProxyAuthentication& proxy_auth);
+  inline void SetMultipart(Multipart&& multipart);
+  inline void SetMultipart(const Multipart& multipart);
+  inline void SetNTLM(const NTLM& auth);
+  inline void SetRedirect(const bool& redirect);
+  inline void SetMaxRedirects(const MaxRedirects& max_redirects);
+  inline void SetCookies(const Cookies& cookies);
+  inline void SetBody(Body&& body);
+  inline void SetBody(const Body& body);
+  inline void SetDownloadTarget(DownloadTo&& download_to);
+  inline void SetDownloadTarget(const DownloadTo& download_to);
 
   // Used in templated functions
-  void SetOption(const Url& url);
-  void SetOption(const Parameters& parameters);
-  void SetOption(Parameters&& parameters);
-  void SetOption(const Header& header);
-  void SetOption(const Timeout& timeout);
-  void SetOption(const Authentication& auth);
-  void SetOption(const Digest& auth);
-  void SetOption(Multipart&& multipart);
-  void SetOption(const Multipart& multipart);
-  void SetOption(const bool& redirect);
-  void SetOption(const MaxRedirects& max_redirects);
-  void SetOption(const Cookies& cookies);
-  void SetOption(Body&& body);
-  void SetOption(const Body& body);
+  inline void SetOption(const Url& url);
+  inline void SetOption(const Parameters& parameters);
+  inline void SetOption(Parameters&& parameters);
+  inline void SetOption(const Header& header);
+  inline void SetOption(const Timeout& timeout);
+  inline void SetOption(const Authentication& auth);
+  inline void SetOption(const Digest& auth);
+  inline void SetOption(const Bearer& auth);
+
+  inline void SetOption(const Proxies& proxies);
+  inline void SetOption(Proxies&& proxies);
+  inline void SetOption(ProxyAuthentication&& proxy_auth);
+  inline void SetOption(const ProxyAuthentication& proxy_auth);
+
+  inline void SetOption(Multipart&& multipart);
+  inline void SetOption(const Multipart& multipart);
+  inline void SetOption(const NTLM& auth);
+  inline void SetOption(const bool& redirect);
+  inline void SetOption(const MaxRedirects& max_redirects);
+  inline void SetOption(const Cookies& cookies);
+  inline void SetOption(Body&& body);
+  inline void SetOption(const Body& body);
+  inline void SetOption(DownloadTo&& download_to);
+  inline void SetOption(const DownloadTo& download_to);
 
   template<class Handler>
-  void SetOption(const on_response_<Handler>&& on_response);
+  inline void SetOption(const on_response_<Handler>&& on_response);
 
-  void DELETE_();
-  void GET();
-  void HEAD();
-  void OPTIONS();
-  void PATCH();
-  void POST();
-  void PUT();
+  inline void DELETE_();
+  inline void GET();
+  inline void HEAD();
+  inline void OPTIONS();
+  inline void PATCH();
+  inline void POST();
+  inline void PUT();
 
   class Impl;
   private:

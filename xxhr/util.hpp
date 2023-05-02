@@ -1,3 +1,6 @@
+// Copyright 2017-present nxxm.github.io
+// Copyright 2017-present Damien Buhl (alias daminetreg)
+// Copyright 2017-present Ibukun Oladipo tormuto (urlEncode, urlDecode on stack-overflow)
 #ifndef XXHR_UTIL_H
 #define XXHR_UTIL_H
 
@@ -7,6 +10,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
@@ -19,9 +24,23 @@
 
 namespace xxhr {
 namespace util {
+
+  class named_ofstream : public std::ofstream {
+  public:
+    named_ofstream() = default;
+    named_ofstream(std::string filename) 
+      : _filename{filename}
+      , std::ofstream(filename, std::ios::out | std::ios::trunc | std::ios::binary) {}
+    
+    /// \brief get the filename of this stream
+    const std::string& get_filename() { return _filename; }
+  private:
+    std::string _filename;
+  };
  
   inline Header parseHeader(const std::string& headers);
   inline size_t writeFunction(void* ptr, size_t size, size_t nmemb, std::string* data);
+  inline size_t writeFileFunction(char *ptr, size_t size, size_t nmemb, void* ofstream_ptr);
   inline std::vector<std::string> split(const std::string& to_split, char delimiter);
 
   /**
@@ -122,6 +141,30 @@ namespace util {
     return size * nmemb;
   }
 
+  inline size_t writeFileFunction(char *ptr, size_t size, size_t nmemb, void* ofstream_ptr)
+  {
+    named_ofstream *ofstream = static_cast<named_ofstream *>(ofstream_ptr);
+
+    // calc the total size
+    size_t nbytes = size * nmemb;
+
+    if (!ofstream->is_open()) {
+      auto ec = std::make_error_condition(std::errc::io_error);
+      throw std::runtime_error("Writing File "s + ofstream->get_filename() + " error "s + ec.message());
+    };
+
+
+    ofstream->write(ptr, nbytes);
+    
+    if (ofstream->bad()) {
+      auto ec = std::make_error_condition(std::errc::io_error);
+      throw std::runtime_error("Writing File "s + ofstream->get_filename() + " error "s + ec.message());
+    }
+
+    return nbytes;
+  }
+
+
   inline std::string urlEncode(const std::string& value) {
     std::ostringstream escaped;
     escaped.fill('0');
@@ -141,13 +184,36 @@ namespace util {
     return escaped.str();
   }
 
+  inline std::string urlDecode(const std::string& str){
+    std::string ret;
+    char ch;
+    int i, ii, len = str.length();
+
+    for (i=0; i < len; i++){
+        if(str[i] != '%'){
+            if(str[i] == '+')
+                ret += ' ';
+            else
+                ret += str[i];
+        }else{
+            sscanf(str.substr(i + 1, 2).c_str(), "%x", &ii);
+            ch = static_cast<char>(ii);
+            ret += ch;
+            i = i + 2;
+        }
+    }
+    return ret;
+  }
+
   inline std::string decode64(const std::string &val) {
       using namespace boost::archive::iterators;
       using It = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
-      return boost::algorithm::trim_right_copy_if(std::string(It(std::begin(val)), It(std::end(val))), [](char c) {
-          return c == '\0';
-      });
+      // See https://svn.boost.org/trac10/ticket/5629#comment:9
+      // Boost binary_from_base64 transforms '=' into '\0', they need to be removed to support binary data
+      auto padding_count = std::count(val.end() - std::min(std::size_t{2}, val.size()), val.end() , '=');
+      return std::string(It(std::begin(val)), It(std::end(val) - padding_count));
   }
+
 
   inline std::string encode64(const std::string &val) {
       using namespace boost::archive::iterators;

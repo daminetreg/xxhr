@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   POST("http://httpbin.org/post"s, 
     
     Multipart{
-      {"somefile", File{"../../xxhr/api.hpp"} }
+      {"somefile", File{"../../../xxhr/api.hpp"} }
     },
 
     on_response = [](auto&& resp) {
@@ -27,9 +27,9 @@ int main(int argc, char** argv) {
   POST("http://httpbin.org/post"s, 
     
     Multipart{
-      {"somefile", File{"../../xxhr/api.hpp"} }
-      , {"other", File{"../../xxhr/multipart.hpp"} }
-      , {"and_another", File{"../../README.md"} }
+      {"somefile", File{"../../../xxhr/api.hpp"} }
+      , {"other", File{"../../../xxhr/multipart.hpp"} }
+      , {"and_another", File{"../../../README.md"} }
       , {"somebuffer", Buffer{buffer.begin(), buffer.end(), "IN_MEMORY_FILE"} }
     },
 
